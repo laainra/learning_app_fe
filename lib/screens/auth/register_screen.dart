@@ -20,6 +20,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController nameController = TextEditingController();
 
   String? selectedRole; // Variable to hold the selected role
+  bool isLoading = false; // Loading state variable
 
   @override
   Widget build(BuildContext context) {
@@ -36,216 +37,240 @@ class _RegisterScreenState extends State<RegisterScreen> {
               child: ConstrainedBox(
                 constraints: BoxConstraints(minHeight: constraints.maxHeight),
                 child: IntrinsicHeight(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  child: Stack( // Added Stack to display loading indicator
                     children: [
-                      // Logo + Title
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Container(
-                            width: 70,
-                            height: 70,
-                            decoration: const BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.white24,
-                            ),
-                            child: ClipOval(
-                              child: Image.asset(
-                                'assets/images/logo.png',
-                                fit: BoxFit.cover,
+                          // Logo + Title
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                width: 70,
+                                height: 70,
+                                decoration: const BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.white24,
+                                ),
+                                child: ClipOval(
+                                  child: Image.asset(
+                                    'assets/images/logo.png',
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
                               ),
+                              const SizedBox(width: 12),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  RichText(
+                                    text: const TextSpan(
+                                      children: [
+                                        TextSpan(
+                                          text: 'FINB',
+                                          style: TextStyle(
+                                            fontFamily: 'Poppins',
+                                            fontWeight: FontWeight.w300,
+                                            fontStyle: FontStyle.italic,
+                                            fontSize: 30,
+                                            color: Colors.black,
+                                          ),
+                                        ),
+                                        TextSpan(
+                                          text: 'EDU',
+                                          style: TextStyle(
+                                            fontFamily: 'Poppins',
+                                            fontWeight: FontWeight.w700,
+                                            fontSize: 30,
+                                            color: Color.fromARGB(
+                                              255,
+                                              106,
+                                              218,
+                                              255,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const Text(
+                                    "LEARN FROM EVERYWHERE",
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: Colors.black54,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+
+                          const SizedBox(height: 60),
+
+                          const Text(
+                            "Getting Started.!",
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
-                          const SizedBox(width: 12),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              RichText(
-                                text: const TextSpan(
-                                  children: [
-                                    TextSpan(
-                                      text: 'FINB',
-                                      style: TextStyle(
-                                        fontFamily: 'Poppins',
-                                        fontWeight: FontWeight.w300,
-                                        fontStyle: FontStyle.italic,
-                                        fontSize: 30,
-                                        color: Colors.black,
-                                      ),
-                                    ),
-                                    TextSpan(
-                                      text: 'EDU',
-                                      style: TextStyle(
-                                        fontFamily: 'Poppins',
-                                        fontWeight: FontWeight.w700,
-                                        fontSize: 30,
-                                        color: Color.fromARGB(
-                                          255,
-                                          106,
-                                          218,
-                                          255,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                          const SizedBox(height: 8),
+                          const Text(
+                            "Create an Account to Continue your all Courses",
+                          ),
+                          const SizedBox(height: 24),
+
+                          CustomTextField(
+                            label: "Name",
+                            icon: Icons.person,
+                            controller: nameController,
+                          ),
+                          const SizedBox(height: 16),
+                          CustomTextField(
+                            label: "Email",
+                            icon: Icons.email,
+                            controller: emailController,
+                          ),
+                          const SizedBox(height: 16),
+                          CustomTextField(
+                            isPassword: true,
+                            label: "Password",
+                            icon: Icons.lock,
+                            controller: passwordController,
+                          ),
+                          const SizedBox(height: 16),
+
+                          // Dropdown for selecting role
+                          DropdownButtonFormField<String>(
+                            value: selectedRole,
+                            hint: const Text("Select Role"),
+                            items: [
+                              DropdownMenuItem(
+                                value: "mentor",
+                                child: Text("Mentor"),
                               ),
-                              const Text(
-                                "LEARN FROM EVERYWHERE",
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  color: Colors.black54,
-                                ),
+                              DropdownMenuItem(
+                                value: "student",
+                                child: Text("Student"),
+                              ),
+                            ],
+                            onChanged: (value) {
+                              setState(() {
+                                selectedRole = value;
+                              });
+                            },
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(),
+                              labelText: "Role",
+                              prefixIcon: Icon(Icons.person),
+                            ),
+                          ),
+
+                          const SizedBox(height: 12),
+
+                          ActionButton(
+                            label: isLoading ? "Loading..." : "Register",
+                            onTap: () async {
+                              if (isLoading) return; // Disable button while loading
+                              setState(() {
+                                isLoading = true;
+                              });
+
+                              final name = nameController.text.trim();
+                              final email = emailController.text.trim();
+                              final password = passwordController.text.trim();
+
+                              try {
+                                final success = await authService.register(
+                                  name,
+                                  email,
+                                  password,
+                                  selectedRole // Pass the selected role
+                                );
+
+                                if (success) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text("Registration successful!"),
+                                    ),
+                                  );
+                                  Navigator.pushNamed(context, route.login);
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                        "Registration failed! Please try again.",
+                                      ),
+                                    ),
+                                  );
+                                }
+                              } catch (error) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text("Registration failed: $error"),
+                                  ),
+                                );
+                              } finally {
+                                setState(() {
+                                  isLoading = false;
+                                });
+                              }
+                            },
+                            color: const Color(0xFF202244),
+                            height: 60,
+                            width: double.infinity,
+                          ),
+
+                          const SizedBox(height: 12),
+
+                          const Center(child: Text("Or Continue With")),
+                          const SizedBox(height: 12),
+
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              CircleIconButton(
+                                icon: Icons.g_mobiledata,
+                                bgColor: Colors.white,
+                                onPressed: () {},
+                              ),
+                              const SizedBox(width: 20),
+                              CircleIconButton(
+                                icon: Icons.apple,
+                                bgColor: Colors.white,
+                                onPressed: () {},
+                              ),
+                            ],
+                          ),
+
+                          const Spacer(),
+
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Text("Already have an Account?"),
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.pushNamed(context, route.login);
+                                },
+                                child: const Text("SIGN IN"),
                               ),
                             ],
                           ),
                         ],
                       ),
 
-                      const SizedBox(height: 60),
-
-                      const Text(
-                        "Getting Started.!",
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
+                      // Loading Indicator
+                      if (isLoading)
+                        Positioned.fill(
+                          child: Align(
+                            alignment: Alignment.center,
+                            child: CircularProgressIndicator(
+                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                            ),
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 8),
-                      const Text(
-                        "Create an Account to Continue your all Courses",
-                      ),
-                      const SizedBox(height: 24),
-
-                      CustomTextField(
-                        label: "Name",
-                        icon: Icons.person,
-                        controller: nameController,
-                      ),
-                      const SizedBox(height: 16),
-                      CustomTextField(
-                        label: "Email",
-                        icon: Icons.email,
-                        controller: emailController,
-                      ),
-                      const SizedBox(height: 16),
-                      CustomTextField(
-                        isPassword: true,
-                        label: "Password",
-                        icon: Icons.lock,
-                        controller: passwordController,
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Dropdown for selecting role
-                      DropdownButtonFormField<String>(
-                        value: selectedRole,
-                        hint: const Text("Select Role"),
-                        items: [
-                          DropdownMenuItem(
-                            value: "mentor",
-                            child: Text("Mentor"),
-                          ),
-                          DropdownMenuItem(
-                            value: "student",
-                            child: Text("Student"),
-                          ),
-                        ],
-                        onChanged: (value) {
-                          setState(() {
-                            selectedRole = value;
-                          });
-                        },
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(),
-                          labelText: "Role",
-                          prefixIcon: Icon(Icons.person),
-                        ),
-                      ),
-
-                      const SizedBox(height: 12),
-
-                      ActionButton(
-                        label: "Register",
-                        onTap: () async {
-                          final name = nameController.text.trim();
-                          final email = emailController.text.trim();
-                          final password = passwordController.text.trim();
-
-                          try {
-                            final success = await authService.register(
-                              name,
-                              email,
-                              password,
-                              selectedRole // Pass the selected role
-                            );
-
-                            if (success) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text("Registration successful!"),
-                                ),
-                              );
-                              Navigator.pushNamed(context, route.login);
-                            } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    "Registration failed! Please try again.",
-                                  ),
-                                ),
-                              );
-                            }
-                          } catch (error) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text("Registration failed: $error"),
-                              ),
-                            );
-                          }
-                        },
-                        color: const Color(0xFF202244),
-                        height: 60,
-                        width: double.infinity,
-                      ),
-
-                      const SizedBox(height: 12),
-
-                      const Center(child: Text("Or Continue With")),
-                      const SizedBox(height: 12),
-
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          CircleIconButton(
-                            icon: Icons.g_mobiledata,
-                            bgColor: Colors.white,
-                            onPressed: () {},
-                          ),
-                          const SizedBox(width: 20),
-                          CircleIconButton(
-                            icon: Icons.apple,
-                            bgColor: Colors.white,
-                            onPressed: () {},
-                          ),
-                        ],
-                      ),
-
-                      const Spacer(),
-
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Text("Already have an Account?"),
-                          TextButton(
-                            onPressed: () {
-                              Navigator.pushNamed(context, route.login);
-                            },
-                            child: const Text("SIGN IN"),
-                          ),
-                        ],
-                      ),
                     ],
                   ),
                 ),

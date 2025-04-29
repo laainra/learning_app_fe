@@ -1,7 +1,16 @@
 import 'package:flutter/material.dart';
 
 class MentorProfilePage extends StatefulWidget {
-  const MentorProfilePage({super.key});
+  final String name;
+  final String skill;
+  final String image;
+
+  const MentorProfilePage({
+    super.key,
+    required this.name,
+    required this.skill,
+    required this.image,
+  });
 
   @override
   State<MentorProfilePage> createState() => _MentorProfilePageState();
@@ -29,17 +38,22 @@ class _MentorProfilePageState extends State<MentorProfilePage> {
                       children: [
                         CircleAvatar(
                           radius: 40,
-                          backgroundImage: AssetImage("assets/mentor.jpg"), // Ganti sesuai assetmu
+                          backgroundImage: AssetImage(
+                            widget.image,
+                          ), // Use passed image
                         ),
                         const SizedBox(height: 12),
-                        const Text(
-                          "Mary Jones",
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        Text(
+                          widget.name, // Use passed name
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                         const SizedBox(height: 4),
-                        const Text(
-                          "Akuntansi Sektor Publik",
-                          style: TextStyle(color: Colors.grey),
+                        Text(
+                          widget.skill, // Use passed skill
+                          style: const TextStyle(color: Colors.grey),
                         ),
                         const SizedBox(height: 12),
                         const Row(
@@ -47,15 +61,27 @@ class _MentorProfilePageState extends State<MentorProfilePage> {
                           children: [
                             Column(
                               children: [
-                                Text("26", style: TextStyle(fontWeight: FontWeight.bold)),
-                                Text("Courses", style: TextStyle(color: Colors.grey)),
+                                Text(
+                                  "26",
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                Text(
+                                  "Courses",
+                                  style: TextStyle(color: Colors.grey),
+                                ),
                               ],
                             ),
                             SizedBox(width: 40),
                             Column(
                               children: [
-                                Text("8750", style: TextStyle(fontWeight: FontWeight.bold)),
-                                Text("Ratings", style: TextStyle(color: Colors.grey)),
+                                Text(
+                                  "8750",
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                Text(
+                                  "Ratings",
+                                  style: TextStyle(color: Colors.grey),
+                                ),
                               ],
                             ),
                           ],
@@ -68,7 +94,10 @@ class _MentorProfilePageState extends State<MentorProfilePage> {
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(30),
                             ),
-                            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 32,
+                              vertical: 12,
+                            ),
                           ),
                           child: const Text("Message"),
                         ),
@@ -105,7 +134,10 @@ class _MentorProfilePageState extends State<MentorProfilePage> {
                             decoration: BoxDecoration(
                               border: Border(
                                 bottom: BorderSide(
-                                  color: _selectedTab == 0 ? Colors.blue : Colors.transparent,
+                                  color:
+                                      _selectedTab == 0
+                                          ? Colors.blue
+                                          : Colors.transparent,
                                   width: 2,
                                 ),
                               ),
@@ -115,7 +147,10 @@ class _MentorProfilePageState extends State<MentorProfilePage> {
                                 "Courses",
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
-                                  color: _selectedTab == 0 ? Colors.blue : Colors.grey,
+                                  color:
+                                      _selectedTab == 0
+                                          ? Colors.blue
+                                          : Colors.grey,
                                 ),
                               ),
                             ),
@@ -130,7 +165,10 @@ class _MentorProfilePageState extends State<MentorProfilePage> {
                             decoration: BoxDecoration(
                               border: Border(
                                 bottom: BorderSide(
-                                  color: _selectedTab == 1 ? Colors.blue : Colors.transparent,
+                                  color:
+                                      _selectedTab == 1
+                                          ? Colors.blue
+                                          : Colors.transparent,
                                   width: 2,
                                 ),
                               ),
@@ -140,7 +178,10 @@ class _MentorProfilePageState extends State<MentorProfilePage> {
                                 "Ratings",
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
-                                  color: _selectedTab == 1 ? Colors.blue : Colors.grey,
+                                  color:
+                                      _selectedTab == 1
+                                          ? Colors.blue
+                                          : Colors.grey,
                                 ),
                               ),
                             ),
@@ -171,14 +212,32 @@ class _MentorProfilePageState extends State<MentorProfilePage> {
   Widget buildCourses() {
     return ListView(
       children: [
-        courseItem("Graphic Design", "Graphic Design Advanced", "799K", "4.2", "7830 Std"),
+        courseItem(
+          "Graphic Design",
+          "Graphic Design Advanced",
+          "799K",
+          "4.2",
+          "7830 Std",
+        ),
         const SizedBox(height: 12),
-        courseItem("Graphic Design", "Graphic Design Advanced", "799K", "4.1", "990 Std"),
+        courseItem(
+          "Graphic Design",
+          "Graphic Design Advanced",
+          "799K",
+          "4.1",
+          "990 Std",
+        ),
       ],
     );
   }
 
-  Widget courseItem(String category, String title, String price, String rating, String students) {
+  Widget courseItem(
+    String category,
+    String title,
+    String price,
+    String rating,
+    String students,
+  ) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -201,20 +260,32 @@ class _MentorProfilePageState extends State<MentorProfilePage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(category, style: const TextStyle(color: Colors.orange, fontWeight: FontWeight.bold)),
+                Text(
+                  category,
+                  style: const TextStyle(
+                    color: Colors.orange,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
                 const SizedBox(height: 4),
-                Text(title, style: const TextStyle(fontWeight: FontWeight.w500)),
+                Text(
+                  title,
+                  style: const TextStyle(fontWeight: FontWeight.w500),
+                ),
                 const SizedBox(height: 4),
                 Row(
                   children: [
-                    Text(price, style: const TextStyle(fontWeight: FontWeight.bold)),
+                    Text(
+                      price,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
                     const SizedBox(width: 8),
                     const Icon(Icons.star, color: Colors.orange, size: 16),
                     Text(rating),
                     const SizedBox(width: 8),
                     Text(students, style: const TextStyle(color: Colors.grey)),
                   ],
-                )
+                ),
               ],
             ),
           ),
@@ -227,14 +298,32 @@ class _MentorProfilePageState extends State<MentorProfilePage> {
   Widget buildRatings() {
     return ListView(
       children: [
-        ratingItem("assets/student1.jpg", "Mary", "4.2", "This course has been very useful. Mentor was well spoken totally loved it.", "2 Weeks Ago"),
+        ratingItem(
+          "assets/student1.jpg",
+          "Mary",
+          "4.2",
+          "This course has been very useful. Mentor was well spoken totally loved it.",
+          "2 Weeks Ago",
+        ),
         const SizedBox(height: 12),
-        ratingItem("assets/student2.jpg", "Natasha B. Lambert", "4.8", "This course has been very useful. Mentor was well spoken totally loved it.", "2 Weeks Ago"),
+        ratingItem(
+          "assets/student2.jpg",
+          "Natasha B. Lambert",
+          "4.8",
+          "This course has been very useful. Mentor was well spoken totally loved it.",
+          "2 Weeks Ago",
+        ),
       ],
     );
   }
 
-  Widget ratingItem(String avatarPath, String name, String rating, String review, String time) {
+  Widget ratingItem(
+    String avatarPath,
+    String name,
+    String rating,
+    String review,
+    String time,
+  ) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -245,8 +334,9 @@ class _MentorProfilePageState extends State<MentorProfilePage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           CircleAvatar(
-            backgroundImage: AssetImage(avatarPath),
-            radius: 24,
+            radius: 45,
+            backgroundColor: Colors.white,
+            child: Icon(Icons.person, size: 50, color: Colors.grey),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -255,19 +345,32 @@ class _MentorProfilePageState extends State<MentorProfilePage> {
               children: [
                 Row(
                   children: [
-                    Text(name, style: const TextStyle(fontWeight: FontWeight.bold)),
+                    Text(
+                      name,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
                     const SizedBox(width: 8),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.blue.shade50,
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Row(
                         children: [
-                          const Icon(Icons.star, color: Colors.orange, size: 14),
+                          const Icon(
+                            Icons.star,
+                            color: Colors.orange,
+                            size: 14,
+                          ),
                           const SizedBox(width: 4),
-                          Text(rating, style: const TextStyle(fontWeight: FontWeight.bold)),
+                          Text(
+                            rating,
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
                         ],
                       ),
                     ),
@@ -279,7 +382,7 @@ class _MentorProfilePageState extends State<MentorProfilePage> {
                 Text(time, style: const TextStyle(color: Colors.grey)),
               ],
             ),
-          )
+          ),
         ],
       ),
     );

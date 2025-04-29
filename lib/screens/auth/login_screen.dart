@@ -7,13 +7,20 @@ import '../../widgets/custom_button.dart';
 import '../../widgets/button_icon_circle.dart';
 import '../../routes/app_routes.dart' as route;
 import '../../providers/auth_provider.dart';
+import '../../providers/user_provider.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   LoginScreen({super.key});
 
+  @override
+  _LoginScreenState createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
   final AuthService authService = AuthService();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  bool isLoading = false; // Declare isLoading here
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +30,10 @@ class LoginScreen extends StatelessWidget {
         child: LayoutBuilder(
           builder: (context, constraints) {
             return SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 24.0,
+                vertical: 20,
+              ),
               child: ConstrainedBox(
                 constraints: BoxConstraints(minHeight: constraints.maxHeight),
                 child: IntrinsicHeight(
@@ -70,7 +80,12 @@ class LoginScreen extends StatelessWidget {
                                         fontFamily: 'Poppins',
                                         fontWeight: FontWeight.w700,
                                         fontSize: 30,
-                                        color: Color.fromARGB(255, 106, 218, 255),
+                                        color: Color.fromARGB(
+                                          255,
+                                          106,
+                                          218,
+                                          255,
+                                        ),
                                       ),
                                     ),
                                   ],
@@ -98,7 +113,9 @@ class LoginScreen extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 8),
-                      const Text("Login to Your Account to Continue your Courses"),
+                      const Text(
+                        "Login to Your Account to Continue your Courses",
+                      ),
                       const SizedBox(height: 24),
 
                       CustomTextField(
@@ -128,39 +145,101 @@ class LoginScreen extends StatelessWidget {
 
                       const SizedBox(height: 12),
 
-                      ActionButton(
-                        label: "Sign In",
-                        onTap: () async {
-                          final email = emailController.text.trim();
-                          final password = passwordController.text.trim();
+                      Stack(
+                        children: [
+                          ActionButton(
+                            label: isLoading ? "Loading..." : "Sign In",
+                            onTap: () async {
+                              if (isLoading) return; // Disable button while loading
+                              setState(() {
+                                isLoading = true;
+                              });
 
-                          final success = await authService.login(
-                            context,
-                            email,
-                            password,
-                          );
+                              try {
+                                final email = emailController.text.trim();
+                                final password = passwordController.text.trim();
 
-                          if (success) {
-                            // Ambil AuthProvider dan set login
-                            final authProvider = Provider.of<AuthProvider>(context, listen: false);
-                            await authProvider.login();
+                                final success = await authService.login(
+                                  context,
+                                  email,
+                                  password,
+                                );
 
-                            // Arahkan ke dashboard tanpa bisa kembali ke login
-                            Navigator.pushReplacementNamed(
-                              context,
-                              route.student_dashboard,
-                            );
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text("Login failed! Check credentials."),
+                                setState(() {
+                                  isLoading = false;
+                                });
+
+                                if (success) {
+                                  // Ambil AuthProvider dan set login
+                                  final authProvider = Provider.of<AuthProvider>(
+                                    context,
+                                    listen: false,
+                                  );
+                                  await authProvider.login();
+
+                                  // Ambil user dari UserProvider
+                                  final userProvider = Provider.of<UserProvider>(
+                                    context,
+                                    listen: false,
+                                  );
+                                  final user = userProvider.user;
+
+                                  // Cek role user
+                                  if (user?.role == 'student') {
+                                    Navigator.pushReplacementNamed(
+                                      context,
+                                      route.student_dashboard,
+                                    );
+                                  } else if (user?.role == 'mentor') {
+                                    Navigator.pushReplacementNamed(
+                                      context,
+                                      route.mentor_dashboard,
+                                    );
+                                  } else {
+                                    // Kalau role tidak diketahui
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                          "Unknown role. Cannot redirect.",
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                        "Login failed! Check credentials.",
+                                      ),
+                                    ),
+                                  );
+                                }
+                              } catch (error) {
+                                // Tangani error dan tampilkan pesan ke pengguna
+                                print('Error during login: $error');
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text("An error occurred: $error"),
+                                  ),
+                                );
+                              }
+                            },
+                            color: const Color(0xFF202244),
+                            height: 60,
+                            width: double.infinity,
+                          ),
+
+                          // Show CircularProgressIndicator on top of the button
+                          if (isLoading)
+                            Positioned.fill(
+                              child: Align(
+                                alignment: Alignment.center,
+                                child: CircularProgressIndicator(
+                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                ),
                               ),
-                            );
-                          }
-                        },
-                        color: const Color(0xFF202244),
-                        height: 60,
-                        width: double.infinity,
+                            ),
+                        ],
                       ),
 
                       const SizedBox(height: 12),
@@ -184,8 +263,6 @@ class LoginScreen extends StatelessWidget {
                           ),
                         ],
                       ),
-
-                      const Spacer(),
 
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,

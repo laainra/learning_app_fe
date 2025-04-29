@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import '../routes/app_routes.dart' as route;
+import 'package:provider/provider.dart';
+
+import '../../providers/user_provider.dart';
 
 class CustomBottomNavBar extends StatelessWidget {
   final int currentIndex;
@@ -10,6 +13,18 @@ class CustomBottomNavBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final Color activeColor = Color(0xFFFFC100);
     final Color inactiveColor = Color(0xFF202244);
+    final userProvider = Provider.of<UserProvider>(context);
+    final user = userProvider.user;
+    final userRole = user?.role;
+    String dashboardRoute;
+    if (userRole == 'student') {
+      dashboardRoute = route.student_dashboard; // Navigate to student dashboard
+    } else if (userRole == 'mentor') {
+      dashboardRoute = route.mentor_dashboard; // Navigate to mentor dashboard
+    } else {
+      dashboardRoute =
+          route.student_dashboard; // Fallback route if role is unknown
+    }
 
     return Container(
       margin: const EdgeInsets.all(16), // Supaya terlihat lebih mengambang
@@ -33,7 +48,7 @@ class CustomBottomNavBar extends StatelessWidget {
             icon: Icons.home,
             label: 'Home',
             index: 0,
-            routeName: route.student_dashboard,
+            routeName: dashboardRoute,
             isActive: currentIndex == 0,
             activeColor: activeColor,
             inactiveColor: inactiveColor,

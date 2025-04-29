@@ -12,6 +12,8 @@ class Category {
     );
   }
 
+  
+
   Map<String, dynamic> toJson() {
     return {
       'id': id,

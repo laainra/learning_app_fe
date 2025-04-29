@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import '../../routes/app_routes.dart' as route;
 class ReviewsPage extends StatelessWidget {
   const ReviewsPage({super.key});
 
@@ -97,7 +97,10 @@ class ReviewsPage extends StatelessWidget {
               child: Container(
                 margin: const EdgeInsets.symmetric(horizontal: 20),
                 child: ElevatedButton.icon(
-                  onPressed: () {},
+                  onPressed: () {Navigator.pushNamed(
+                    context,
+                    route.reviews_list,
+                  );},
                   icon: const Icon(Icons.arrow_forward),
                   label: const Text("Write a Review"),
                   style: ElevatedButton.styleFrom(

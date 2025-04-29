@@ -11,7 +11,6 @@ import 'package:provider/provider.dart';
 import '../../providers/user_provider.dart';
 import '../../models/category_model.dart' as catModel;
 
-
 class StudentDashboard extends StatefulWidget {
   const StudentDashboard({super.key});
 
@@ -33,7 +32,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
   //   'Sistem Informasi Akutansi',
   //   'Akutansi Manajerial/ Biaya',
   // ];
- List<catModel.Category> categories = []; // List to hold categories
+  List<catModel.Category> categories = []; // List to hold categories
 
   final List<String> banners = [
     'assets/images/course1.jpg',
@@ -47,18 +46,24 @@ class _StudentDashboardState extends State<StudentDashboard> {
     // Fetch categories when the page loads
     _fetchCategories();
   }
- Future<void> _fetchCategories() async {
-    final categoryProvider = Provider.of<CategoryProvider>(context, listen: false);
-    await categoryProvider.fetchCategories(); // Fetch categories from the provider
+
+  Future<void> _fetchCategories() async {
+    final categoryProvider = Provider.of<CategoryProvider>(
+      context,
+      listen: false,
+    );
+    await categoryProvider
+        .fetchCategories(); // Fetch categories from the provider
     setState(() {
-      categories = categoryProvider.categories; // Update the local categories list
+      categories =
+          categoryProvider.categories; // Update the local categories list
     });
   }
 
   @override
   Widget build(BuildContext context) {
     final userProvider = Provider.of<UserProvider>(context);
-    final  user = userProvider.user;
+    final user = userProvider.user;
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -73,7 +78,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                     Column(
+                    Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
@@ -88,8 +93,19 @@ class _StudentDashboardState extends State<StudentDashboard> {
                           'What would you like to learn today?\nSearch below.',
                           style: TextStyle(color: Colors.grey),
                         ),
+                    if (user == null)
+
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.pushNamed(context, route.login);
+                          },
+                          child: Text(
+                            'Login now',
+                            style: TextStyle(color: Colors.blue),
+                          ),
+                        ),
                       ],
-                    ),
+                    ), 
                     GestureDetector(
                       onTap: () {
                         Navigator.pushNamed(context, route.notification);
@@ -200,7 +216,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
                         (context, index) => Padding(
                           padding: const EdgeInsets.only(right: 8),
                           child: ChoiceChip(
-                            label:  Text(categories[index].name), 
+                            label: Text(categories[index].name),
                             selected: _currentCategory == index,
                             selectedColor: const Color(0xFF202244),
                             backgroundColor: const Color(0xFFF2F7FF),

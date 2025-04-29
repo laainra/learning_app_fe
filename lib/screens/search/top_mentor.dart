@@ -1,3 +1,4 @@
+import 'package:finbedu/widgets/bottom_menu.dart';
 import 'package:flutter/material.dart';
 
 class TopMentorsPage extends StatelessWidget {
@@ -77,33 +78,7 @@ class TopMentorsPage extends StatelessWidget {
           );
         },
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 2,
-        selectedItemColor: Colors.black,
-        unselectedItemColor: Colors.grey,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.book),
-            label: 'My Courses',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.chat_bubble),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.credit_card),
-            label: 'Transaction',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
-          ),
-        ],
-      ),
+       bottomNavigationBar: const CustomBottomNavBar(currentIndex: 0),
     );
   }
 }

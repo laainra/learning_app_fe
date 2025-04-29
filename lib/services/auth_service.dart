@@ -9,49 +9,47 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class AuthService {
   final FlutterSecureStorage storage = FlutterSecureStorage();
+Future<bool> login(BuildContext context, String email, String password) async {
+  try {
+    // Debugging the URL
+    final url = '${ApiConstants.baseUrl}/login';
+    print('Attempting to login with URL: $url');
 
-  Future<bool> login(BuildContext context, String email, String password) async {
-    try {
-      final response = await http.post(
-        Uri.parse('${ApiConstants.baseUrl}/login'),
-        body: jsonEncode({'email': email, 'password': password}),
-        headers: {'Content-Type': 'application/json'},
-      );
+    final response = await http.post(
+      Uri.parse(url),
+      body: jsonEncode({'email': email, 'password': password}),
+      headers: {'Content-Type': 'application/json'},
+    );
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        
-        // Check if the status is true
-        if (data['status'] == true) {
-          final userData = UserModel.fromJson(data['data']['user']);
-          final token = data['data']['token'];
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
 
-          // Save the token securely
-          await storage.write(key: 'token', value: token);
+     if (data is Map && data.containsKey('status') && data['status'] == true)  {
+        final userData = UserModel.fromJson(data['data']['user']);
+        final token = data['data']['token'];
 
-          // Update the user provider with the user data
-          Provider.of<UserProvider>(context, listen: false).setUser (userData);
-          return true;
-        } else {
-          // Handle the case where the status is false
-          print('Login failed: ${data['message']}');
-          throw Exception(data['message']);
-        }
+        await storage.write(key: 'token', value: token);
+        await storage.write(key: 'role', value: userData.role);
+        await storage.write(key: 'isLoggedIn', value: 'true');
+
+        Provider.of<UserProvider>(context, listen: false).setUser(userData);
+        return true;
       } else {
-        // Log the response for debugging
-        print('Failed to login: ${response.statusCode}');
-        print('Response body: ${response.body}');
-        
-        // Optional: you can also show the error message if available
-        final errorMessage = _getErrorMessage(response);
-        throw Exception(errorMessage);
+        print('Login failed: ${data['message']}');
+        throw Exception(data['message']);
       }
-    } catch (error) {
-      // Handle any exceptions that occur during the request
-      print('Error during login: $error');
-      throw Exception('An error occurred during login: $error');
+    } else {
+      print('Failed to login: ${response.statusCode}');
+      print('Response body: ${response.body}');
+      
+      final errorMessage = _getErrorMessage(response);
+      throw Exception(errorMessage);
     }
+  } catch (error) {
+    print('Error during login: $error');
+    throw Exception('An error occurred during login: $error');
   }
+}
 
   Future<void> logout(BuildContext context) async {
     try {

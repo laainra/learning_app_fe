@@ -1,6 +1,6 @@
 import 'package:finbedu/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
-
+import '../../routes/app_routes.dart' as route;
 class CourseScreenPage extends StatefulWidget {
   const CourseScreenPage({super.key});
 
@@ -235,12 +235,24 @@ class _CourseScreenPageState extends State<CourseScreenPage>
           const SizedBox(height: 24),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: const [
-              Text(
+            children: [
+              const Text(
                 "Reviews",
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               ),
-              Text("SEE ALL", style: TextStyle(color: Colors.blue)),
+              GestureDetector(
+                onTap: () {
+                  // Navigate to the reviews page
+                  Navigator.pushNamed(
+                    context,
+                    route.reviews_list,
+                  ); // Update with your actual route name
+                },
+                child: const Text(
+                  "SEE ALL",
+                  style: TextStyle(color: Colors.blue),
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 16),
