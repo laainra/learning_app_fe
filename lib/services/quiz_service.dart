@@ -23,6 +23,30 @@ class QuizService {
     }
   }
 
+  Future<List<QuizAnswer>> getAnswersByQuestionId(int questionId) async {
+  try {
+    final token = await storage.read(key: 'token');
+    final url = Uri.parse('$baseUrl/questions/$questionId/answers');
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = jsonDecode(response.body);
+      return data.map((json) => QuizAnswer.fromJson(json)).toList();
+    } else {
+      throw Exception('Failed to load answers');
+    }
+  } catch (e) {
+    print('Error fetching answers: $e');
+    throw Exception('Failed to fetch answers');
+  }
+}
+
   // Add a new quiz
   Future<void> addQuiz(int sectionId) async {
         final token = await storage.read(key: 'token');
@@ -104,4 +128,73 @@ class QuizService {
       throw Exception('Failed to add answer');
     }
   }
+  // Update question
+Future<void> updateQuestion(int questionId, String question) async {
+  final token = await storage.read(key: 'token');
+  final url = Uri.parse('${ApiConstants.baseUrl}/questions/$questionId');
+  final response = await http.put(
+    url,
+    headers: {
+      'Authorization': 'Bearer $token',
+      'Content-Type': 'application/json',
+    },
+    body: jsonEncode({'question': question}),
+  );
+
+  if (response.statusCode != 200) {
+    throw Exception('Failed to update question');
+  }
+}
+
+// Delete question
+Future<void> deleteQuestion(int questionId) async {
+  final token = await storage.read(key: 'token');
+  final url = Uri.parse('${ApiConstants.baseUrl}/questions/$questionId');
+  final response = await http.delete(
+    url,
+    headers: {
+      'Authorization': 'Bearer $token',
+      'Content-Type': 'application/json',
+    },
+  );
+
+  if (response.statusCode != 200) {
+    throw Exception('Failed to delete question');
+  }
+}
+
+// Update answer
+Future<void> updateAnswer(int answerId, String answer) async {
+  final token = await storage.read(key: 'token');
+  final url = Uri.parse('${ApiConstants.baseUrl}/answers/$answerId');
+  final response = await http.put(
+    url,
+    headers: {
+      'Authorization': 'Bearer $token',
+      'Content-Type': 'application/json',
+    },
+    body: jsonEncode({'answer': answer}),
+  );
+
+  if (response.statusCode != 200) {
+    throw Exception('Failed to update answer');
+  }
+}
+
+// Delete answer
+Future<void> deleteAnswer(int answerId) async {
+  final token = await storage.read(key: 'token');
+  final url = Uri.parse('${ApiConstants.baseUrl}/answers/$answerId');
+  final response = await http.delete(
+    url,
+    headers: {
+      'Authorization': 'Bearer $token',
+      'Content-Type': 'application/json',
+    },
+  );
+
+  if (response.statusCode != 200) {
+    throw Exception('Failed to delete answer');
+  }
+}
 }

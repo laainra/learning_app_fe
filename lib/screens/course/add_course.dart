@@ -1,8 +1,5 @@
-
-import 'package:finbedu/screens/course/add_course_image.dart';
 import 'package:finbedu/screens/course/add_section_video.dart';
 import 'package:flutter/material.dart';
-
 
 import 'package:provider/provider.dart';
 import 'package:finbedu/models/course_model.dart';
@@ -12,8 +9,9 @@ import 'package:finbedu/widgets/custom_button.dart';
 import 'package:finbedu/widgets/input_field.dart';
 
 class AddCourseScreen extends StatefulWidget {
-  const AddCourseScreen({super.key});
+  final Course? course;
 
+  const AddCourseScreen({super.key, this.course});
   @override
   State<AddCourseScreen> createState() => _AddCourseScreenState();
 }
@@ -24,8 +22,6 @@ class _AddCourseScreenState extends State<AddCourseScreen> {
   final _priceController = TextEditingController();
   final _levelController = TextEditingController();
 
-
-
   String _selectedLevel = 'beginner'; // Default value for the level
   int? _selectedCategoryId; // Variable to store selected category ID
 
@@ -33,6 +29,32 @@ class _AddCourseScreenState extends State<AddCourseScreen> {
   bool audioBook = false;
   bool lifetimeAccess = false;
   bool certificate = false;
+  @override
+  void initState() {
+    super.initState();
+    _categoryProvider = Provider.of<CategoryProvider>(context, listen: false);
+    _categoryProvider
+        .fetchCategories()
+        .then((_) {
+          print('Categories fetched successfully');
+        })
+        .catchError((error) {
+          print('Error fetching categories: $error');
+        });
+    // Jika ada data course, isi form dengan data tersebut
+    if (widget.course != null) {
+      final course = widget.course!;
+      _nameController.text = course.name;
+      _descController.text = course.desc;
+      _priceController.text = course.price;
+      _selectedLevel = course.level;
+      _selectedCategoryId = course.categoryId;
+      mediaFullAccess = course.mediaFullAccess;
+      audioBook = course.audioBook;
+      lifetimeAccess = course.lifetimeAccess;
+      certificate = course.certificate;
+    }
+  }
 
   @override
   void dispose() {
@@ -43,10 +65,11 @@ class _AddCourseScreenState extends State<AddCourseScreen> {
     super.dispose();
   }
 
-Future<void> _submit() async {
+  Future<void> _submit() async {
   final provider = Provider.of<CourseProvider>(context, listen: false);
 
   final course = Course(
+    id: widget.course?.id,
     name: _nameController.text,
     desc: _descController.text,
     price: _priceController.text,
@@ -59,44 +82,56 @@ Future<void> _submit() async {
   );
 
   try {
-    int? courseId = await provider.createCourse(course);
-    if (courseId != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Course berhasil dibuat, lanjut upload gambar')),
-      );
-      // Navigator.pushReplacement(
-      //   context,
-      //   MaterialPageRoute(builder: (_) => UploadImageScreen(courseId: courseId)),
-      // );
-       Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (_) => AddSectionScreen(courseId: courseId)),
-    );
+    if (widget.course == null) {
+      // Tambah course baru
+      int? courseId = await provider.createCourse(course);
+      if (courseId != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Course berhasil dibuat')),
+        );
+        // Navigasi ke halaman Section Video
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => AddSectionScreen(courseId: courseId),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Gagal membuat course')));
+      }
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Gagal membuat course')),
-      );
+      // Update course yang ada
+      bool success = await provider.updateCourse(course);
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Course berhasil diperbarui')),
+        );
+        // Navigasi ke halaman Section Video
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => AddSectionScreen(courseId: course.id!),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Gagal memperbarui course')),
+        );
+      }
     }
   } catch (e) {
-    print('Error creating course: $e');
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Terjadi kesalahan saat membuat course')),
-    );
+    print('Error: $e');
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Terjadi kesalahan')));
   }
 }
+
   final _categoryController = TextEditingController();
   late CategoryProvider _categoryProvider;
 
-  @override
-void initState() {
-  super.initState();
-  _categoryProvider = Provider.of<CategoryProvider>(context, listen: false);
-  _categoryProvider.fetchCategories().then((_) {
-    print('Categories fetched successfully');
-  }).catchError((error) {
-    print('Error fetching categories: $error');
-  });
-}
   void _showAddCategoryModal() {
     showDialog(
       context: context,
@@ -135,12 +170,13 @@ void initState() {
     final provider = Provider.of<CourseProvider>(context);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Tambah Course')),
+      appBar: AppBar(
+        title: Text(widget.course == null ? 'Tambah Course' : 'Edit Course'),
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            
             const SizedBox(height: 16),
             CustomTextField(
               label: 'Nama Course',
@@ -250,12 +286,14 @@ void initState() {
             provider.isLoading
                 ? const CircularProgressIndicator()
                 : ActionButton(
-                  label: 'Tambah Course',
+                  label:
+                      widget.course == null ? 'Tambah Course' : 'Edit Course',
                   color: Colors.blue,
                   width: double.infinity,
                   height: 50,
                   onTap: _submit,
                 ),
+            const SizedBox(height: 16),
           ],
         ),
       ),

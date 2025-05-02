@@ -6,6 +6,7 @@ import 'package:http_parser/http_parser.dart';
 import 'package:mime_type/mime_type.dart';
 import '../models/course_model.dart';
 import 'constants.dart';
+import 'package:flutter/foundation.dart';
 
 class CourseService {
   final storage = const FlutterSecureStorage();
@@ -30,7 +31,7 @@ class CourseService {
       if (response.statusCode == 201) {
         final responseData = jsonDecode(response.body);
         print('Course created successfully: $responseData');
-       return responseData['data']['id'];
+        return responseData['data']['id'];
       } else {
         print('Failed to create course. Status code: ${response.statusCode}');
         print('Response body: ${response.body}');
@@ -42,11 +43,65 @@ class CourseService {
     }
   }
 
+  Future<bool> updateCourse(Course course) async {
+    try {
+      final token = await storage.read(key: 'token');
+      final response = await http.put(
+        Uri.parse('${ApiConstants.baseUrl}/courses/${course.id}'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(course.toJson()),
+      );
+
+      if (response.statusCode == 200) {
+        print('Succcess to update course: ${response.statusCode}');
+        print('Response body: ${response.body}');
+        return true;
+      } else {
+        print('Failed to update course: ${response.statusCode}');
+        print('Response body: ${response.body}');
+        return false;
+      }
+    } catch (e) {
+      print('Error updating course: $e');
+      return false;
+    }
+  }
+
+  Future<bool> deleteCourse(int courseId) async {
+    try {
+      final token = await storage.read(key: 'token');
+      final response = await http.delete(
+        Uri.parse('${ApiConstants.baseUrl}/courses/$courseId'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        print('Course deleted successfully');
+        return true;
+      } else {
+        print('Failed to delete course: ${response.statusCode}');
+        print('Response body: ${response.body}');
+        return false;
+      }
+    } catch (e) {
+      print('Error deleting course: $e');
+      return false;
+    }
+  }
+
   // Upload Course Image
   Future<bool> uploadCourseImage(int courseId, File imageFile) async {
     try {
       final token = await storage.read(key: 'token');
-      final uri = Uri.parse('${ApiConstants.baseUrl}/courses/$courseId/upload-image');
+      final uri = Uri.parse(
+        '${ApiConstants.baseUrl}/courses/$courseId/upload-image',
+      );
       final request = http.MultipartRequest('POST', uri);
 
       // Menambahkan file gambar
@@ -90,10 +145,7 @@ class CourseService {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
         },
-        body: jsonEncode({
-          'name': name,
-          'course_id': courseId,
-        }),
+        body: jsonEncode({'name': name, 'course_id': courseId}),
       );
 
       if (response.statusCode == 201) {
@@ -111,7 +163,12 @@ class CourseService {
   }
 
   // Create Video
-  Future<bool> createVideo(String title, String url, int sectionId, String duration) async {
+  Future<bool> createVideo(
+    String title,
+    String url,
+    int sectionId,
+    String duration,
+  ) async {
     try {
       final token = await storage.read(key: 'token');
       final response = await http.post(
@@ -143,28 +200,29 @@ class CourseService {
   }
 
   Future<List<Course>> fetchCoursesByMentor(int mentorId) async {
-  try {
-    final token = await storage.read(key: 'token');
-    final url = Uri.parse('${ApiConstants.baseUrl}/courses/mentor/$mentorId');
-    final response = await http.get(
-      url,
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
-    );
+    try {
+      final url = Uri.parse('${ApiConstants.baseUrl}/courses/mentor/$mentorId');
+      final response = await http.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+      );
 
-    if (response.statusCode == 200) {
-      final List<dynamic> data = jsonDecode(response.body)['data'];
-      return data.map((json) => Course.fromJson(json)).toList();
-    } else {
-      print('Failed to fetch courses. Status code: ${response.statusCode}');
-      print('Response body: ${response.body}');
-      return [];
+      if (response.statusCode == 200) {
+        return compute(_parseCourses, response.body);
+      } else {
+        throw Exception('Failed to load courses');
+      }
+    } catch (e) {
+      print('Error fetching courses: $e');
+      throw e; // Rethrow the error to be handled in the UI
     }
-  } catch (e) {
-    print('Error fetching courses: $e');
-    return [];
   }
-}
+
+  List<Course> _parseCourses(String responseBody) {
+    final List<dynamic> data = jsonDecode(responseBody)['data'];
+    return data.map((json) => Course.fromJson(json)).toList();
+  }
 }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:provider/provider.dart';
-
+import '../../routes/app_routes.dart' as route;
 import '../../providers/user_provider.dart';
 import '../../widgets/bottom_menu.dart';
 
@@ -54,6 +54,17 @@ class _MentorDashboardState extends State<MentorDashboard> {
                         const Text(
                           'Here is your dashboard overview.',
                           style: TextStyle(color: Colors.grey),
+                        ),
+                        if (user == null)
+
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.pushNamed(context, route.login);
+                          },
+                          child: Text(
+                            'Login now',
+                            style: TextStyle(color: Colors.blue),
+                          ),
                         ),
                       ],
                     ),

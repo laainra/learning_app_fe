@@ -93,19 +93,18 @@ class _StudentDashboardState extends State<StudentDashboard> {
                           'What would you like to learn today?\nSearch below.',
                           style: TextStyle(color: Colors.grey),
                         ),
-                    if (user == null)
-
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.pushNamed(context, route.login);
-                          },
-                          child: Text(
-                            'Login now',
-                            style: TextStyle(color: Colors.blue),
+                        if (user == null)
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.pushNamed(context, route.login);
+                            },
+                            child: Text(
+                              'Login now',
+                              style: TextStyle(color: Colors.blue),
+                            ),
                           ),
-                        ),
                       ],
-                    ), 
+                    ),
                     GestureDetector(
                       onTap: () {
                         Navigator.pushNamed(context, route.notification);
