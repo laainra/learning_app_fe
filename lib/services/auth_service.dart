@@ -124,3 +124,4 @@ class AuthService {
     return 'Unknown error occurred';
   }
 }
+

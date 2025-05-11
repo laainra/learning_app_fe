@@ -1,5 +1,6 @@
 import 'package:finbedu/models/course_model.dart';
 import 'package:finbedu/providers/course_provider.dart';
+import 'package:finbedu/screens/course/add_course.dart';
 import 'package:finbedu/screens/course/add_section_video.dart';
 import 'package:finbedu/widgets/bottom_menu.dart';
 import 'package:finbedu/screens/course/course_detail.dart';
@@ -162,25 +163,29 @@ class _MyCoursesPageState extends State<MyCoursesPage>
         return AlertDialog(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
+
           ),
           title: Text(
             "Edit Course: ${course.name}",
             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
           ),
+
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               ElevatedButton(
                 onPressed: () {
                   Navigator.pop(context); // Tutup modal
-                  Navigator.pushNamed(
+
+                  Navigator.pushReplacement(
                     context,
-                    '/edit-description',
-                    arguments: course,
+                    MaterialPageRoute(
+                      builder: (_) => AddCourseScreen(course: course),
+                    ),
                   );
                 },
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
-                child: const Text("Edit Description"),
+                child: const Text("Edit Course"),
+
               ),
               const SizedBox(height: 8),
               ElevatedButton(
@@ -193,6 +198,7 @@ class _MyCoursesPageState extends State<MyCoursesPage>
                     ),
                   );
                 },
+
                 child: const Text("Edit Course"),
               ),
               const SizedBox(height: 8),
@@ -209,6 +215,7 @@ class _MyCoursesPageState extends State<MyCoursesPage>
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
                 child: const Text("Edit Curriculum"),
               ),
+
             ],
           ),
         );
@@ -228,10 +235,10 @@ class _MyCoursesPageState extends State<MyCoursesPage>
         final course = courses[index];
         return GestureDetector(
           onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => CourseDetailPage()),
-            );
+            // Navigator.push(
+            //   context,
+            //   MaterialPageRoute(builder: (context) => CourseDetailPage(course: course)),
+            // );
           },
           child: Stack(
             children: [
@@ -377,113 +384,171 @@ class _MyCoursesPageState extends State<MyCoursesPage>
   }
 
   Widget _buildMentorCourseList(List<Course> courses) {
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: courses.length,
-      itemBuilder: (context, index) {
-        final course = courses[index];
-        return GestureDetector(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => CourseDetailPage()),
-            );
-          },
-          child: Stack(
-            children: [
-              Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                margin: const EdgeInsets.symmetric(vertical: 8),
-                child: Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: MediaQuery.of(context).size.width * 0.25,
-                        height: 90,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
-                          image: const DecorationImage(
-                            image: AssetImage('assets/images/course1.jpg'),
-                            fit: BoxFit.cover,
+
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    return Consumer<CourseProvider>(
+      builder: (context, provider, child) {
+        return ListView.builder(
+          padding: const EdgeInsets.all(16),
+          itemCount: courses.length,
+          itemBuilder: (context, index) {
+            final course = courses[index];
+            return GestureDetector(
+              onTap: () {
+                   Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => CourseDetailPage(course: course),
+            ),
+          );
+              },
+              child: Stack(
+                children: [
+                  Card(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    margin: const EdgeInsets.symmetric(vertical: 8),
+                    child: Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: MediaQuery.of(context).size.width * 0.25,
+                            height: 90,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12),
+                              image: const DecorationImage(
+                                image: AssetImage('assets/images/course1.jpg'),
+                                fit: BoxFit.cover,
+
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              course.name,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              course.category ??
-                                  'Unknown Category', // Tampilkan nama kategori
-                              style: const TextStyle(
-                                color: Colors.orange,
-                                fontSize: 13,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Row(
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Icon(
-                                  Icons.star,
-                                  size: 16,
-                                  color: Colors.amber,
-                                ),
-                                const SizedBox(width: 4),
-                                // Text(
-                                //   "${course['rating']} | ${course['duration']}",
-                                //   style: const TextStyle(fontSize: 12),
-                                // ),
                                 Text(
-                                  "- | {course.duration}",
-                                  style: const TextStyle(fontSize: 12),
+                                  course.name,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
                                 ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  course.category? ?? 'Unknown Category',
+                                  style: const TextStyle(
+                                    color: Colors.orange,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.star,
+                                      size: 16,
+                                      color: Colors.amber,
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      "- | {course.duration}",
+                                      style: const TextStyle(fontSize: 12),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 8),
                               ],
                             ),
-                            const SizedBox(height: 8),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
-                ),
-              ),
+                  Positioned(
+                    top: 5,
+                    right: 5,
+                    child: Row(
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.edit, color: Colors.blue),
+                          onPressed: () {
+                            _showEditModal(context, course);
+                          },
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                          onPressed: () async {
+                            final confirm = await showDialog<bool>(
+                              context: context,
+                              builder: (context) {
+                                return AlertDialog(
+                                  title: const Text('Hapus Course'),
+                                  content: const Text(
+                                    'Apakah Anda yakin ingin menghapus course ini?',
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed:
+                                          () => Navigator.pop(context, false),
+                                      child: const Text('Batal'),
+                                    ),
+                                    TextButton(
+                                      onPressed:
+                                          () => Navigator.pop(context, true),
+                                      child: const Text('Hapus'),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
 
-              Positioned(
-                top: 5,
-                right: 5,
-                child: Row(
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.edit, color: Colors.blue),
-                      onPressed: () {
-                        _showEditModal(context, course);
-                      },
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.delete, color: Colors.red),
-                      onPressed: () {
-                        // Handle course deletion
-                      },
-                    ),
-                  ],
-                ),
-              ),
+                            if (confirm == true) {
+                              final courseProvider =
+                                  Provider.of<CourseProvider>(
+                                    context,
+                                    listen: false,
+                                  );
+                              final userProvider = Provider.of<UserProvider>(
+                                context,
+                                listen: false,
+                              );
 
-              // Icon centang hijau di pojok kanan atas jika completed
-            ],
-          ),
+                              final success = await courseProvider.deleteCourse(
+                                course.id!,
+                                userProvider.user!.id!,
+                              );
+
+                              if (success) {
+                                await Provider.of<CourseProvider>(
+                                  context,
+                                  listen: false,
+                                ).fetchCoursesByMentor(userProvider.user!.id!);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Course berhasil dihapus'),
+                                  ),
+                                );
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Gagal menghapus course'),
+                                  ),
+                                );
+                              }
+                            }
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
         );
       },
     );

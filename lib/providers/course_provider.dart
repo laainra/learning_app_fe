@@ -17,16 +17,18 @@ class CourseProvider with ChangeNotifier {
 
   bool _isLoading = false;
   bool get isLoading => _isLoading;
-
   Future<void> fetchCoursesByMentor(int mentorId) async {
-    _isLoading = true;
-    notifyListeners();
-
     try {
-      _mentorCourses = await _courseService.fetchCoursesByMentor(mentorId);
+      _isLoading = true;
+      notifyListeners();
+
+      final courses = await _courseService.fetchCoursesByMentor(mentorId);
+      _mentorCourses = courses;
+
+      _isLoading = false;
+      notifyListeners();
     } catch (e) {
-      print('Error fetching mentor courses: $e');
-    } finally {
+      print('Error fetching courses: $e');
       _isLoading = false;
       notifyListeners();
     }
@@ -76,6 +78,32 @@ class CourseProvider with ChangeNotifier {
     } finally {
       _isLoading = false;
       notifyListeners();
+    }
+  }
+
+  Future<bool> updateCourse(Course course) async {
+    notifyListeners();
+    final result = await _courseService.updateCourse(course);
+    if (result) {
+      await fetchCoursesByMentor(course.userId!);
+      notifyListeners();
+    }
+    return result;
+  }
+
+  Future<bool> deleteCourse(int courseId, int mentorId) async {
+    try {
+      final success = await _courseService.deleteCourse(courseId);
+      if (success) {
+        _mentorCourses.removeWhere((course) => course.id == courseId);
+        await fetchCoursesByMentor(mentorId);
+        notifyListeners();
+        return true; // Kembalikan true jika berhasil
+      }
+      return false; // Kembalikan false jika gagal
+    } catch (e) {
+      print('Error deleting course: $e');
+      return false; // Kembalikan false jika terjadi error
     }
   }
 

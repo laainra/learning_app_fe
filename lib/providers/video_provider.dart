@@ -7,8 +7,13 @@ class VideoProvider with ChangeNotifier {
   List<Video> videos = [];
 
   Future<void> fetchVideos(int sectionId) async {
-    videos = await _service.fetchVideos(sectionId);
-    notifyListeners();
+    try {
+      videos = await _service.fetchVideos(sectionId);
+      print('Videos fetched: ${videos.length}');
+      notifyListeners();
+    } catch (e) {
+      print('Error fetching videos: $e');
+    }
   }
 
   Future<void> addVideo({
@@ -17,7 +22,27 @@ class VideoProvider with ChangeNotifier {
     required String url,
     required String duration,
   }) async {
-    await _service.addVideo(sectionId, title, url, duration);
-    await fetchVideos(sectionId);
+    try {
+      await _service.addVideo(sectionId, title, url, duration);
+      print('Video added successfully');
+      notifyListeners();
+    } catch (e) {
+      print('Error adding video: $e');
+    }
+  }
+
+  Future<void> updateVideo(
+    int videoId,
+    String title,
+    String url,
+    String duration,
+  ) async {
+    await _service.updateVideo(videoId, title, url, duration);
+    notifyListeners();
+  }
+
+  Future<void> deleteVideo(int videoId) async {
+    await _service.deleteVideo(videoId);
+    notifyListeners();
   }
 }

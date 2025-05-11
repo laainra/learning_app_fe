@@ -3,6 +3,7 @@ import 'package:finbedu/models/quiz_question_model.dart';
 import 'package:finbedu/models/quiz_answer_model.dart';
 import 'package:finbedu/services/quiz_service.dart';
 import 'package:flutter/material.dart';
+
 class QuizProvider extends ChangeNotifier {
   final QuizService _quizService = QuizService();
   List<Quiz> _quizzes = [];
@@ -13,6 +14,12 @@ class QuizProvider extends ChangeNotifier {
   List<QuizQuestion> get questions => _questions;
   List<QuizAnswer> get answers => _answers;
 
+  List<QuizQuestion> get quizQuestions => _questions; // Tambahkan getter ini
+  bool isLoading = false;
+  
+Future<int> addQuiz(int sectionId) async {
+  return await _quizService.addQuiz(sectionId);
+}
   Future<void> loadQuizzes(int sectionId) async {
     try {
       _quizzes = await _quizService.fetchQuizzes(sectionId);
@@ -22,14 +29,40 @@ class QuizProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> fetchQuestions(int quizId) async {
+  Future<void> loadQuizAnswers(int questionId) async {
     try {
-      _questions = await _quizService.fetchQuestions(quizId);
+      final answers = await _quizService.getAnswersByQuestionId(questionId);
+      _answers = answers; // Gunakan _answers yang sudah didefinisikan
+      notifyListeners();
+    } catch (e) {
+      print('Error loading quiz answers: $e');
+      throw Exception('Failed to load quiz answers');
+    }
+  }
+
+ Future<void> fetchQuestions(int sectionId) async {
+    try {
+      _questions = await _quizService.fetchQuestions(sectionId);
       notifyListeners();
     } catch (e) {
       throw Exception('Failed to fetch questions');
     }
   }
+
+  Future<void> loadQuizQuestions(int sectionId) async {
+  try {
+   
+    isLoading = true;
+    notifyListeners();
+    _questions = await _quizService.fetchQuestions(sectionId);
+        isLoading = false;
+    notifyListeners();
+  } catch (e) {
+    print('Error loading quiz questions: $e');
+        isLoading = false;
+    notifyListeners();
+  }
+}
 
   Future<void> fetchAnswers(int questionId) async {
     try {
@@ -40,25 +73,26 @@ class QuizProvider extends ChangeNotifier {
     }
   }
 
-  // New method to create a quiz with a question and answers
-  Future<void> createQuiz(int sectionId, String question, List<String> answers, int correctAnswerIndex) async {
+  Future<void> createQuiz(
+    int sectionId,
+    String question,
+    List<String> answers,
+    int correctAnswerIndex,
+  ) async {
     try {
-      // Create the question first
       final questionId = await createQuizQuestion(sectionId, question);
 
-      // Create the answers associated with the question
       for (int i = 0; i < answers.length; i++) {
         bool isCorrect = i == correctAnswerIndex;
         await createQuizAnswer(questionId, answers[i], isCorrect);
       }
-      // After adding the quiz, you can optionally refresh the quizzes list
+
       await loadQuizzes(sectionId);
     } catch (e) {
       throw Exception('Failed to create quiz');
     }
   }
 
-  // Existing methods for creating quiz questions and answers
   Future<int> createQuizQuestion(int quizId, String question) async {
     try {
       return await _quizService.addQuestion(quizId, question);
@@ -74,4 +108,49 @@ class QuizProvider extends ChangeNotifier {
       throw Exception('Failed to create quiz answer');
     }
   }
+
+  Future<void> updateQuestion(int questionId, String question) async {
+    await _quizService.updateQuestion(questionId, question);
+    notifyListeners();
+  }
+
+  Future<void> deleteQuestion(int questionId) async {
+    await _quizService.deleteQuestion(questionId);
+    notifyListeners();
+  }
+
+  Future<void> updateAnswer(int answerId, String answer) async {
+    await _quizService.updateAnswer(answerId, answer);
+    notifyListeners();
+  }
+
+  Future<void> deleteAnswer(int answerId) async {
+    await _quizService.deleteAnswer(answerId);
+    notifyListeners();
+  }
+
+  Future<void> addQuestionWithAnswers(
+  int quizId,
+  String question,
+  List<Map<String, dynamic>> answers,
+) async {
+  try {
+    await _quizService.addQuestionWithAnswers(quizId, question, answers);
+    // await loadQuizQuestions(quizId); // Refresh pertanyaan setelah menambahkan
+  } catch (e) {
+    throw Exception('Failed to add question with answers');
+  }
+}
+Quiz? _quizDetails;
+
+Quiz? get quizDetails => _quizDetails;
+
+Future<void> loadQuizDetails(int quizId) async {
+  try {
+    _quizDetails = await _quizService.fetchQuizDetails(quizId);
+    notifyListeners();
+  } catch (e) {
+    throw Exception('Failed to load quiz details');
+  }
+}
 }

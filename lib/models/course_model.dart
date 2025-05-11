@@ -16,6 +16,9 @@ class Course {
   final String price;
   final String? category;
   final UserModel? user;
+    final double? rating;
+  final int? totalStudents;
+  final int? totalLessons; 
 
   Course({
     this.id,
@@ -31,7 +34,9 @@ class Course {
     this.image,
     required this.price,
     this.category,
-    this.user,
+    this.user,    this.rating,
+    this.totalStudents,
+    this.totalLessons,
   });
 
   factory Course.fromJson(Map<String, dynamic> json) {
@@ -48,11 +53,16 @@ class Course {
       certificate: json['certificate'] == 1, // Konversi int ke bool
       image: json['image'],
       price: json['price'],
+
       category:
           json['category'] != null
               ? json['category']['name']
               : null, // Ambil nama kategori dari objek JSON
       user: UserModel.fromJson(json['user']),
+
+      totalStudents: json['total_students'],
+      totalLessons: json['total_lessons'],
+
     );
   }
 

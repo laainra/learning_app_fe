@@ -6,6 +6,7 @@ import 'package:http_parser/http_parser.dart';
 import 'package:mime_type/mime_type.dart';
 import '../models/course_model.dart';
 import 'constants.dart';
+import 'package:flutter/foundation.dart';
 
 class CourseService {
   final storage = const FlutterSecureStorage();
@@ -61,6 +62,58 @@ class CourseService {
     } catch (e) {
       print('Error creating course: $e');
       return null;
+    }
+  }
+
+  Future<bool> updateCourse(Course course) async {
+    try {
+      final token = await storage.read(key: 'token');
+      final response = await http.put(
+        Uri.parse('${ApiConstants.baseUrl}/courses/${course.id}'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(course.toJson()),
+      );
+
+      if (response.statusCode == 200) {
+        print('Succcess to update course: ${response.statusCode}');
+        print('Response body: ${response.body}');
+        return true;
+      } else {
+        print('Failed to update course: ${response.statusCode}');
+        print('Response body: ${response.body}');
+        return false;
+      }
+    } catch (e) {
+      print('Error updating course: $e');
+      return false;
+    }
+  }
+
+  Future<bool> deleteCourse(int courseId) async {
+    try {
+      final token = await storage.read(key: 'token');
+      final response = await http.delete(
+        Uri.parse('${ApiConstants.baseUrl}/courses/$courseId'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        print('Course deleted successfully');
+        return true;
+      } else {
+        print('Failed to delete course: ${response.statusCode}');
+        print('Response body: ${response.body}');
+        return false;
+      }
+    } catch (e) {
+      print('Error deleting course: $e');
+      return false;
     }
   }
 
@@ -170,11 +223,14 @@ class CourseService {
 
   Future<List<Course>> fetchCoursesByMentor(int mentorId) async {
     try {
+
       final token = await storage.read(key: 'token');
+
       final url = Uri.parse('${ApiConstants.baseUrl}/courses/mentor/$mentorId');
       final response = await http.get(
         url,
         headers: {
+
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
         },
@@ -223,5 +279,6 @@ class CourseService {
       print('Error fetching courses by category: $e');
       return [];
     }
+
   }
 }

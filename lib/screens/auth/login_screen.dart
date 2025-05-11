@@ -150,16 +150,30 @@ class _LoginScreenState extends State<LoginScreen> {
                           ActionButton(
                             label: isLoading ? "Loading..." : "Sign In",
                             onTap: () async {
-                              if (isLoading)
-                                return; // Disable button while loading
+
+                              if (isLoading) return;
+
+                              final email = emailController.text.trim();
+                              final password = passwordController.text.trim();
+
+                              if (email.isEmpty || password.isEmpty) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                      "Please fill in all fields before logging in.",
+                                    ),
+                                    backgroundColor: Colors.redAccent,
+                                  ),
+                                );
+                                return;
+                              }
+
+
                               setState(() {
                                 isLoading = true;
                               });
 
                               try {
-                                final email = emailController.text.trim();
-                                final password = passwordController.text.trim();
-
                                 final success = await authService.login(
                                   context,
                                   email,
@@ -171,7 +185,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 });
 
                                 if (success) {
-                                  // Ambil AuthProvider dan set login
+
                                   final authProvider =
                                       Provider.of<AuthProvider>(
                                         context,
@@ -179,7 +193,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                       );
                                   await authProvider.login();
 
-                                  // Ambil user dari UserProvider
                                   final userProvider =
                                       Provider.of<UserProvider>(
                                         context,
@@ -187,7 +200,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                       );
                                   final user = userProvider.user;
 
-                                  // Cek role user
                                   if (user?.role == 'student') {
                                     Navigator.pushReplacementNamed(
                                       context,
@@ -199,7 +211,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                       route.mentor_dashboard,
                                     );
                                   } else {
-                                    // Kalau role tidak diketahui
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       const SnackBar(
                                         content: Text(
@@ -218,7 +229,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                   );
                                 }
                               } catch (error) {
-                                // Tangani error dan tampilkan pesan ke pengguna
                                 print('Error during login: $error');
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
@@ -227,6 +237,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 );
                               }
                             },
+
                             color: const Color(0xFF202244),
                             height: 60,
                             width: double.infinity,

@@ -47,7 +47,16 @@ dependencies:
   carousel_slider: ^5.0.0
   iconsax: ^0.0.8
   mime_type: ^1.0.1
+
   device_preview: ^1.2.0
+
+  url_launcher: ^6.3.1
+  video_player: ^2.9.5
+  youtube_player_flutter: ^9.1.1
+  youtube_player_iframe: ^5.2.1
+  webview_flutter_platform_interface: ^2.11.0
+  webview_flutter: ^4.11.0
+
 
 dev_dependencies:
   flutter_test:

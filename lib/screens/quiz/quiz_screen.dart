@@ -1,7 +1,12 @@
+import 'package:finbedu/models/quiz_model.dart';
+import 'package:finbedu/models/quiz_question_model.dart';
+import 'package:finbedu/services/quiz_service.dart';
 import 'package:flutter/material.dart';
 
 class QuizDetailPage extends StatelessWidget {
-  const QuizDetailPage({super.key});
+  final int sectionId; // Tambahkan parameter sectionId
+
+  const QuizDetailPage({super.key, required this.sectionId});
 
   @override
   Widget build(BuildContext context) {
@@ -14,80 +19,110 @@ class QuizDetailPage extends StatelessWidget {
         leading: const BackButton(color: Colors.white),
         elevation: 0,
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 8),
-            child: Text(
-              "Graphic Design Quiz",
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
-            ),
-          ),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 24.0),
-            child: Row(
-              children: [
-                Text("GET 100 Points", style: TextStyle(color: Colors.white70)),
-                Spacer(),
-                Icon(Icons.star, color: Colors.amber),
-                Text(" 4.8", style: TextStyle(color: Colors.white)),
-              ],
-            ),
-          ),
-          const SizedBox(height: 24),
-          Expanded(
-            child: Container(
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-              ),
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text("Brief explanation about this quiz", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 16),
-                  const _InfoRow(icon: Icons.list, text: "10 Question\n10 point for a correct answer"),
-                  const _InfoRow(icon: Icons.access_time, text: "1 hour 15 min\nTotal duration of the quiz"),
-                  const _InfoRow(icon: Icons.emoji_events, text: "Win 10 star\nAnswer all questions correctly"),
-                  const SizedBox(height: 16),
-                  const Text("Please read the text below carefully so you can understand it", style: TextStyle(fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 8),
-                  const Text(
-                    "• 10 point awarded for a correct answer and no marks for a incorrect answer\n"
-                    "• Tap on options to select the correct answer\n"
-                    "• Tap on the bookmark icon to save interesting questions\n"
-                    "• Click submit if you are sure you want to complete all the quizzes",
-                    style: TextStyle(height: 1.5),
+      body: FutureBuilder<List<Quiz>>(
+        future: QuizService().fetchQuizzes(sectionId), // Ambil quiz berdasarkan sectionId
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text("Error: ${snapshot.error}"));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(child: Text("No quizzes available"));
+          }
+
+          final quizzes = snapshot.data!;
+          final quiz = quizzes.first; // Ambil quiz pertama (jika ada)
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8),
+                child: Text(
+                  quiz.sectionName,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
                   ),
-                ],
+                ),
               ),
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.all(24),
-            color: Colors.white,
-            child: ElevatedButton.icon(
-              onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const QuizPage()));
-              },
-              icon: const Icon(Icons.arrow_forward),
-              label: const Text("Start Quiz"),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF0A214C),
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-                minimumSize: const Size.fromHeight(50),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 24.0),
+                child: Row(
+                  children: [
+                    Text("GET 100 Points", style: TextStyle(color: Colors.white70)),
+                    Spacer(),
+                    Icon(Icons.star, color: Colors.amber),
+                    Text(" 4.8", style: TextStyle(color: Colors.white)),
+                  ],
+                ),
               ),
-            ),
-          )
-        ],
+              const SizedBox(height: 24),
+              Expanded(
+                child: Container(
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                  ),
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        "Brief explanation about this quiz",
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 16),
+                      const _InfoRow(icon: Icons.list, text: "10 Question\n10 point for a correct answer"),
+                      const _InfoRow(icon: Icons.access_time, text: "1 hour 15 min\nTotal duration of the quiz"),
+                      const _InfoRow(icon: Icons.emoji_events, text: "Win 10 star\nAnswer all questions correctly"),
+                      const SizedBox(height: 16),
+                      const Text(
+                        "Please read the text below carefully so you can understand it",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 8),
+                      const Text(
+                        "• 10 point awarded for a correct answer and no marks for a incorrect answer\n"
+                        "• Tap on options to select the correct answer\n"
+                        "• Tap on the bookmark icon to save interesting questions\n"
+                        "• Click submit if you are sure you want to complete all the quizzes",
+                        style: TextStyle(height: 1.5),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.all(24),
+                color: Colors.white,
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => QuizPage(quizId: quiz.id), // Kirim quizId ke QuizPage
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.arrow_forward),
+                  label: const Text("Start Quiz"),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF0A214C),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                    minimumSize: const Size.fromHeight(50),
+                  ),
+                ),
+              )
+            ],
+          );
+        },
       ),
     );
   }
 }
-
 class _InfoRow extends StatelessWidget {
   final IconData icon;
   final String text;
@@ -108,16 +143,18 @@ class _InfoRow extends StatelessWidget {
     );
   }
 }
-
 class QuizPage extends StatefulWidget {
-  const QuizPage({super.key});
+  final int quizId; // Tambahkan parameter quizId
+
+  const QuizPage({super.key, required this.quizId});
 
   @override
   State<QuizPage> createState() => _QuizPageState();
 }
 
 class _QuizPageState extends State<QuizPage> {
-  int selected = 3;
+  int? selectedAnswerId;
+  int currentQuestionIndex = 0; // Tambahkan indeks pertanyaan saat ini
 
   @override
   Widget build(BuildContext context) {
@@ -136,86 +173,108 @@ class _QuizPageState extends State<QuizPage> {
           )
         ],
       ),
-      body: Column(
-        children: [
-          const SizedBox(height: 8),
-          Container(
-            margin: const EdgeInsets.symmetric(horizontal: 24),
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(24),
-            ),
-            child: Column(
-              children: [
-                const _NumberTabSelector(),
-                const SizedBox(height: 24),
-                const Text(
-                  "What is the meaning of UI UX Design ?",
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                ),
-                const SizedBox(height: 24),
-                ...List.generate(5, (i) {
-                  final options = [
-                    "User Interface and User Experience",
-                    "User Interface and User Experience",
-                    "User Interface and Using Experience",
-                    "User Interface and User Experience",
-                    "Using Interface and Using Experience",
-                  ];
-                  return RadioListTile<int>(
-                    value: i,
-                    groupValue: selected,
-                    onChanged: (val) => setState(() => selected = val!),
-                    title: Text(
-                      options[i],
-                      style: TextStyle(
-                        color: selected == i ? Colors.blue : Colors.black87,
-                        fontWeight: selected == i ? FontWeight.w600 : FontWeight.normal,
+      body: FutureBuilder<List<QuizQuestion>>(
+        future: QuizService().fetchQuestions(widget.quizId), // Ambil pertanyaan berdasarkan quizId
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text("Error: ${snapshot.error}"));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(child: Text("No questions available"));
+          }
+
+          final questions = snapshot.data!;
+          final currentQuestion = questions[currentQuestionIndex];
+
+          return Column(
+            children: [
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Card(
+                    elevation: 2,
+                    margin: const EdgeInsets.symmetric(vertical: 8),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "${currentQuestionIndex + 1}. ${currentQuestion.question}",
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          ...currentQuestion.answers.map((answer) {
+                            return RadioListTile<int>(
+                              value: answer.id,
+                              groupValue: selectedAnswerId,
+                              onChanged: (value) {
+                                setState(() {
+                                  selectedAnswerId = value;
+                                });
+                              },
+                              title: Text(answer.answer),
+                            );
+                          }).toList(),
+                        ],
                       ),
                     ),
-                  );
-                }),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => const QuizResultPage()));
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    side: const BorderSide(color: Colors.blue),
-                    foregroundColor: Colors.blue,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
-                  child: const Text("Submit Quiz"),
-                )
-              ],
-            ),
-          ),
-        ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                child: _NumberTabSelector(
+                  totalQuestions: questions.length,
+                  selectedQuestion: currentQuestionIndex + 1,
+                  onQuestionSelected: (selectedIndex) {
+                    setState(() {
+                      currentQuestionIndex = selectedIndex - 1;
+                      selectedAnswerId = null; // Reset jawaban yang dipilih
+                    });
+                  },
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
 }
-
 class _NumberTabSelector extends StatelessWidget {
-  const _NumberTabSelector();
+  final int totalQuestions;
+  final int selectedQuestion;
+  final ValueChanged<int> onQuestionSelected;
+
+  const _NumberTabSelector({
+    required this.totalQuestions,
+    required this.selectedQuestion,
+    required this.onQuestionSelected,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final numbers = List.generate(10, (i) => i + 1);
+    final numbers = List.generate(totalQuestions, (i) => i + 1);
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
-      children: numbers.map((e) {
-        bool isSelected = e == 10;
-        return CircleAvatar(
-          radius: 16,
-          backgroundColor: isSelected ? Colors.blue : Colors.grey.shade200,
-          child: Text(
-            "$e",
-            style: TextStyle(
-              color: isSelected ? Colors.white : Colors.black54,
-              fontWeight: FontWeight.bold,
+      children: numbers.map((number) {
+        final isSelected = number == selectedQuestion;
+        return GestureDetector(
+          onTap: () => onQuestionSelected(number),
+          child: CircleAvatar(
+            radius: 16,
+            backgroundColor: isSelected ? Colors.blue : Colors.grey.shade200,
+            child: Text(
+              "$number",
+              style: TextStyle(
+                color: isSelected ? Colors.white : Colors.black54,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
         );

@@ -20,6 +20,7 @@ class SectionService {
 
     if (response.statusCode == 200) {
       final List<dynamic> data = jsonDecode(response.body);
+      print('Fetched sections: $data');
       return data.map((json) => Section.fromJson(json)).toList();
     } else {
       throw Exception('Failed to fetch sections');
@@ -57,4 +58,47 @@ class SectionService {
     rethrow; // Rethrow the error to be handled by the caller
   }
 }
+Future<void> updateSection(int sectionId, String name) async {
+  try {
+    final token = await storage.read(key: 'token');
+    final url = Uri.parse('${ApiConstants.baseUrl}/sections/$sectionId');
+    final response = await http.put(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({'name': name}),
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to update section. Status code: ${response.statusCode}');
+    }
+  } catch (e) {
+    print('Error updating section: $e');
+    rethrow;
+  }
+}
+
+Future<void> deleteSection(int sectionId) async {
+  try {
+    final token = await storage.read(key: 'token');
+    final url = Uri.parse('${ApiConstants.baseUrl}/sections/$sectionId');
+    final response = await http.delete(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to delete section. Status code: ${response.statusCode}');
+    }
+  } catch (e) {
+    print('Error deleting section: $e');
+    rethrow;
+  }
+}
+
 }

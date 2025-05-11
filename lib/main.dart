@@ -1,4 +1,13 @@
+
 import 'package:flutter/foundation.dart';
+
+import 'package:finbedu/providers/category_providers.dart';
+import 'package:finbedu/providers/course_image_provider.dart';
+import 'package:finbedu/providers/course_provider.dart';
+import 'package:finbedu/providers/quiz_provider.dart';
+import 'package:finbedu/providers/section_provider.dart';
+import 'package:finbedu/providers/video_provider.dart';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -16,9 +25,11 @@ import 'providers/course_image_provider.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  final storage = FlutterSecureStorage();
 
-  // Get values from secure storage
+  final storage =
+      FlutterSecureStorage(); // Create instance of FlutterSecureStorage
+
+
   String? isLoggedInString = await storage.read(key: 'isLoggedIn');
   bool isLoggedIn = isLoggedInString == 'true';
   String? role = await storage.read(key: 'role');
@@ -48,6 +59,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => SectionProvider()),
         ChangeNotifierProvider(create: (_) => VideoProvider()),
         ChangeNotifierProvider(create: (_) => CourseImageProvider()),
+        ChangeNotifierProvider(create: (_) => QuizProvider()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

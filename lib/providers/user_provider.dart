@@ -1,3 +1,4 @@
+import 'package:finbedu/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import '../models/user_model.dart';
 import '../services/user_service.dart'; // Pastikan path-nya benar
@@ -19,6 +20,7 @@ class UserProvider with ChangeNotifier {
     notifyListeners();
   }
 
+
   Future<void> fetchMentors() async {
     try {
       final userService = UserService();
@@ -29,4 +31,5 @@ class UserProvider with ChangeNotifier {
       rethrow;
     }
   }
+
 }

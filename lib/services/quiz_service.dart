@@ -5,15 +5,22 @@ import 'package:finbedu/models/quiz_question_model.dart';
 import 'package:finbedu/services/constants.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
 class QuizService {
   static const String baseUrl = ApiConstants.baseUrl;
-    final storage = const FlutterSecureStorage();
+  final storage = const FlutterSecureStorage();
 
   // Fetch quizzes
   Future<List<Quiz>> fetchQuizzes(int sectionId) async {
-        final token = await storage.read(key: 'token');
+    final token = await storage.read(key: 'token');
     final url = Uri.parse('$baseUrl/videos?section_id=$sectionId');
-    final response = await http.get(url,headers: {'Authorization': 'Bearer $token','Content-Type': 'application/json'},);
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
 
     if (response.statusCode == 200) {
       final List<dynamic> data = jsonDecode(response.body);
@@ -23,18 +30,43 @@ class QuizService {
     }
   }
 
-  // Add a new quiz
-  Future<void> addQuiz(int sectionId) async {
-        final token = await storage.read(key: 'token');
+  Future<List<QuizAnswer>> getAnswersByQuestionId(int questionId) async {
+    try {
+      final token = await storage.read(key: 'token');
+      final url = Uri.parse('$baseUrl/questions/$questionId/answers');
+      final response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        return data.map((json) => QuizAnswer.fromJson(json)).toList();
+      } else {
+        throw Exception('Failed to load answers');
+      }
+    } catch (e) {
+      print('Error fetching answers: $e');
+      throw Exception('Failed to fetch answers');
+    }
+  }
+
+  Future<int> addQuiz(int sectionId) async {
+    final token = await storage.read(key: 'token');
     final url = Uri.parse('$baseUrl/quizzes');
     final response = await http.post(
       url,
       body: jsonEncode({'section_id': sectionId}),
-      headers: {'Authorization': 'Bearer $token','Content-Type': 'application/json'},
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
     );
 
     if (response.statusCode == 201) {
-
       final data = jsonDecode(response.body);
       return data['id']; // Return the ID of the created quiz
     } else {
@@ -44,9 +76,15 @@ class QuizService {
 
   // Fetch quiz questions for a specific quiz
   Future<List<QuizQuestion>> fetchQuestions(int quizId) async {
-        final token = await storage.read(key: 'token');
+    final token = await storage.read(key: 'token');
     final url = Uri.parse('$baseUrl/quiz-questions?quiz_id=$quizId');
-    final response = await http.get(url,headers: {'Authorization': 'Bearer $token','Content-Type': 'application/json'},);
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
 
     if (response.statusCode == 200) {
       final List<dynamic> data = jsonDecode(response.body);
@@ -56,13 +94,16 @@ class QuizService {
     }
   }
 
-    Future<int> addQuestion(int quizId, String question) async {
+  Future<int> addQuestion(int quizId, String question) async {
     final token = await storage.read(key: 'token');
     final url = Uri.parse('$baseUrl/quiz_questions');
     final response = await http.post(
       url,
       body: jsonEncode({'quiz_id': quizId, 'question': question}),
-      headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
     );
 
     if (response.statusCode == 201) {
@@ -73,10 +114,18 @@ class QuizService {
     }
   }
 
-    Future<List<QuizAnswer>> fetchAnswers(int quizQuestionId) async {
-        final token = await storage.read(key: 'token');
-    final url = Uri.parse('$baseUrl/quiz-answers?quiz_question_id=$quizQuestionId');
-    final response = await http.get(url,headers: {'Authorization': 'Bearer $token','Content-Type': 'application/json'},);
+  Future<List<QuizAnswer>> fetchAnswers(int quizQuestionId) async {
+    final token = await storage.read(key: 'token');
+    final url = Uri.parse(
+      '$baseUrl/quiz-answers?quiz_question_id=$quizQuestionId',
+    );
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
 
     if (response.statusCode == 200) {
       final List<dynamic> data = jsonDecode(response.body);
@@ -88,7 +137,7 @@ class QuizService {
 
   // Add answer to question
   Future<void> addAnswer(int quizQuestionId, String answer, bool status) async {
-        final token = await storage.read(key: 'token');
+    final token = await storage.read(key: 'token');
     final url = Uri.parse('$baseUrl/quiz-answers');
     final response = await http.post(
       url,
@@ -97,11 +146,124 @@ class QuizService {
         'answer': answer,
         'status': status,
       }),
-      headers: {'Authorization': 'Bearer $token','Content-Type': 'application/json'},
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
     );
 
-        if (response.statusCode != 201) {
+    if (response.statusCode != 201) {
       throw Exception('Failed to add answer');
+    }
+  }
+
+  // Update question
+  Future<void> updateQuestion(int questionId, String question) async {
+    final token = await storage.read(key: 'token');
+    final url = Uri.parse('${ApiConstants.baseUrl}/questions/$questionId');
+    final response = await http.put(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({'question': question}),
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to update question');
+    }
+  }
+
+  // Delete question
+  Future<void> deleteQuestion(int questionId) async {
+    final token = await storage.read(key: 'token');
+    final url = Uri.parse('${ApiConstants.baseUrl}/questions/$questionId');
+    final response = await http.delete(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to delete question');
+    }
+  }
+
+  // Update answer
+  Future<void> updateAnswer(int answerId, String answer) async {
+    final token = await storage.read(key: 'token');
+    final url = Uri.parse('${ApiConstants.baseUrl}/answers/$answerId');
+    final response = await http.put(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({'answer': answer}),
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to update answer');
+    }
+  }
+
+  // Delete answer
+  Future<void> deleteAnswer(int answerId) async {
+    final token = await storage.read(key: 'token');
+    final url = Uri.parse('${ApiConstants.baseUrl}/answers/$answerId');
+    final response = await http.delete(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to delete answer');
+    }
+  }
+
+  Future<void> addQuestionWithAnswers(
+    int quizId,
+    String question,
+    List<Map<String, dynamic>> answers,
+  ) async {
+    final token = await storage.read(key: 'token');
+    final url = Uri.parse('$baseUrl/quizzes/$quizId/questions');
+    final response = await http.post(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({'question': question, 'answers': answers}),
+    );
+
+    if (response.statusCode != 201) {
+      throw Exception('Failed to add question with answers');
+    }
+  }
+
+  Future<Quiz> fetchQuizDetails(int quizId) async {
+    final token = await storage.read(key: 'token');
+    final url = Uri.parse('$baseUrl/quizzes/$quizId/details');
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body)['data'];
+      return Quiz.fromJson(data);
+    } else {
+      throw Exception('Failed to fetch quiz details');
     }
   }
 }

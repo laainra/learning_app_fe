@@ -15,4 +15,15 @@ class SectionProvider with ChangeNotifier {
     await _service.addSection(courseId, name);
     await fetchSections(courseId);
   }
+
+  Future<void> updateSection(int sectionId, String name) async {
+  await _service.updateSection(sectionId, name);
+  notifyListeners();
+}
+
+Future<void> deleteSection(int sectionId) async {
+  await _service.deleteSection(sectionId);
+  notifyListeners();
+}
+
 }
