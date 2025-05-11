@@ -333,7 +333,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-
   freezed_annotation:
     dependency: transitive
     description:
@@ -342,7 +341,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.4.4"
-
   html:
     dependency: transitive
     description:
@@ -351,7 +349,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.15.6"
-
   http:
     dependency: "direct main"
     description:

@@ -20,16 +20,15 @@ class UserProvider with ChangeNotifier {
     notifyListeners();
   }
 
-
-  Future<void> fetchMentors() async {
+  Future<List<UserModel>> fetchMentors() async {
     try {
       final userService = UserService();
       _mentors = await userService.fetchMentors();
       notifyListeners();
+      return _mentors; // Ensure the method returns the list of mentors
     } catch (e) {
       print('Error fetching mentors: $e');
       rethrow;
     }
   }
-
 }
