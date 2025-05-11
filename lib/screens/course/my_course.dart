@@ -163,7 +163,6 @@ class _MyCoursesPageState extends State<MyCoursesPage>
         return AlertDialog(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
-
           ),
           title: Text(
             "Edit Course: ${course.name}",
@@ -185,7 +184,6 @@ class _MyCoursesPageState extends State<MyCoursesPage>
                   );
                 },
                 child: const Text("Edit Course"),
-
               ),
               const SizedBox(height: 8),
               ElevatedButton(
@@ -215,7 +213,6 @@ class _MyCoursesPageState extends State<MyCoursesPage>
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
                 child: const Text("Edit Curriculum"),
               ),
-
             ],
           ),
         );
@@ -384,7 +381,6 @@ class _MyCoursesPageState extends State<MyCoursesPage>
   }
 
   Widget _buildMentorCourseList(List<Course> courses) {
-
     final userProvider = Provider.of<UserProvider>(context, listen: false);
     return Consumer<CourseProvider>(
       builder: (context, provider, child) {
@@ -395,12 +391,12 @@ class _MyCoursesPageState extends State<MyCoursesPage>
             final course = courses[index];
             return GestureDetector(
               onTap: () {
-                   Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => CourseDetailPage(course: course),
-            ),
-          );
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => CourseDetailPage(course: course),
+                  ),
+                );
               },
               child: Stack(
                 children: [
@@ -421,7 +417,6 @@ class _MyCoursesPageState extends State<MyCoursesPage>
                               image: const DecorationImage(
                                 image: AssetImage('assets/images/course1.jpg'),
                                 fit: BoxFit.cover,
-
                               ),
                             ),
                           ),
@@ -439,7 +434,7 @@ class _MyCoursesPageState extends State<MyCoursesPage>
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  course.category? ?? 'Unknown Category',
+                                  course.category ?? 'Unknown Category',
                                   style: const TextStyle(
                                     color: Colors.orange,
                                     fontSize: 13,
