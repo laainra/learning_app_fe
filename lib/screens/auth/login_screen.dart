@@ -150,6 +150,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ActionButton(
                             label: isLoading ? "Loading..." : "Sign In",
                             onTap: () async {
+
                               if (isLoading) return;
 
                               final email = emailController.text.trim();
@@ -167,6 +168,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 return;
                               }
 
+
                               setState(() {
                                 isLoading = true;
                               });
@@ -183,6 +185,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 });
 
                                 if (success) {
+
                                   final authProvider =
                                       Provider.of<AuthProvider>(
                                         context,

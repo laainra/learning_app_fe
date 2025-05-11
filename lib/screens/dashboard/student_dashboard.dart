@@ -1,4 +1,5 @@
 import 'package:finbedu/providers/category_providers.dart';
+import 'package:finbedu/providers/course_provider.dart';
 import 'package:finbedu/screens/course/course_detail.dart';
 import 'package:finbedu/screens/course/course_screen.dart';
 import 'package:finbedu/widgets/bottom_menu.dart';
@@ -10,6 +11,7 @@ import 'package:provider/provider.dart';
 
 import '../../providers/user_provider.dart';
 import '../../models/category_model.dart' as catModel;
+import '../../models/course_model.dart';
 
 class StudentDashboard extends StatefulWidget {
   const StudentDashboard({super.key});
@@ -22,17 +24,8 @@ class _StudentDashboardState extends State<StudentDashboard> {
   int _currentBanner = 0;
   int _currentCategory = 0;
 
-  // final List<String> categories = [
-  //   'Akutansi Keuangan',
-  //   'Audit dan Assurance',
-  //   'Perpajakan',
-  //   'Akutansi Sektor Publik',
-  //   'Etika Hukum dan Profesi',
-  //   'Keuangan dan Analisis',
-  //   'Sistem Informasi Akutansi',
-  //   'Akutansi Manajerial/ Biaya',
-  // ];
   List<catModel.Category> categories = []; // List to hold categories
+  List<Course> courses = [];
 
   final List<String> banners = [
     'assets/images/course1.jpg',
@@ -45,6 +38,16 @@ class _StudentDashboardState extends State<StudentDashboard> {
     super.initState();
     // Fetch categories when the page loads
     _fetchCategories();
+    _fetchCourses();
+    _fetchMentors(); // tambahkan ini
+  }
+
+  Future<void> _fetchCourses() async {
+    final courseProvider = Provider.of<CourseProvider>(context, listen: false);
+    await courseProvider.fetchCourses();
+    setState(() {
+      courses = courseProvider.allCourses;
+    });
   }
 
   Future<void> _fetchCategories() async {
@@ -58,6 +61,11 @@ class _StudentDashboardState extends State<StudentDashboard> {
       categories =
           categoryProvider.categories; // Update the local categories list
     });
+  }
+
+  Future<void> _fetchMentors() async {
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    await userProvider.fetchMentors();
   }
 
   @override
@@ -256,50 +264,34 @@ class _StudentDashboardState extends State<StudentDashboard> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 8),
                 SizedBox(
                   height: 270,
-                  child: ListView(
+                  child: ListView.builder(
                     scrollDirection: Axis.horizontal,
                     padding: const EdgeInsets.symmetric(horizontal: 16),
-                    children: [
-                      GestureDetector(
+                    itemCount: courses.length,
+                    itemBuilder: (context, index) {
+                      final course = courses[index];
+                      return GestureDetector(
                         onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder:
-                                  (context) => CourseScreenPage(
-                                    // title: 'Perpajakan',
-                                    // image: 'assets/images/course2.jpg',
-                                    // kamu bisa tambahkan data lain juga
-                                  ),
-                            ),
-                          );
+                          // Navigator.push(
+                          //   context,
+                          //   MaterialPageRoute(
+                          //     builder: (context) => CourseDetailPage(course: course),
+                          //   ),
+                          // );
                         },
                         child: _buildCourseCard(
-                          'Perpajakan',
-                          'Aman',
-                          'assets/images/course2.jpg',
-                          'assets/images/mentor2.jpg',
-                          4.5,
-                          '4h 43m',
-                          32,
+                          course.name,
+                          course.user!.name,
+                          course.image!,
+                          course.user!.photo!,
+
+                          course.desc,
+                          course.categoryId!,
                         ),
-                      ),
-
-                      _buildCourseCard(
-                        'Akutansi Keuangan',
-                        'Jiya',
-                        'assets/images/course1.jpg',
-                        'assets/images/mentor1.jpg',
-                        4.9,
-                        '5h 33m',
-                        45,
-                      ),
-
-                      // Kamu bisa tambah lagi course berikutnya di sini...
-                    ],
+                      );
+                    },
                   ),
                 ),
 
@@ -316,7 +308,9 @@ class _StudentDashboardState extends State<StudentDashboard> {
                       ),
                     ),
                     GestureDetector(
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.pushNamed(context, route.top_mentor);
+                      },
                       child: const Text(
                         'See All',
                         style: TextStyle(color: Colors.blue),
@@ -325,17 +319,31 @@ class _StudentDashboardState extends State<StudentDashboard> {
                   ],
                 ),
                 const SizedBox(height: 8),
-                SizedBox(
-                  height: 100,
-                  child: ListView(
-                    scrollDirection: Axis.horizontal,
-                    children: [
-                      _buildMentor('assets/images/mentor1.jpg', 'Jiya'),
-                      _buildMentor('assets/images/mentor2.jpg', 'Aman'),
-                      _buildMentor('assets/images/mentor3.jpg', 'Rahul.J'),
-                      _buildMentor('assets/images/mentor4.jpg', 'Manav'),
-                    ],
-                  ),
+                Consumer<UserProvider>(
+                  builder: (context, userProvider, _) {
+                    final mentors = userProvider.mentors;
+
+                    if (mentors.isEmpty) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+
+                    return SizedBox(
+                      height: 100,
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: mentors.length,
+                        itemBuilder: (context, index) {
+                          final mentor = mentors[index];
+                          return _buildMentor(
+                            mentor.photo ??
+                                '', // ganti dengan key gambar yang sesuai
+                            mentor.name ??
+                                '', // ganti dengan key nama yang sesuai
+                          );
+                        },
+                      ),
+                    );
+                  },
                 ),
                 const SizedBox(height: 16),
               ],
@@ -352,7 +360,6 @@ class _StudentDashboardState extends State<StudentDashboard> {
     String mentorName,
     String courseImage,
     String mentorImage,
-    double rating,
     String duration,
     int lessons,
   ) {
@@ -369,12 +376,18 @@ class _StudentDashboardState extends State<StudentDashboard> {
               borderRadius: const BorderRadius.vertical(
                 top: Radius.circular(16),
               ),
-              child: Image.asset(
-                courseImage,
-                height: 140,
-                width: double.infinity,
-                fit: BoxFit.cover,
-              ),
+              child:
+                  (courseImage.isNotEmpty)
+                      ? Image.asset(
+                        courseImage,
+                        height: 140,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return _buildImagePlaceholder();
+                        },
+                      )
+                      : _buildImagePlaceholder(),
             ),
             Padding(
               padding: const EdgeInsets.all(12),
@@ -387,6 +400,8 @@ class _StudentDashboardState extends State<StudentDashboard> {
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
                     ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 8),
                   Row(
@@ -394,6 +409,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
                       CircleAvatar(
                         radius: 14,
                         backgroundImage: AssetImage(mentorImage),
+                        onBackgroundImageError: (_, __) {},
                       ),
                       const SizedBox(width: 8),
                       Expanded(
@@ -403,6 +419,8 @@ class _StudentDashboardState extends State<StudentDashboard> {
                             Text(
                               mentorName,
                               style: const TextStyle(fontSize: 13),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
                             const Text(
                               "Educator",
@@ -415,13 +433,10 @@ class _StudentDashboardState extends State<StudentDashboard> {
                         ),
                       ),
                       Row(
-                        children: [
-                          const Icon(Icons.star, color: Colors.amber, size: 16),
-                          const SizedBox(width: 4),
-                          Text(
-                            rating.toString(),
-                            style: const TextStyle(fontSize: 12),
-                          ),
+                        children: const [
+                          Icon(Icons.star, color: Colors.amber, size: 16),
+                          SizedBox(width: 4),
+                          Text('-', style: TextStyle(fontSize: 12)),
                         ],
                       ),
                     ],
@@ -480,12 +495,28 @@ class _StudentDashboardState extends State<StudentDashboard> {
     );
   }
 
-  Widget _buildMentor(String image, String name) {
+  Widget _buildImagePlaceholder() {
+    return Container(
+      height: 140,
+      width: double.infinity,
+      color: Colors.grey[300],
+      child: const Icon(Icons.broken_image, size: 50, color: Colors.grey),
+    );
+  }
+
+  Widget _buildMentor(String imageUrl, String name) {
     return Padding(
       padding: const EdgeInsets.only(right: 12),
       child: Column(
         children: [
-          CircleAvatar(radius: 30, backgroundImage: AssetImage(image)),
+          CircleAvatar(
+            radius: 30,
+            backgroundImage:
+                imageUrl.isNotEmpty
+                    ? NetworkImage(imageUrl)
+                    : const AssetImage('assets/images/default-avatar.png')
+                        as ImageProvider,
+          ),
           const SizedBox(height: 4),
           Text(name),
         ],

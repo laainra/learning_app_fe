@@ -1,5 +1,6 @@
 import 'package:finbedu/models/category_model.dart';
 import 'package:finbedu/models/user_model.dart';
+
 class Course {
   final int? id;
   final int? categoryId;
@@ -13,7 +14,7 @@ class Course {
   final bool certificate;
   final String? image;
   final String price;
-  final Category? category;
+  final String? category;
   final UserModel? user;
     final double? rating;
   final int? totalStudents;
@@ -52,11 +53,16 @@ class Course {
       certificate: json['certificate'] == 1, // Konversi int ke bool
       image: json['image'],
       price: json['price'],
-      category: Category.fromJson(json['category']), 
-      user: UserModel.fromJson(json['user']), 
-            rating: (json['rating'] as num?)?.toDouble(),
+
+      category:
+          json['category'] != null
+              ? json['category']['name']
+              : null, // Ambil nama kategori dari objek JSON
+      user: UserModel.fromJson(json['user']),
+
       totalStudents: json['total_students'],
       totalLessons: json['total_lessons'],
+
     );
   }
 

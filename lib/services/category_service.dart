@@ -14,7 +14,7 @@ class CategoryService {
       headers: {
         //  'Authorization': 'Bearer $token',
         'Accept': 'application/json',
-  'X-Requested-With': 'XMLHttpRequest',
+        'X-Requested-With': 'XMLHttpRequest',
       },
     );
 

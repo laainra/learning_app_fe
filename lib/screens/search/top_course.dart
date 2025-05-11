@@ -1,8 +1,12 @@
 import 'package:finbedu/widgets/CustomHeader.dart';
 import 'package:finbedu/widgets/bottom_menu.dart';
 import 'package:flutter/material.dart';
-
-
+import '../../models/category_model.dart' as catModel;
+import '../../models/course_model.dart';
+import 'package:finbedu/providers/category_providers.dart';
+import 'package:finbedu/providers/course_provider.dart';
+import '../../routes/app_routes.dart' as route;
+import 'package:provider/provider.dart';
 
 class PopularCoursesPage extends StatefulWidget {
   const PopularCoursesPage({super.key});
@@ -12,54 +16,59 @@ class PopularCoursesPage extends StatefulWidget {
 }
 
 class _PopularCoursesPageState extends State<PopularCoursesPage> {
-  final List<String> categories = [
-    'All',
-    'Perpajakan',
-    'Akutansi',
-    'Digital Skill',
-    'Manajemen',
-  ];
+  List<catModel.Category> categories = [];
+  List<Course> allCourses = [];
+  List<Course> filteredCourses = [];
+  int selectedCategoryIndex = 0;
 
-  int selectedCategory = 0;
+  @override
+  void initState() {
+    super.initState();
+    _initializeData();
+  }
 
-  final List<Map<String, dynamic>> courses = [
-    {
-      'image': 'assets/images/course1.jpg',
-      'category': 'Akuntansi Perbankan',
-      'title': 'Pengantar Akuntansi',
-      'price': '705K',
-      'rating': 4.2,
-      'students': 7830,
-      'isBookmarked': true,
-    },
-    {
-      'image': 'assets/images/course2.jpg',
-      'category': 'Keuangan dan Analisi',
-      'title': 'Manajemen Keuangan',
-      'price': '800K',
-      'rating': 3.3,
-      'students': 12600,
-      'isBookmarked': false,
-    },
-    {
-      'image': 'assets/images/course1.jpg',
-      'category': 'Akuntansi Sektor Publik',
-      'title': 'Akuntansi Pemerintahan',
-      'price': '599K',
-      'rating': 4.2,
-      'students': 990,
-      'isBookmarked': true,
-    },
-    {
-      'image': 'assets/images/course2.jpg',
-      'category': 'Sistem Informasi Akuntansi',
-      'title': 'Sistem Informasi Akuntansi',
-      'price': '499K',
-      'rating': 4.9,
-      'students': 14850,
-      'isBookmarked': true,
-    },
-  ];
+  Future<void> _initializeData() async {
+    await _fetchCategories();
+    await _fetchCourses(); // jalankan setelah kategori siap
+    _filterCourses(); // filter setelah kedua data tersedia
+  }
+
+  Future<void> _fetchCategories() async {
+    final categoryProvider = Provider.of<CategoryProvider>(
+      context,
+      listen: false,
+    );
+    await categoryProvider.fetchCategories();
+    setState(() {
+      categories = categoryProvider.categories;
+    });
+  }
+
+  Future<void> _fetchCourses() async {
+    final courseProvider = Provider.of<CourseProvider>(context, listen: false);
+    await courseProvider.fetchCourses();
+    setState(() {
+      allCourses = courseProvider.allCourses;
+    });
+  }
+
+  void _filterCourses() {
+    if (categories.isEmpty || allCourses.isEmpty) return;
+
+    final selectedCategory =
+        categories[selectedCategoryIndex].name.toLowerCase();
+
+    setState(() {
+      filteredCourses =
+          allCourses
+              .where(
+                (course) =>
+                    course.category != null &&
+                    course.category!.toLowerCase() == selectedCategory,
+              )
+              .toList();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -81,23 +90,27 @@ class _PopularCoursesPageState extends State<PopularCoursesPage> {
                 scrollDirection: Axis.horizontal,
                 itemCount: categories.length,
                 itemBuilder: (context, index) {
-                  final isSelected = selectedCategory == index;
+                  final isSelected = selectedCategoryIndex == index;
                   return GestureDetector(
                     onTap: () {
                       setState(() {
-                        selectedCategory = index;
+                        selectedCategoryIndex = index;
                       });
+                      _filterCourses();
                     },
                     child: Container(
                       margin: const EdgeInsets.only(right: 12),
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
                       decoration: BoxDecoration(
                         color: isSelected ? Colors.black : Colors.grey[200],
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Center(
                         child: Text(
-                          categories[index],
+                          categories[index].name,
                           style: TextStyle(
                             color: isSelected ? Colors.white : Colors.black,
                             fontWeight: FontWeight.w600,
@@ -112,9 +125,9 @@ class _PopularCoursesPageState extends State<PopularCoursesPage> {
             const SizedBox(height: 12),
             Expanded(
               child: ListView.builder(
-                itemCount: courses.length,
+                itemCount: filteredCourses.length,
                 itemBuilder: (context, index) {
-                  final course = courses[index];
+                  final course = filteredCourses[index];
                   return _buildCourseCard(course);
                 },
               ),
@@ -125,59 +138,68 @@ class _PopularCoursesPageState extends State<PopularCoursesPage> {
     );
   }
 
-  Widget _buildCourseCard(Map<String, dynamic> course) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)],
-      ),
-      child: Row(
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(12),
-            child: Image.asset(
-              course['image'],
-              height: 80,
-              width: 80,
-              fit: BoxFit.cover,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _buildCourseCard(Course course) {
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      elevation: 2,
+      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      child: ListTile(
+        leading:
+            (course.image != null &&
+                    course.image!.isNotEmpty &&
+                    course.image!.endsWith('.png'))
+                ? Image.asset(
+                  course.image!,
+                  height: 80,
+                  width: 80,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return _buildPlaceholderImage();
+                  },
+                )
+                : _buildPlaceholderImage(),
+        title: Text(
+          course.name,
+          style: const TextStyle(fontWeight: FontWeight.bold),
+          overflow: TextOverflow.ellipsis,
+          maxLines: 1,
+        ),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 4),
+            Row(
               children: [
-                Text(
-                  course['category'],
-                  style: const TextStyle(fontSize: 12, color: Colors.orange),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  course['title'],
-                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 4),
-                Row(
-                  children: [
-                    Icon(Icons.star, size: 16, color: Colors.amber[700]),
-                    const SizedBox(width: 4),
-                    Text('${course['rating']}'),
-                    const SizedBox(width: 10),
-                    Text('${course['students']} Std'),
-                  ],
-                ),
+                const Icon(Icons.star, color: Colors.amber, size: 16),
+                const SizedBox(width: 4),
+                Text(course.price, style: const TextStyle(fontSize: 12)),
               ],
             ),
-          ),
-          Icon(
-            course['isBookmarked'] ? Icons.bookmark : Icons.bookmark_border,
-            color: course['isBookmarked'] ? Colors.teal : Colors.grey,
-          ),
-        ],
+            const SizedBox(height: 4),
+            Text(
+              course.desc,
+              style: const TextStyle(fontSize: 12),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+            ),
+          ],
+        ),
+        onTap: () {
+          // TODO: Implement detail navigation if needed
+        },
       ),
+    );
+  }
+
+  Widget _buildPlaceholderImage() {
+    return Container(
+      height: 80,
+      width: 80,
+      decoration: BoxDecoration(
+        color: Colors.grey[300],
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: const Icon(Icons.broken_image, color: Colors.grey),
     );
   }
 }

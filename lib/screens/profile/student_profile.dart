@@ -24,59 +24,71 @@ class ProfilePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: Text('Profile')),
       bottomNavigationBar: const CustomBottomNavBar(currentIndex: 4),
-      body: user == null
-          ? const Center(child: CircularProgressIndicator())
-          : Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  CircleAvatar(
-                    radius: 50,
-                    backgroundImage: user.photo != null && user.photo!.isNotEmpty
-                        ? NetworkImage(user.photo!)
-                        : const AssetImage('assets/default_avatar.png') as ImageProvider,
-                  ),
-                  const SizedBox(height: 10),
-                  Text(user.name, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-                  Text(user.email, style: const TextStyle(color: Colors.grey)),
-                  const SizedBox(height: 20),
-                  ListTile(
-                    title: const Text("Edit Profile"),
-                    trailing: const Icon(Icons.arrow_forward_ios),
-                    onTap: () {
-                      Navigator.pushNamed(context, route.edit_profile);
-                    },
-                  ),
-                  ListTile(
-                    title: const Text("Security"),
-                    trailing: const Icon(Icons.arrow_forward_ios),
-                    onTap: () {
-                      // Navigator.pushNamed(context, route.security);
-                    },
-                  ),
-                  ListTile(
-                    title: const Text("Terms & Conditions"),
-                    trailing: const Icon(Icons.arrow_forward_ios),
-                    onTap: () {
-                      // Navigator.pushNamed(context, route.terms);
-                    },
-                  ),
-                  ListTile(
-                    title: const Text("Logout"),
-                    trailing: const Icon(Icons.logout),
-                    onTap: () async {
-                      // await authService.logout(); // optional: clear token/session in service
-                      userProvider.clearUser(); // clear user in provider
-                      Navigator.pushNamedAndRemoveUntil(
-                        context,
-                        route.login,
-                        (route) => false,
-                      );
-                    },
-                  ),
-                ],
+      body:
+          user == null
+              ? const Center(child: CircularProgressIndicator())
+              : Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  children: [
+                    CircleAvatar(
+                      radius: 50,
+                      backgroundImage:
+                          user.photo != null && user.photo!.isNotEmpty
+                              ? NetworkImage(user.photo!)
+                              : const AssetImage('default_avatar.png')
+                                  as ImageProvider,
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      user.name,
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      user.email,
+                      style: const TextStyle(color: Colors.grey),
+                    ),
+                    const SizedBox(height: 20),
+                    ListTile(
+                      title: const Text("Edit Profile"),
+                      trailing: const Icon(Icons.arrow_forward_ios),
+                      onTap: () {
+                        Navigator.pushNamed(context, route.edit_profile);
+                      },
+                    ),
+                    ListTile(
+                      title: const Text("Security"),
+                      trailing: const Icon(Icons.arrow_forward_ios),
+                      onTap: () {
+                        // Navigator.pushNamed(context, route.security);
+                      },
+                    ),
+                    ListTile(
+                      title: const Text("Terms & Conditions"),
+                      trailing: const Icon(Icons.arrow_forward_ios),
+                      onTap: () {
+                        // Navigator.pushNamed(context, route.terms);
+                      },
+                    ),
+                    ListTile(
+                      title: const Text("Logout"),
+                      trailing: const Icon(Icons.logout),
+                      onTap: () async {
+                        // await authService.logout(); // optional: clear token/session in service
+                        userProvider.clearUser(); // clear user in provider
+                        Navigator.pushNamedAndRemoveUntil(
+                          context,
+                          route.login,
+                          (route) => false,
+                        );
+                      },
+                    ),
+                  ],
+                ),
               ),
-            ),
     );
   }
 }

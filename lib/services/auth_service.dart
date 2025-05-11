@@ -9,47 +9,53 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class AuthService {
   final FlutterSecureStorage storage = FlutterSecureStorage();
-Future<bool> login(BuildContext context, String email, String password) async {
-  try {
-    // Debugging the URL
-    final url = '${ApiConstants.baseUrl}/login';
-    print('Attempting to login with URL: $url');
+  Future<bool> login(
+    BuildContext context,
+    String email,
+    String password,
+  ) async {
+    try {
+      // Debugging the URL
+      final url = '${ApiConstants.baseUrl}/login';
+      print('Attempting to login with URL: $url');
 
-    final response = await http.post(
-      Uri.parse(url),
-      body: jsonEncode({'email': email, 'password': password}),
-      headers: {'Content-Type': 'application/json'},
-    );
+      final response = await http.post(
+        Uri.parse(url),
+        body: jsonEncode({'email': email, 'password': password}),
+        headers: {'Content-Type': 'application/json'},
+      );
 
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
 
-     if (data is Map && data.containsKey('status') && data['status'] == true)  {
-        final userData = UserModel.fromJson(data['data']['user']);
-        final token = data['data']['token'];
+        if (data is Map &&
+            data.containsKey('status') &&
+            data['status'] == true) {
+          final userData = UserModel.fromJson(data['data']['user']);
+          final token = data['data']['token'];
 
-        await storage.write(key: 'token', value: token);
-        await storage.write(key: 'role', value: userData.role);
-        await storage.write(key: 'isLoggedIn', value: 'true');
+          await storage.write(key: 'token', value: token);
+          await storage.write(key: 'role', value: userData.role);
+          await storage.write(key: 'isLoggedIn', value: 'true');
 
-        Provider.of<UserProvider>(context, listen: false).setUser(userData);
-        return true;
+          Provider.of<UserProvider>(context, listen: false).setUser(userData);
+          return true;
+        } else {
+          print('Login failed: ${data['message']}');
+          throw Exception(data['message']);
+        }
       } else {
-        print('Login failed: ${data['message']}');
-        throw Exception(data['message']);
+        print('Failed to login: ${response.statusCode}');
+        print('Response body: ${response.body}');
+
+        final errorMessage = _getErrorMessage(response);
+        throw Exception(errorMessage);
       }
-    } else {
-      print('Failed to login: ${response.statusCode}');
-      print('Response body: ${response.body}');
-      
-      final errorMessage = _getErrorMessage(response);
-      throw Exception(errorMessage);
+    } catch (error) {
+      print('Error during login: $error');
+      throw Exception('An error occurred during login: $error');
     }
-  } catch (error) {
-    print('Error during login: $error');
-    throw Exception('An error occurred during login: $error');
   }
-}
 
   Future<void> logout(BuildContext context) async {
     try {
@@ -74,57 +80,48 @@ Future<bool> login(BuildContext context, String email, String password) async {
     }
   }
 
-Future<bool> register(String name, String email, String password, String? role) async {
-  final response = await http.post(
-    Uri.parse('${ApiConstants.baseUrl}/register'),
-    body: jsonEncode({'name': name, 'email': email, 'password': password, 'role': role}),
-    headers: {'Content-Type': 'application/json'},
-  );
+  Future<bool> register(
+    String name,
+    String email,
+    String password,
+    String? role,
+  ) async {
+    final response = await http.post(
+      Uri.parse('${ApiConstants.baseUrl}/register'),
+      body: jsonEncode({
+        'name': name,
+        'email': email,
+        'password': password,
+        'role': role,
+      }),
+      headers: {'Content-Type': 'application/json'},
+    );
 
-  if (response.statusCode == 201) {
-    // Registration successful
-    return true;
-  } else {
-    // Registration failed, log the response for debugging
-    print('Failed to register: ${response.statusCode}');
-    print('Response body: ${response.body}');
-    
-    // Optional: you can also show the error message if available
-    final errorMessage = _getErrorMessage(response);
-    throw Exception(errorMessage); // throw the exception to be caught in UI
-  }
-}
+    if (response.statusCode == 201) {
+      // Registration successful
+      return true;
+    } else {
+      // Registration failed, log the response for debugging
+      print('Failed to register: ${response.statusCode}');
+      print('Response body: ${response.body}');
 
-String _getErrorMessage(http.Response response) {
-  try {
-    final responseBody = jsonDecode(response.body);
-    // Check if there is an error message in the response body
-    if (responseBody.containsKey('error')) {
-      return responseBody['error']; // Assume error key contains the message
+      // Optional: you can also show the error message if available
+      final errorMessage = _getErrorMessage(response);
+      throw Exception(errorMessage); // throw the exception to be caught in UI
     }
-  } catch (e) {
-    print('Error parsing response: $e');
   }
-  return 'Unknown error occurred';
-}
 
-Future<List<UserModel>> fetchMentors() async {
-
-  final response = await http.get(
-    Uri.parse('${ApiConstants.baseUrl}/mentors'),
-    headers: {
-
-      'Content-Type': 'application/json',
-    },
-  );
-
-  if (response.statusCode == 200) {
-    final List<dynamic> data = jsonDecode(response.body);
-    return data.map((json) => UserModel.fromJson(json)).toList();
-  } else {
-    print('Failed to fetch mentors: ${response.statusCode}');
-    throw Exception('Failed to fetch mentors');
+  String _getErrorMessage(http.Response response) {
+    try {
+      final responseBody = jsonDecode(response.body);
+      // Check if there is an error message in the response body
+      if (responseBody.containsKey('error')) {
+        return responseBody['error']; // Assume error key contains the message
+      }
+    } catch (e) {
+      print('Error parsing response: $e');
+    }
+    return 'Unknown error occurred';
   }
 }
 
-}

@@ -12,7 +12,8 @@ class AllCategoriesPage extends StatefulWidget {
 
 class _AllCategoriesPageState extends State<AllCategoriesPage> {
   final TextEditingController _searchController = TextEditingController();
-  final TextEditingController _categoryController = TextEditingController(); // Controller for new category input
+  final TextEditingController _categoryController =
+      TextEditingController(); // Controller for new category input
 
   @override
   void initState() {
@@ -42,7 +43,10 @@ class _AllCategoriesPageState extends State<AllCategoriesPage> {
               onPressed: () async {
                 final categoryName = _categoryController.text.trim();
                 if (categoryName.isNotEmpty) {
-                  await Provider.of<CategoryProvider>(context, listen: false).addCategory(categoryName);
+                  await Provider.of<CategoryProvider>(
+                    context,
+                    listen: false,
+                  ).addCategory(categoryName);
                   _categoryController.clear(); // Clear the input field
                   Navigator.of(context).pop(); // Close the dialog
                 }
@@ -61,7 +65,7 @@ class _AllCategoriesPageState extends State<AllCategoriesPage> {
 
     return Scaffold(
       appBar: const CustomHeader(title: 'All Categories'),
-            body: Padding(
+      body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
@@ -105,11 +109,15 @@ class _AllCategoriesPageState extends State<AllCategoriesPage> {
                   final category = categoryProvider.categories[index];
                   final query = _searchController.text.toLowerCase();
 
-                  if (query.isNotEmpty && !category.name.toLowerCase().contains(query)) {
+                  if (query.isNotEmpty &&
+                      !category.name.toLowerCase().contains(query)) {
                     return const SizedBox.shrink(); // Skip this item if it doesn't match the search
                   }
 
-                  return CategoryCard(title: category.name, icon: Icons.category); // Use a default icon
+                  return CategoryCard(
+                    title: category.name,
+                    icon: Icons.category,
+                  ); // Use a default icon
                 },
               ),
             ),
@@ -124,11 +132,7 @@ class CategoryCard extends StatelessWidget {
   final String title;
   final IconData icon;
 
-  const CategoryCard({
-    super.key,
-    required this.title,
-    required this.icon,
-  });
+  const CategoryCard({super.key, required this.title, required this.icon});
 
   @override
   Widget build(BuildContext context) {
@@ -149,11 +153,7 @@ class CategoryCard extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                icon,
-                size: 32,
-                color: Colors.blueAccent,
-              ),
+              Icon(icon, size: 32, color: Colors.blueAccent),
               const SizedBox(height: 12),
               Text(
                 title,

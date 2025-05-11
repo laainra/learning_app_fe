@@ -1,11 +1,14 @@
 import 'package:finbedu/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import '../models/user_model.dart';
+import '../services/user_service.dart'; // Pastikan path-nya benar
 
 class UserProvider with ChangeNotifier {
   UserModel? _user;
+  List<UserModel> _mentors = [];
 
   UserModel? get user => _user;
+  List<UserModel> get mentors => _mentors;
 
   void setUser(UserModel userData) {
     _user = userData;
@@ -17,15 +20,16 @@ class UserProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  
-Future<List<UserModel>> fetchMentors() async {
-  try {
-    final authService = AuthService(); // Buat instance AuthService
-    final mentors = await authService.fetchMentors(); // Panggil metode melalui instance
-    return mentors;
-  } catch (e) {
-    print('Error fetching mentors: $e');
-    rethrow;
+
+  Future<void> fetchMentors() async {
+    try {
+      final userService = UserService();
+      _mentors = await userService.fetchMentors();
+      notifyListeners();
+    } catch (e) {
+      print('Error fetching mentors: $e');
+      rethrow;
+    }
   }
-}
+
 }
