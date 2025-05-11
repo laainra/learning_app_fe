@@ -150,7 +150,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           ActionButton(
                             label: isLoading ? "Loading..." : "Sign In",
                             onTap: () async {
-                              if (isLoading) return; // Disable button while loading
+                              if (isLoading)
+                                return; // Disable button while loading
                               setState(() {
                                 isLoading = true;
                               });
@@ -171,17 +172,19 @@ class _LoginScreenState extends State<LoginScreen> {
 
                                 if (success) {
                                   // Ambil AuthProvider dan set login
-                                  final authProvider = Provider.of<AuthProvider>(
-                                    context,
-                                    listen: false,
-                                  );
+                                  final authProvider =
+                                      Provider.of<AuthProvider>(
+                                        context,
+                                        listen: false,
+                                      );
                                   await authProvider.login();
 
                                   // Ambil user dari UserProvider
-                                  final userProvider = Provider.of<UserProvider>(
-                                    context,
-                                    listen: false,
-                                  );
+                                  final userProvider =
+                                      Provider.of<UserProvider>(
+                                        context,
+                                        listen: false,
+                                      );
                                   final user = userProvider.user;
 
                                   // Cek role user
@@ -235,7 +238,9 @@ class _LoginScreenState extends State<LoginScreen> {
                               child: Align(
                                 alignment: Alignment.center,
                                 child: CircularProgressIndicator(
-                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Colors.white,
+                                  ),
                                 ),
                               ),
                             ),

@@ -1,31 +1,39 @@
-import 'package:finbedu/providers/category_providers.dart';
-import 'package:finbedu/providers/course_image_provider.dart';
-import 'package:finbedu/providers/course_provider.dart';
-import 'package:finbedu/providers/section_provider.dart';
-import 'package:finbedu/providers/video_provider.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart'; // Import the package
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:device_preview/device_preview.dart';
+
 import 'routes/app_routes.dart' as route;
-import './providers/auth_provider.dart';
+import 'providers/auth_provider.dart';
 import 'providers/user_provider.dart';
+import 'providers/category_providers.dart';
+import 'providers/course_provider.dart';
+import 'providers/section_provider.dart';
+import 'providers/video_provider.dart';
+import 'providers/course_image_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
-  final storage = FlutterSecureStorage(); // Create instance of FlutterSecureStorage
-  
-  // Get the stored values from secure storage
+
+  final storage = FlutterSecureStorage();
+
+  // Get values from secure storage
   String? isLoggedInString = await storage.read(key: 'isLoggedIn');
   bool isLoggedIn = isLoggedInString == 'true';
-  String? role = await storage.read(key: 'role'); 
+  String? role = await storage.read(key: 'role');
 
-  runApp(MyApp(isLoggedIn: isLoggedIn, role: role));
+  runApp(
+    DevicePreview(
+      enabled: !kReleaseMode,
+      builder: (context) => MyApp(isLoggedIn: isLoggedIn, role: role),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
   final bool isLoggedIn;
-  final String? role; // Role data
+  final String? role;
 
   const MyApp({super.key, required this.isLoggedIn, required this.role});
 
@@ -43,13 +51,17 @@ class MyApp extends StatelessWidget {
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
+        useInheritedMediaQuery: true, // Required for DevicePreview
+        locale: DevicePreview.locale(context), // Optional
+        builder: DevicePreview.appBuilder, // Required
         title: 'FINBEDU',
         theme: ThemeData(fontFamily: 'Poppins'),
-        initialRoute: isLoggedIn
-            ? (role == 'student'
-                ? route.student_dashboard
-                : route.mentor_dashboard)
-            : route.login,
+        initialRoute:
+            isLoggedIn
+                ? (role == 'student'
+                    ? route.student_dashboard
+                    : route.mentor_dashboard)
+                : route.login,
         onGenerateRoute: route.controller,
       ),
     );

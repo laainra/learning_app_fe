@@ -72,7 +72,7 @@ class _MyCoursesPageState extends State<MyCoursesPage>
     // Get role from the user provider
     final userProvider = Provider.of<UserProvider>(context);
     final userRole = userProvider.user?.role;
-      final courseProvider = Provider.of<CourseProvider>(context);
+    final courseProvider = Provider.of<CourseProvider>(context);
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FE),
@@ -129,11 +129,11 @@ class _MyCoursesPageState extends State<MyCoursesPage>
           Expanded(
             child:
                 userRole == 'mentor'
-                           ? courseProvider.isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : courseProvider.mentorCourses.isEmpty
-                ? const Center(child: Text("No courses found."))
-                : _buildMentorCourseList(courseProvider.mentorCourses)
+                    ? courseProvider.isLoading
+                        ? const Center(child: CircularProgressIndicator())
+                        : courseProvider.mentorCourses.isEmpty
+                        ? const Center(child: Text("No courses found."))
+                        : _buildMentorCourseList(courseProvider.mentorCourses)
                     : TabBarView(
                       controller: _tabController,
                       children: [
@@ -154,67 +154,67 @@ class _MyCoursesPageState extends State<MyCoursesPage>
       ),
     );
   }
-void _showEditModal(BuildContext context, Course course) {
-  showDialog(
-    context: context,
-    builder: (context) {
-      return AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        title: Text(
-          "Edit Course: ${course.name}",
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
+
+  void _showEditModal(BuildContext context, Course course) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
           ),
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context); // Tutup modal
-                Navigator.pushNamed(context, '/edit-description', arguments: course);
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
+          title: Text(
+            "Edit Course: ${course.name}",
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context); // Tutup modal
+                  Navigator.pushNamed(
+                    context,
+                    '/edit-description',
+                    arguments: course,
+                  );
+                },
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
+                child: const Text("Edit Description"),
               ),
-              child: const Text("Edit Description"),
-            ),
-            const SizedBox(height: 8),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context); // Tutup modal
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (_) => AddSectionScreen(courseId: course.id!)),
-                );
-              },
-              child: const Text("Edit Course"),
-            ),
-            const SizedBox(height: 8),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context); // Tutup modal
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => AddSectionScreen(courseId: course.id!),
-                  ),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green,
+              const SizedBox(height: 8),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context); // Tutup modal
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => AddSectionScreen(courseId: course.id!),
+                    ),
+                  );
+                },
+                child: const Text("Edit Course"),
               ),
-              child: const Text("Edit Curriculum"),
-            ),
-          ],
-        ),
-      );
-    },
-  );
-}
+              const SizedBox(height: 8),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context); // Tutup modal
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => AddSectionScreen(courseId: course.id!),
+                    ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                child: const Text("Edit Curriculum"),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
 
   Widget _buildCourseList(
     List<Map<String, dynamic>> courses, {
@@ -425,7 +425,8 @@ void _showEditModal(BuildContext context, Course course) {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                             course.category?.name ?? 'Unknown Category', // Tampilkan nama kategori
+                              course.category ??
+                                  'Unknown Category', // Tampilkan nama kategori
                               style: const TextStyle(
                                 color: Colors.orange,
                                 fontSize: 13,

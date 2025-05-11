@@ -2,8 +2,6 @@ import 'package:finbedu/widgets/CustomHeader.dart';
 import 'package:finbedu/widgets/bottom_menu.dart';
 import 'package:flutter/material.dart';
 
-
-
 class PopularCoursePage extends StatefulWidget {
   const PopularCoursePage({super.key});
 
@@ -90,7 +88,10 @@ class _PopularCoursePageState extends State<PopularCoursePage> {
                     },
                     child: Container(
                       margin: const EdgeInsets.only(right: 12),
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
                       decoration: BoxDecoration(
                         color: isSelected ? Colors.black : Colors.grey[200],
                         borderRadius: BorderRadius.circular(20),
@@ -157,7 +158,10 @@ class _PopularCoursePageState extends State<PopularCoursePage> {
                 const SizedBox(height: 4),
                 Text(
                   course['title'],
-                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 Row(

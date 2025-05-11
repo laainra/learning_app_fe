@@ -9,6 +9,28 @@ import 'constants.dart';
 
 class CourseService {
   final storage = const FlutterSecureStorage();
+  Future<List<Course>> fetchCourse() async {
+    final token = await storage.read(key: 'token');
+    final response = await http.get(
+      Uri.parse('${ApiConstants.baseUrl}/courses'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
+      },
+    );
+
+    print('Response status: ${response.statusCode}');
+    print('Response body: ${response.body}');
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = jsonDecode(response.body);
+      return data.map((json) => Course.fromJson(json)).toList();
+    } else {
+      throw Exception('Failed to load courses: ${response.body}');
+    }
+  }
+
   Future<int?> addCourse(Course course) async {
     try {
       // Print the course data as JSON
@@ -30,7 +52,7 @@ class CourseService {
       if (response.statusCode == 201) {
         final responseData = jsonDecode(response.body);
         print('Course created successfully: $responseData');
-       return responseData['data']['id'];
+        return responseData['data']['id'];
       } else {
         print('Failed to create course. Status code: ${response.statusCode}');
         print('Response body: ${response.body}');
@@ -46,7 +68,9 @@ class CourseService {
   Future<bool> uploadCourseImage(int courseId, File imageFile) async {
     try {
       final token = await storage.read(key: 'token');
-      final uri = Uri.parse('${ApiConstants.baseUrl}/courses/$courseId/upload-image');
+      final uri = Uri.parse(
+        '${ApiConstants.baseUrl}/courses/$courseId/upload-image',
+      );
       final request = http.MultipartRequest('POST', uri);
 
       // Menambahkan file gambar
@@ -90,10 +114,7 @@ class CourseService {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
         },
-        body: jsonEncode({
-          'name': name,
-          'course_id': courseId,
-        }),
+        body: jsonEncode({'name': name, 'course_id': courseId}),
       );
 
       if (response.statusCode == 201) {
@@ -111,7 +132,12 @@ class CourseService {
   }
 
   // Create Video
-  Future<bool> createVideo(String title, String url, int sectionId, String duration) async {
+  Future<bool> createVideo(
+    String title,
+    String url,
+    int sectionId,
+    String duration,
+  ) async {
     try {
       final token = await storage.read(key: 'token');
       final response = await http.post(
@@ -143,28 +169,59 @@ class CourseService {
   }
 
   Future<List<Course>> fetchCoursesByMentor(int mentorId) async {
-  try {
-    final token = await storage.read(key: 'token');
-    final url = Uri.parse('${ApiConstants.baseUrl}/courses/mentor/$mentorId');
-    final response = await http.get(
-      url,
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
-    );
+    try {
+      final token = await storage.read(key: 'token');
+      final url = Uri.parse('${ApiConstants.baseUrl}/courses/mentor/$mentorId');
+      final response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
 
-    if (response.statusCode == 200) {
-      final List<dynamic> data = jsonDecode(response.body)['data'];
-      return data.map((json) => Course.fromJson(json)).toList();
-    } else {
-      print('Failed to fetch courses. Status code: ${response.statusCode}');
-      print('Response body: ${response.body}');
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body)['data'];
+        return data.map((json) => Course.fromJson(json)).toList();
+      } else {
+        print('Failed to fetch courses. Status code: ${response.statusCode}');
+        print('Response body: ${response.body}');
+        return [];
+      }
+    } catch (e) {
+      print('Error fetching courses: $e');
       return [];
     }
-  } catch (e) {
-    print('Error fetching courses: $e');
-    return [];
   }
-}
+
+  Future<List<Course>> fetchCourseByCategory(int categoryId) async {
+    try {
+      final token = await storage.read(key: 'token');
+      final url = Uri.parse(
+        '${ApiConstants.baseUrl}/categories/$categoryId/courses',
+      );
+
+      final response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+      );
+
+      print('Fetch courses by category - Status: ${response.statusCode}');
+      print('Response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body)['data'];
+        return data.map((json) => Course.fromJson(json)).toList();
+      } else {
+        throw Exception('Failed to load courses by category: ${response.body}');
+      }
+    } catch (e) {
+      print('Error fetching courses by category: $e');
+      return [];
+    }
+  }
 }
