@@ -1,4 +1,5 @@
 import 'package:finbedu/screens/chat/chat_room.dart';
+import 'package:finbedu/screens/search/mentor_list.dart';
 import 'package:flutter/material.dart';
 import 'package:finbedu/screens/course/course_screen.dart';
 import 'package:finbedu/widgets/bottom_menu.dart';
@@ -45,17 +46,26 @@ class InboxPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Inbox"),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
-        elevation: 0,
-        actions: const [
-          Padding(
-            padding: EdgeInsets.only(right: 16.0),
-            child: Icon(Icons.search),
-          ),
-        ],
-      ),
+  title: const Text("Inbox"),
+  backgroundColor: Colors.white,
+  foregroundColor: Colors.black,
+  elevation: 0,
+  actions: [
+    IconButton(
+      icon: const Icon(Icons.add),
+      onPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const MentorListPage()),
+        );
+      },
+    ),
+    const Padding(
+      padding: EdgeInsets.only(right: 16.0),
+      child: Icon(Icons.search),
+    ),
+  ],
+),
       body: Column(
         children: [
           Padding(

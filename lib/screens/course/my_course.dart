@@ -216,10 +216,10 @@ class _MyCoursesPageState extends State<MyCoursesPage>
         final course = courses[index];
         return GestureDetector(
           onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => CourseDetailPage()),
-            );
+            // Navigator.push(
+            //   context,
+            //   MaterialPageRoute(builder: (context) => CourseDetailPage(course: course)),
+            // );
           },
           child: Stack(
             children: [
@@ -375,10 +375,12 @@ class _MyCoursesPageState extends State<MyCoursesPage>
             final course = courses[index];
             return GestureDetector(
               onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => CourseDetailPage()),
-                );
+                   Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => CourseDetailPage(course: course),
+            ),
+          );
               },
               child: Stack(
                 children: [

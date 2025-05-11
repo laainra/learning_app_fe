@@ -20,6 +20,7 @@ class SectionService {
 
     if (response.statusCode == 200) {
       final List<dynamic> data = jsonDecode(response.body);
+      print('Fetched sections: $data');
       return data.map((json) => Section.fromJson(json)).toList();
     } else {
       throw Exception('Failed to fetch sections');

@@ -15,7 +15,11 @@ class QuizProvider extends ChangeNotifier {
   List<QuizAnswer> get answers => _answers;
 
   List<QuizQuestion> get quizQuestions => _questions; // Tambahkan getter ini
-
+  bool isLoading = false;
+  
+Future<int> addQuiz(int sectionId) async {
+  return await _quizService.addQuiz(sectionId);
+}
   Future<void> loadQuizzes(int sectionId) async {
     try {
       _quizzes = await _quizService.fetchQuizzes(sectionId);
@@ -47,11 +51,16 @@ class QuizProvider extends ChangeNotifier {
 
   Future<void> loadQuizQuestions(int sectionId) async {
   try {
+   
+    isLoading = true;
+    notifyListeners();
     _questions = await _quizService.fetchQuestions(sectionId);
+        isLoading = false;
     notifyListeners();
   } catch (e) {
     print('Error loading quiz questions: $e');
-    throw Exception('Failed to load quiz questions');
+        isLoading = false;
+    notifyListeners();
   }
 }
 
@@ -119,4 +128,29 @@ class QuizProvider extends ChangeNotifier {
     await _quizService.deleteAnswer(answerId);
     notifyListeners();
   }
+
+  Future<void> addQuestionWithAnswers(
+  int quizId,
+  String question,
+  List<Map<String, dynamic>> answers,
+) async {
+  try {
+    await _quizService.addQuestionWithAnswers(quizId, question, answers);
+    // await loadQuizQuestions(quizId); // Refresh pertanyaan setelah menambahkan
+  } catch (e) {
+    throw Exception('Failed to add question with answers');
+  }
+}
+Quiz? _quizDetails;
+
+Quiz? get quizDetails => _quizDetails;
+
+Future<void> loadQuizDetails(int quizId) async {
+  try {
+    _quizDetails = await _quizService.fetchQuizDetails(quizId);
+    notifyListeners();
+  } catch (e) {
+    throw Exception('Failed to load quiz details');
+  }
+}
 }

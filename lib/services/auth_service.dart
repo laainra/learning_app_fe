@@ -108,4 +108,23 @@ String _getErrorMessage(http.Response response) {
   return 'Unknown error occurred';
 }
 
+Future<List<UserModel>> fetchMentors() async {
+
+  final response = await http.get(
+    Uri.parse('${ApiConstants.baseUrl}/mentors'),
+    headers: {
+
+      'Content-Type': 'application/json',
+    },
+  );
+
+  if (response.statusCode == 200) {
+    final List<dynamic> data = jsonDecode(response.body);
+    return data.map((json) => UserModel.fromJson(json)).toList();
+  } else {
+    print('Failed to fetch mentors: ${response.statusCode}');
+    throw Exception('Failed to fetch mentors');
+  }
+}
+
 }

@@ -99,12 +99,22 @@ Route<dynamic> controller(RouteSettings settings) {
       return MaterialPageRoute(builder: (_) => CurriculumPage());
     case my_course:
       return MaterialPageRoute(builder: (_) => MyCoursesPage());
-    case course_detail:
-      return MaterialPageRoute(builder: (_) => CourseDetailPage());
+case course_detail:
+  final args = settings.arguments as Map<String, dynamic>;
+  return MaterialPageRoute(
+    builder: (_) => CourseDetailPage(
+      course: args['course'], // Kirim argumen course
+    ),
+  );
     case certificate:
       return MaterialPageRoute(builder: (_) => CertificatePage());
     case quiz:
-      return MaterialPageRoute(builder: (_) => QuizDetailPage());
+        final args = settings.arguments as Map<String, dynamic>;
+  return MaterialPageRoute(
+    builder: (_) => QuizDetailPage(
+      sectionId: args['sectionId'], // Kirim argumen course
+    ),
+  );
     case reviews_list:
       return MaterialPageRoute(builder: (_) => ReviewsPage());
     case write_reviews:

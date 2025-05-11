@@ -7,34 +7,57 @@ import 'package:flutter/foundation.dart';
 
 class VideoService {
   final storage = const FlutterSecureStorage();
+  //   Future<List<Video>> fetchVideos(int sectionId) async {
+  //     // final token = await storage.read(key: 'token');
+  //     final url = Uri.parse(
+  //       '${ApiConstants.baseUrl}/videos?section_id=$sectionId',
+  //     );
+  //      final response = await http
+  //         .get(
+  //           url,
+  //           headers: {
+  //             'Content-Type': 'application/json',
+  //             'Accept': 'application/json',
+  //           },
+  //         )
+  //         .timeout(const Duration(seconds: 10), onTimeout: () {
+  //       throw Exception('Request timed out');
+  //     });
+
+  //     if (response.statusCode == 200) {
+  //      return compute(_parseVideos, response.body);
+  //     } else {
+  //       throw Exception('Failed to fetch videos');
+  //     }
+  //   }
+
+  // List<Video> _parseVideos(String responseBody) {
+  //   final List<dynamic> data = jsonDecode(responseBody);
+  //   return data.map((json) => Video.fromJson(json)).toList();
+  // }
+
   Future<List<Video>> fetchVideos(int sectionId) async {
-    // final token = await storage.read(key: 'token');
+    final token = await storage.read(key: 'token');
     final url = Uri.parse(
       '${ApiConstants.baseUrl}/videos?section_id=$sectionId',
     );
-     final response = await http
-        .get(
-          url,
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-          },
-        )
-        .timeout(const Duration(seconds: 10), onTimeout: () {
-      throw Exception('Request timed out');
-    });
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
 
     if (response.statusCode == 200) {
-     return compute(_parseVideos, response.body);
+      final List<dynamic> data = jsonDecode(response.body);
+      print('Fetched videos: $data');
+      return data.map((json) => Video.fromJson(json)).toList();
     } else {
-      throw Exception('Failed to fetch videos');
+      throw Exception('Failed to fetch sections');
     }
   }
 
-List<Video> _parseVideos(String responseBody) {
-  final List<dynamic> data = jsonDecode(responseBody);
-  return data.map((json) => Video.fromJson(json)).toList();
-}
   Future<void> addVideo(
     int sectionId,
     String title,
@@ -55,23 +78,26 @@ List<Video> _parseVideos(String responseBody) {
       print('Duration: $duration');
 
       final response = await http
-    .post(
-      apiUrl,
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Authorization': 'Bearer $token',
-      },
-      body: jsonEncode({
-        'title': title,
-        'url': url,
-        'duration': duration,
-        'section_id': sectionId,
-      }),
-    )
-    .timeout(const Duration(seconds: 10), onTimeout: () {
-  throw Exception('Request timed out');
-});
+          .post(
+            apiUrl,
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+              'Authorization': 'Bearer $token',
+            },
+            body: jsonEncode({
+              'title': title,
+              'url': url,
+              'duration': duration,
+              'section_id': sectionId,
+            }),
+          )
+          .timeout(
+            const Duration(seconds: 10),
+            onTimeout: () {
+              throw Exception('Request timed out');
+            },
+          );
 
       print('Response status code: ${response.statusCode}');
       print('Response body: ${response.body}');

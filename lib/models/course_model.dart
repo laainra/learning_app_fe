@@ -15,6 +15,9 @@ class Course {
   final String price;
   final Category? category;
   final UserModel? user;
+    final double? rating;
+  final int? totalStudents;
+  final int? totalLessons; 
 
   Course({
     this.id,
@@ -30,7 +33,9 @@ class Course {
     this.image,
     required this.price,
     this.category,
-    this.user,
+    this.user,    this.rating,
+    this.totalStudents,
+    this.totalLessons,
   });
 
   factory Course.fromJson(Map<String, dynamic> json) {
@@ -49,6 +54,9 @@ class Course {
       price: json['price'],
       category: Category.fromJson(json['category']), 
       user: UserModel.fromJson(json['user']), 
+            rating: (json['rating'] as num?)?.toDouble(),
+      totalStudents: json['total_students'],
+      totalLessons: json['total_lessons'],
     );
   }
 

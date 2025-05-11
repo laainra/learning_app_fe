@@ -1,9 +1,15 @@
+import 'package:finbedu/providers/quiz_provider.dart';
+import 'package:finbedu/screens/course/video_player.dart';
+import 'package:finbedu/screens/quiz/add_quiz.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:finbedu/models/section_model.dart';
 import 'package:finbedu/models/video_model.dart';
 import 'package:finbedu/providers/section_provider.dart';
 import 'package:finbedu/providers/video_provider.dart';
+
+import 'package:url_launcher/url_launcher_string.dart';
+import 'package:video_player/video_player.dart';
 
 class AddSectionScreen extends StatefulWidget {
   final int courseId;
@@ -44,6 +50,58 @@ class _AddSectionScreenState extends State<AddSectionScreen> {
     _sectionNameController.clear();
 
     setState(() => _isLoading = false);
+  }
+
+  void _addQuizAndNavigate(int sectionId) async {
+    setState(() => _isLoading = true);
+
+    try {
+      // Tambahkan quiz ke server
+      final quizId = await Provider.of<QuizProvider>(
+        context,
+        listen: false,
+      ).addQuiz(sectionId);
+
+      // Navigasi ke halaman Add Quiz
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => AddQuizScreen(quizId: quizId)),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Gagal menambahkan quiz: $e')));
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  void _showVideoModal(String url) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => VideoPlayerScreen(videoUrl: url)),
+    );
+  }
+
+  late SectionProvider _sectionProvider;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _sectionProvider = Provider.of<SectionProvider>(context, listen: false);
+  }
+
+  void _fetchSections() async {
+    try {
+      print('Mengambil ulang sections...');
+      await _sectionProvider.fetchSections(widget.courseId);
+      print('Sections berhasil diperbarui.');
+    } catch (e) {
+      print('Error: $e');
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Gagal memperbarui sections: $e')));
+    }
   }
 
   void _showEditSectionModal(Section section) {
@@ -106,29 +164,61 @@ class _AddSectionScreenState extends State<AddSectionScreen> {
                 ),
                 TextField(
                   controller: durationController,
-                  decoration: const InputDecoration(labelText: 'Durasi'),
+                  decoration: const InputDecoration(
+                    labelText: 'Durasi dalam Menit',
+                  ),
                 ),
               ],
             ),
             actions: [
               TextButton(
-                onPressed: () async {
+                onPressed: () {
+                  final title = titleController.text;
+                  final url = urlController.text;
+                  final duration = durationController.text;
+
+                  final sectionIdToUse = sectionId;
                   Navigator.pop(context);
-                  setState(() => _isLoading = true);
-                  await Provider.of<VideoProvider>(
-                    context,
-                    listen: false,
-                  ).addVideo(
-                    sectionId: sectionId,
-                    title: titleController.text,
-                    url: urlController.text,
-                    duration: durationController.text,
-                  );
-                  await Provider.of<SectionProvider>(
-                    context,
-                    listen: false,
-                  ).fetchSections(widget.courseId);
-                  setState(() => _isLoading = false);
+
+                  // Tunda eksekusi async sampai context stabil
+                  Future.microtask(() async {
+                    if (!mounted) return;
+                    setState(() => _isLoading = true);
+                    try {
+                      print('Menambahkan video...');
+                      await Provider.of<VideoProvider>(
+                        context,
+                        listen: false,
+                      ).addVideo(
+                        sectionId: sectionIdToUse,
+                        title: title,
+                        url: url,
+                        duration: duration,
+                      );
+                      print('Video berhasil ditambahkan.');
+
+                      if (!mounted) return;
+                      print('Mengambil ulang sections...');
+                      await Provider.of<SectionProvider>(
+                        context,
+                        listen: false,
+                      ).fetchSections(widget.courseId);
+                      print('Sections berhasil diperbarui.');
+                    } catch (e) {
+                      print('Error: $e');
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Gagal menambahkan video: $e'),
+                          ),
+                        );
+                      }
+                    } finally {
+                      if (mounted) {
+                        setState(() => _isLoading = false);
+                      }
+                    }
+                  });
                 },
                 child: const Text('Tambah'),
               ),
@@ -195,19 +285,22 @@ class _AddSectionScreenState extends State<AddSectionScreen> {
     );
   }
 
- void _deleteVideo(int videoId) async {
-  setState(() => _isLoading = true);
-  try {
-    await Provider.of<VideoProvider>(context, listen: false).deleteVideo(videoId);
-    await Provider.of<SectionProvider>(context, listen: false).fetchSections(widget.courseId);
-  } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Error deleting video: $e')),
+  void _deleteVideo(int sectionId, int videoId) {
+    setState(() => _isLoading = true);
+
+    final sectionProvider = Provider.of<SectionProvider>(
+      context,
+      listen: false,
     );
-  } finally {
+
+    final section = sectionProvider.sections.firstWhere(
+      (s) => s.id == sectionId,
+    );
+    section.videos.removeWhere((video) => video.id == videoId);
+
+    sectionProvider.notifyListeners();
     setState(() => _isLoading = false);
   }
-}
 
   @override
   Widget build(BuildContext context) {
@@ -246,6 +339,12 @@ class _AddSectionScreenState extends State<AddSectionScreen> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
+                              IconButton(
+                                icon: const Icon(Icons.quiz),
+                                onPressed:
+                                    () => _addQuizAndNavigate(section.id),
+                                tooltip: 'Tambah Quiz',
+                              ),
                               IconButton(
                                 icon: const Icon(
                                   Icons.edit,
@@ -306,35 +405,35 @@ class _AddSectionScreenState extends State<AddSectionScreen> {
                               ),
                             ],
                           ),
-                          ...videoProvider.videos
-                              .where((video) => video.sectionId == section.id)
-                              .map(
-                                (video) => ListTile(
-                                  title: Text(video.title),
-                                  subtitle: Text('Durasi: ${video.duration}'),
-                                  trailing: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      IconButton(
-                                        icon: const Icon(
-                                          Icons.edit,
-                                          color: Colors.blue,
-                                        ),
-                                        onPressed:
-                                            () => _showEditVideoModal(video),
-                                      ),
-                                      IconButton(
-                                        icon: const Icon(
-                                          Icons.delete,
-                                          color: Colors.red,
-                                        ),
-                                        onPressed: () => _deleteVideo(video.id),
-                                      ),
-                                    ],
-                                  ),
+                          ...section.videos.map(
+                            (video) => ListTile(
+                              leading: IconButton(
+                                icon: const Icon(
+                                  Icons.play_circle_fill,
+                                  color: Colors.blueAccent,
                                 ),
-                              )
-                              .toList(),
+                                onPressed: () => _showVideoModal(video.url),
+                                tooltip: 'Preview Video',
+                              ),
+                              title: Text(video.title),
+                              subtitle: Text('Durasi: ${video.duration}'),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(Icons.edit),
+                                    onPressed: () => _showEditVideoModal(video),
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.delete),
+                                    onPressed:
+                                        () =>
+                                            _deleteVideo(section.id, video.id),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
                         ],
                       ),
                     );
