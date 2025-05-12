@@ -5,9 +5,12 @@ import 'package:provider/provider.dart';
 
 import '../../providers/user_provider.dart';
 
-class ProfilePage extends StatelessWidget {
-  // final AuthService authService = AuthService();
+class ProfilePage extends StatefulWidget {
+  @override
+  _ProfilePageState createState() => _ProfilePageState();
+}
 
+class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     final userProvider = Provider.of<UserProvider>(context);
@@ -55,8 +58,9 @@ class ProfilePage extends StatelessWidget {
                     ListTile(
                       title: const Text("Edit Profile"),
                       trailing: const Icon(Icons.arrow_forward_ios),
-                      onTap: () {
-                        Navigator.pushNamed(context, route.edit_profile);
+                      onTap: () async {
+                        await Navigator.pushNamed(context, route.edit_profile);
+                        setState(() {}); // trigger reload saat kembali
                       },
                     ),
                     ListTile(
