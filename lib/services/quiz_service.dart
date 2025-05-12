@@ -56,7 +56,7 @@ class QuizService {
 
   Future<int> addQuiz(int sectionId) async {
     final token = await storage.read(key: 'token');
-    final url = Uri.parse('$baseUrl/quizzes');
+    final url = Uri.parse('$baseUrl/quizzes/get-or-create');
     final response = await http.post(
       url,
       body: jsonEncode({'section_id': sectionId}),
@@ -66,9 +66,12 @@ class QuizService {
       },
     );
 
-    if (response.statusCode == 201) {
+    print('Response status code: ${response.statusCode}');
+    print('Response body: ${response.body}');
+
+    if (response.statusCode == 201 || response.statusCode == 200) {
       final data = jsonDecode(response.body);
-      return data['id']; // Return the ID of the created quiz
+      return data['data']['id'];
     } else {
       throw Exception('Failed to create quiz');
     }
@@ -178,7 +181,7 @@ class QuizService {
   // Delete question
   Future<void> deleteQuestion(int questionId) async {
     final token = await storage.read(key: 'token');
-    final url = Uri.parse('${ApiConstants.baseUrl}/questions/$questionId');
+    final url = Uri.parse('${ApiConstants.baseUrl}/quiz-questions/$questionId');
     final response = await http.delete(
       url,
       headers: {
@@ -245,6 +248,29 @@ class QuizService {
 
     if (response.statusCode != 201) {
       throw Exception('Failed to add question with answers');
+    }
+  }
+
+  Future<void> editQuestionWithAnswers(
+    int quizId,
+    int questionId,
+    String question,
+    List<Map<String, dynamic>> answers,
+  ) async {
+    final token = await storage.read(key: 'token');
+    final url = Uri.parse('$baseUrl/quizzes/$quizId/questions/$questionId');
+    final response = await http.put(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({'question': question, 'answers': answers}),
+    );
+    // print('Response body quiz: ${response.body}');
+    print('Response status code quiz: ${response.statusCode}');
+    if (response.statusCode != 200) {
+      throw Exception('Failed to edit question');
     }
   }
 

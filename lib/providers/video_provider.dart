@@ -9,7 +9,7 @@ class VideoProvider with ChangeNotifier {
   Future<void> fetchVideos(int sectionId) async {
     try {
       videos = await _service.fetchVideos(sectionId);
-      print('Videos fetched: ${videos.length}');
+      // print('Videos fetched: ${videos.length}');
       notifyListeners();
     } catch (e) {
       print('Error fetching videos: $e');

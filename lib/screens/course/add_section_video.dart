@@ -8,9 +8,6 @@ import 'package:finbedu/models/video_model.dart';
 import 'package:finbedu/providers/section_provider.dart';
 import 'package:finbedu/providers/video_provider.dart';
 
-import 'package:url_launcher/url_launcher_string.dart';
-import 'package:video_player/video_player.dart';
-
 class AddSectionScreen extends StatefulWidget {
   final int courseId;
   const AddSectionScreen({Key? key, required this.courseId}) : super(key: key);
@@ -124,15 +121,32 @@ class _AddSectionScreenState extends State<AddSectionScreen> {
                 onPressed: () async {
                   Navigator.pop(context);
                   setState(() => _isLoading = true);
-                  await Provider.of<SectionProvider>(
-                    context,
-                    listen: false,
-                  ).updateSection(section.id, editController.text);
-                  await Provider.of<SectionProvider>(
-                    context,
-                    listen: false,
-                  ).fetchSections(widget.courseId);
-                  setState(() => _isLoading = false);
+
+                  try {
+                    await Provider.of<SectionProvider>(
+                      context,
+                      listen: false,
+                    ).updateSection(
+                      widget.courseId,
+                      section.id,
+                      editController.text,
+                    );
+                    print('Section berhasil diperbarui.');
+
+                    await Provider.of<SectionProvider>(
+                      context,
+                      listen: false,
+                    ).fetchSections(widget.courseId);
+                    print('Sections berhasil diperbarui.');
+                  } catch (e) {
+                    print('Error: $e');
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Gagal memperbarui section: $e')),
+                    );
+                  } finally {
+                    _sectionNameController.clear();
+                    setState(() => _isLoading = false);
+                  }
                 },
                 child: const Text('Simpan'),
               ),
@@ -390,11 +404,12 @@ class _AddSectionScreenState extends State<AddSectionScreen> {
                                   if (confirm == true) {
                                     setState(() => _isLoading = true);
                                     await sectionProvider.deleteSection(
+                                      widget.courseId,
                                       section.id,
                                     );
-                                    await sectionProvider.fetchSections(
-                                      widget.courseId,
-                                    );
+                                    // await sectionProvider.fetchSections(
+                                    //   widget.courseId,
+                                    // );
                                     setState(() => _isLoading = false);
                                   }
                                 },

@@ -32,7 +32,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Tonton Video')),
+      appBar: AppBar(title: const Text('Watch Video')),
       body: YoutubePlayer(
         controller: _controller,
         showVideoProgressIndicator: true,

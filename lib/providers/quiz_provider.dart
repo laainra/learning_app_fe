@@ -16,10 +16,16 @@ class QuizProvider extends ChangeNotifier {
 
   List<QuizQuestion> get quizQuestions => _questions; // Tambahkan getter ini
   bool isLoading = false;
+
+  Quiz? _quizDetails;
+
+Quiz? get quizDetails => _quizDetails;
+
   
 Future<int> addQuiz(int sectionId) async {
   return await _quizService.addQuiz(sectionId);
 }
+
   Future<void> loadQuizzes(int sectionId) async {
     try {
       _quizzes = await _quizService.fetchQuizzes(sectionId);
@@ -28,6 +34,28 @@ Future<int> addQuiz(int sectionId) async {
       throw Exception('Failed to load quizzes');
     }
   }
+  Future<void> editQuestionWithAnswers(
+  int quizId,
+  int questionId,
+  String question,
+  List<Map<String, dynamic>> answers,
+) async {
+  try {
+    await _quizService.editQuestionWithAnswers(quizId, questionId, question, answers);
+    await loadQuizDetails(quizId); // Refresh data quiz
+  } catch (e) {
+    throw Exception('Failed to edit question: $e');
+  }
+}
+
+  Future<void> loadQuizDetails(int quizId) async {
+  try {
+    _quizDetails = await _quizService.fetchQuizDetails(quizId);
+    notifyListeners();
+  } catch (e) {
+    throw Exception('Failed to load quiz details: $e');
+  }
+}
 
   Future<void> loadQuizAnswers(int questionId) async {
     try {
@@ -114,10 +142,14 @@ Future<int> addQuiz(int sectionId) async {
     notifyListeners();
   }
 
-  Future<void> deleteQuestion(int questionId) async {
+  Future<void> deleteQuestion(int quizId, int questionId) async {
+  try {
     await _quizService.deleteQuestion(questionId);
-    notifyListeners();
+    await loadQuizDetails(quizId); // Refresh data quiz
+  } catch (e) {
+    throw Exception('Failed to delete question: $e');
   }
+}
 
   Future<void> updateAnswer(int answerId, String answer) async {
     await _quizService.updateAnswer(answerId, answer);
@@ -141,16 +173,5 @@ Future<int> addQuiz(int sectionId) async {
     throw Exception('Failed to add question with answers');
   }
 }
-Quiz? _quizDetails;
 
-Quiz? get quizDetails => _quizDetails;
-
-Future<void> loadQuizDetails(int quizId) async {
-  try {
-    _quizDetails = await _quizService.fetchQuizDetails(quizId);
-    notifyListeners();
-  } catch (e) {
-    throw Exception('Failed to load quiz details');
-  }
-}
 }
