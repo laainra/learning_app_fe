@@ -185,20 +185,7 @@ class _MyCoursesPageState extends State<MyCoursesPage>
                 },
                 child: const Text("Edit Course"),
               ),
-              const SizedBox(height: 8),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context); // Tutup modal
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => AddSectionScreen(courseId: course.id!),
-                    ),
-                  );
-                },
 
-                child: const Text("Edit Course"),
-              ),
               const SizedBox(height: 8),
               ElevatedButton(
                 onPressed: () {
@@ -210,7 +197,7 @@ class _MyCoursesPageState extends State<MyCoursesPage>
                     ),
                   );
                 },
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.blueAccent),
                 child: const Text("Edit Curriculum"),
               ),
             ],

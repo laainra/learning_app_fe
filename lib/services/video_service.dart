@@ -51,7 +51,7 @@ class VideoService {
 
     if (response.statusCode == 200) {
       final List<dynamic> data = jsonDecode(response.body);
-      print('Fetched videos: $data');
+      // print('Fetched videos: $data');
       return data.map((json) => Video.fromJson(json)).toList();
     } else {
       throw Exception('Failed to fetch sections');

@@ -16,11 +16,7 @@ import 'package:device_preview/device_preview.dart';
 import 'routes/app_routes.dart' as route;
 import 'providers/auth_provider.dart';
 import 'providers/user_provider.dart';
-import 'providers/category_providers.dart';
-import 'providers/course_provider.dart';
-import 'providers/section_provider.dart';
-import 'providers/video_provider.dart';
-import 'providers/course_image_provider.dart';
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
