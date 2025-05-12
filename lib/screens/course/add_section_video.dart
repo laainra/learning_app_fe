@@ -179,8 +179,10 @@ class _AddSectionScreenState extends State<AddSectionScreen> {
                 TextField(
                   controller: durationController,
                   decoration: const InputDecoration(
-                    labelText: 'Durasi dalam Menit',
+                    labelText: 'Durasi (hh:mm:ss)',
+                    hintText: 'Contoh: 01:30:45',
                   ),
+                  keyboardType: TextInputType.number,
                 ),
               ],
             ),

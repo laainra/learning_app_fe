@@ -117,45 +117,42 @@ class CourseService {
     }
   }
 
-  // Upload Course Image
   Future<bool> uploadCourseImage(int courseId, File imageFile) async {
-    try {
-      final token = await storage.read(key: 'token');
-      final uri = Uri.parse(
-        '${ApiConstants.baseUrl}/courses/$courseId/upload-image',
-      );
-      final request = http.MultipartRequest('POST', uri);
+  try {
+    final token = await storage.read(key: 'token');
+    final uri = Uri.parse('${ApiConstants.baseUrl}/courses/$courseId/upload-image');
+    final request = http.MultipartRequest('POST', uri);
 
-      // Menambahkan file gambar
-      var mimeType = mime(imageFile.path) ?? 'application/octet-stream';
-      var mimeTypeData = mimeType.split('/');
-      var multipartFile = http.MultipartFile(
-        'image',
-        imageFile.openRead(),
-        await imageFile.length(),
-        filename: imageFile.path.split('/').last,
-        contentType: MediaType(mimeTypeData[0], mimeTypeData[1]),
-      );
-      request.files.add(multipartFile);
+    // Menambahkan file gambar
+    var mimeType = mime(imageFile.path) ?? 'application/octet-stream';
+    var mimeTypeData = mimeType.split('/');
+    var multipartFile = http.MultipartFile(
+      'image',
+      imageFile.openRead(),
+      await imageFile.length(),
+      filename: imageFile.path.split('/').last,
+      contentType: MediaType(mimeTypeData[0], mimeTypeData[1]),
+    );
+    request.files.add(multipartFile);
 
-      // Tambahkan header
-      request.headers['Authorization'] = 'Bearer $token';
+    // Tambahkan header
+    request.headers['Authorization'] = 'Bearer $token';
 
-      // Kirim request
-      final response = await request.send();
-      if (response.statusCode == 200) {
-        print('Image uploaded successfully');
-        return true;
-      } else {
-        print('Failed to upload image. Status code: ${response.statusCode}');
-        print('Response body: ${await response.stream.bytesToString()}');
-        return false;
-      }
-    } catch (e) {
-      print('Error uploading image: $e');
+    // Kirim request
+    final response = await request.send();
+    if (response.statusCode == 200) {
+      print('Image uploaded successfully');
+      return true;
+    } else {
+      print('Failed to upload image. Status code: ${response.statusCode}');
+      print('Response body: ${await response.stream.bytesToString()}');
       return false;
     }
+  } catch (e) {
+    print('Error uploading image: $e');
+    return false;
   }
+}
 
   // Create Section
   Future<bool> createSection(String name, int courseId) async {

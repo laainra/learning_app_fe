@@ -11,11 +11,15 @@ class CustomBottomNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color activeColor = Color(0xFFFFC100);
-    final Color inactiveColor = Color(0xFF202244);
     final userProvider = Provider.of<UserProvider>(context);
     final user = userProvider.user;
-    final userRole = user?.role;
+    if (user == null) {
+      return const SizedBox.shrink(); // Widget kosong
+    }
+    final Color activeColor = Color(0xFFFFC100);
+    final Color inactiveColor = Color(0xFF202244);
+
+    final userRole = user.role;
     String dashboardRoute;
     if (userRole == 'student') {
       dashboardRoute = route.student_dashboard; // Navigate to student dashboard
