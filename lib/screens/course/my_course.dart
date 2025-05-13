@@ -197,7 +197,9 @@ class _MyCoursesPageState extends State<MyCoursesPage>
                     ),
                   );
                 },
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.blueAccent),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blueAccent,
+                ),
                 child: const Text("Edit Curriculum"),
               ),
             ],
@@ -381,7 +383,8 @@ class _MyCoursesPageState extends State<MyCoursesPage>
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => CourseDetailPage(course: course),
+                    builder:
+                        (context) => CourseDetailPage(courseId: course.id!),
                   ),
                 );
               },

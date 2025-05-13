@@ -274,12 +274,14 @@ class _StudentDashboardState extends State<StudentDashboard> {
                       final course = courses[index];
                       return GestureDetector(
                         onTap: () {
-                          // Navigator.push(
-                          //   context,
-                          //   MaterialPageRoute(
-                          //     builder: (context) => CourseDetailPage(course: course),
-                          //   ),
-                          // );
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder:
+                                  (context) =>
+                                      CourseDetailPage(courseId: course.id!),
+                            ),
+                          );
                         },
                         child: _buildCourseCard(
                           course.name,

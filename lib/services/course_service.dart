@@ -223,14 +223,12 @@ class CourseService {
 
   Future<List<Course>> fetchCoursesByMentor(int mentorId) async {
     try {
-
       final token = await storage.read(key: 'token');
 
       final url = Uri.parse('${ApiConstants.baseUrl}/courses/mentor/$mentorId');
       final response = await http.get(
         url,
         headers: {
-
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
         },
@@ -279,6 +277,33 @@ class CourseService {
       print('Error fetching courses by category: $e');
       return [];
     }
+  }
 
+  Future<Course?> fetchCourseById(int courseId) async {
+    try {
+      final token = await storage.read(key: 'token');
+      final response = await http.get(
+        Uri.parse('${ApiConstants.baseUrl}/courses/$courseId'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+      );
+
+      print('Fetch course by ID - Status: ${response.statusCode}');
+      print('Response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return Course.fromJson(data);
+      } else {
+        print('Failed to fetch course: ${response.body}');
+        return null;
+      }
+    } catch (e) {
+      print('Error fetching course by ID: $e');
+      return null;
+    }
   }
 }
