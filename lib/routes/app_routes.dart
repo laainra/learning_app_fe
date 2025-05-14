@@ -1,3 +1,7 @@
+import 'package:flutter/material.dart';
+import 'package:finbedu/screens/auth/intro_auth.dart';
+import 'package:finbedu/screens/auth/login_screen.dart';
+import 'package:finbedu/screens/auth/register_screen.dart';
 import 'package:finbedu/screens/category/category.dart';
 import 'package:finbedu/screens/chat/chat_room.dart';
 import 'package:finbedu/screens/chat/inbox.dart';
@@ -11,6 +15,8 @@ import 'package:finbedu/screens/course/my_course.dart';
 import 'package:finbedu/screens/dashboard/mentor_dashboard.dart';
 import 'package:finbedu/screens/dashboard/student_dashboard.dart';
 import 'package:finbedu/screens/notification/notification.dart';
+import 'package:finbedu/screens/profile/create_pin.dart';
+import 'package:finbedu/screens/profile/edit_profile.dart';
 import 'package:finbedu/screens/profile/mentor_profile.dart';
 import 'package:finbedu/screens/profile/student_profile.dart';
 import 'package:finbedu/screens/quiz/quiz_screen.dart';
@@ -20,12 +26,6 @@ import 'package:finbedu/screens/search/search.dart';
 import 'package:finbedu/screens/search/top_course.dart';
 import 'package:finbedu/screens/search/top_mentor.dart';
 import 'package:finbedu/screens/transaction/transaction.dart';
-import 'package:flutter/material.dart';
-import 'package:finbedu/screens/auth/intro_auth.dart';
-import 'package:finbedu/screens/auth/login_screen.dart';
-import 'package:finbedu/screens/auth/register_screen.dart';
-import 'package:finbedu/screens/profile/create_pin.dart';
-import 'package:finbedu/screens/profile/edit_profile.dart';
 import '../screens/splash_screen.dart';
 import '../screens/intro_screen.dart';
 
@@ -102,20 +102,19 @@ Route<dynamic> controller(RouteSettings settings) {
     case course_detail:
       final args = settings.arguments as Map<String, dynamic>;
       return MaterialPageRoute(
-        builder:
-            (_) => CourseDetailPage(
-              course: args['course'], // Kirim argumen course
-            ),
+        builder: (_) => CourseDetailPage(
+   
+          courseId: args['courseId'],
+        ),
       );
     case certificate:
       return MaterialPageRoute(builder: (_) => CertificatePage());
     case quiz:
       final args = settings.arguments as Map<String, dynamic>;
       return MaterialPageRoute(
-        builder:
-            (_) => QuizDetailPage(
-              sectionId: args['sectionId'], // Kirim argumen course
-            ),
+        builder: (_) => QuizPage(
+          quizId: args['quizId'],
+        ),
       );
     case reviews_list:
       return MaterialPageRoute(builder: (_) => ReviewsPage());
@@ -124,12 +123,11 @@ Route<dynamic> controller(RouteSettings settings) {
     case mentor_profile:
       final args = settings.arguments as Map<String, dynamic>;
       return MaterialPageRoute(
-        builder:
-            (_) => MentorProfilePage(
-              name: args['name'],
-              skill: args['skill'],
-              image: args['image'],
-            ),
+        builder: (_) => MentorProfilePage(
+          name: args['name'],
+          skill: args['skill'],
+          image: args['image'],
+        ),
       );
     case student_profile:
       return MaterialPageRoute(builder: (_) => ProfilePage());
@@ -137,8 +135,13 @@ Route<dynamic> controller(RouteSettings settings) {
       return MaterialPageRoute(builder: (_) => NotificationPage());
     case inbox:
       return MaterialPageRoute(builder: (_) => InboxPage());
-    // case chat_room:
-    //   return MaterialPageRoute(builder: (_) => ChatRoomPage());
+    case chat_room:
+      final args = settings.arguments as Map<String, dynamic>;
+      return MaterialPageRoute(
+        builder: (_) => ChatRoomPage(
+          chatRoomId: args['chatRoomId'],
+        ),
+      );
     case transaction:
       return MaterialPageRoute(builder: (_) => TransactionPage());
     case add_course:
