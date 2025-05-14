@@ -2,6 +2,7 @@ import 'package:finbedu/models/course_model.dart';
 import 'package:finbedu/providers/course_provider.dart';
 import 'package:finbedu/screens/course/add_course.dart';
 import 'package:finbedu/screens/course/add_section_video.dart';
+import 'package:finbedu/services/constants.dart';
 import 'package:finbedu/widgets/bottom_menu.dart';
 import 'package:finbedu/screens/course/course_detail.dart';
 import 'package:flutter/material.dart';
@@ -242,8 +243,16 @@ class _MyCoursesPageState extends State<MyCoursesPage>
                         height: 90,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(12),
-                          image: const DecorationImage(
-                            image: AssetImage('assets/images/course1.jpg'),
+                          image: DecorationImage(
+                            image:
+                                course['image']! != null
+                                    ? NetworkImage(
+                                      '${ApiConstants.imgUrl}/${course['image']!}',
+                                    )
+                                    : const AssetImage(
+                                          'assets/images/course1.jpg',
+                                        ) // Use a default image if no image is provided
+                                        as ImageProvider,
                             fit: BoxFit.cover,
                           ),
                         ),
@@ -404,8 +413,16 @@ class _MyCoursesPageState extends State<MyCoursesPage>
                             height: 90,
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(12),
-                              image: const DecorationImage(
-                                image: AssetImage('assets/images/course1.jpg'),
+                              image: DecorationImage(
+                                image:
+                                    course.image != null
+                                        ? NetworkImage(
+                                          '${ApiConstants.imgUrl}/${course.image}',
+                                        )
+                                        : const AssetImage(
+                                              'assets/images/course1.jpg',
+                                            ) // Use a default image if no image is provided
+                                            as ImageProvider,
                                 fit: BoxFit.cover,
                               ),
                             ),

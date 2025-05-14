@@ -1,4 +1,4 @@
-import 'package:finbedu/models/category_model.dart';
+
 import 'package:finbedu/models/user_model.dart';
 
 class Course {
