@@ -1,7 +1,8 @@
-
 import 'package:flutter/material.dart';
 import '../models/user_model.dart';
 import '../services/user_service.dart'; // Pastikan path-nya benar
+import 'dart:io';
+
 
 class UserProvider with ChangeNotifier {
   UserModel? _user;
@@ -9,6 +10,7 @@ class UserProvider with ChangeNotifier {
 
   UserModel? get user => _user;
   List<UserModel> get mentors => _mentors;
+  final userService = UserService();
 
   void setUser(UserModel userData) {
     _user = userData;
@@ -18,6 +20,41 @@ class UserProvider with ChangeNotifier {
   void clearUser() {
     _user = null;
     notifyListeners();
+  }
+
+  Future<void> fetchProfile() async {
+    try {
+ 
+      _user = await userService.fetchProfile();
+      notifyListeners();
+    } catch (e) {
+      print('Error fetching profile: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> updateProfile({
+    required String name,
+    required String dob,
+    required String email,
+    required String noTelp,
+    required String? gender,
+  }) async {
+    
+    final success = await userService.updateProfile({
+      'name': name,
+      'dob': dob,
+      'email': email,
+      'no_telp': noTelp,
+      'gender': gender,
+    });
+
+    if (success) {
+      await fetchProfile(); // refresh data setelah update berhasil
+    }
+  }
+    Future<bool> uploadUserImage(int userId, File image) async {
+    return await userService.uploadImage(userId, image);
   }
 
   Future<List<UserModel>> fetchMentors() async {

@@ -1,3 +1,5 @@
+import 'package:finbedu/services/constants.dart';
+
 import '../../routes/app_routes.dart' as route;
 import 'package:finbedu/widgets/bottom_menu.dart';
 import 'package:flutter/material.dart';
@@ -34,13 +36,37 @@ class _ProfilePageState extends State<ProfilePage> {
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   children: [
-                    CircleAvatar(
-                      radius: 50,
-                      backgroundImage:
-                          user.photo != null && user.photo!.isNotEmpty
-                              ? NetworkImage(user.photo!)
-                              : const AssetImage('default_avatar.png')
-                                  as ImageProvider,
+                    ClipOval(
+                      child:
+                          (user.photo ?? '').isNotEmpty
+                              ? Image.network(
+                                '${ApiConstants.imgUrl}/${user.photo}',
+                                width: 90,
+                                height: 90,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Container(
+                                    width: 90,
+                                    height: 90,
+                                    color: Colors.white,
+                                    child: const Icon(
+                                      Icons.person,
+                                      size: 50,
+                                      color: Colors.grey,
+                                    ),
+                                  );
+                                },
+                              )
+                              : Container(
+                                width: 90,
+                                height: 90,
+                                color: Colors.white,
+                                child: const Icon(
+                                  Icons.person,
+                                  size: 50,
+                                  color: Colors.grey,
+                                ),
+                              ),
                     ),
                     const SizedBox(height: 10),
                     Text(

@@ -99,22 +99,24 @@ Route<dynamic> controller(RouteSettings settings) {
       return MaterialPageRoute(builder: (_) => CurriculumPage());
     case my_course:
       return MaterialPageRoute(builder: (_) => MyCoursesPage());
-case course_detail:
-  final args = settings.arguments as Map<String, dynamic>;
-  return MaterialPageRoute(
-    builder: (_) => CourseDetailPage(
-      course: args['course'], // Kirim argumen course
-    ),
-  );
+    case course_detail:
+      final args = settings.arguments as Map<String, dynamic>;
+      return MaterialPageRoute(
+        builder:
+            (_) => CourseDetailPage(
+              course: args['course'], // Kirim argumen course
+            ),
+      );
     case certificate:
       return MaterialPageRoute(builder: (_) => CertificatePage());
     case quiz:
-        final args = settings.arguments as Map<String, dynamic>;
-  return MaterialPageRoute(
-    builder: (_) => QuizDetailPage(
-      sectionId: args['sectionId'], // Kirim argumen course
-    ),
-  );
+      final args = settings.arguments as Map<String, dynamic>;
+      return MaterialPageRoute(
+        builder:
+            (_) => QuizDetailPage(
+              sectionId: args['sectionId'], // Kirim argumen course
+            ),
+      );
     case reviews_list:
       return MaterialPageRoute(builder: (_) => ReviewsPage());
     case write_reviews:
@@ -135,8 +137,8 @@ case course_detail:
       return MaterialPageRoute(builder: (_) => NotificationPage());
     case inbox:
       return MaterialPageRoute(builder: (_) => InboxPage());
-    case chat_room:
-      return MaterialPageRoute(builder: (_) => ChatRoomPage());
+    // case chat_room:
+    //   return MaterialPageRoute(builder: (_) => ChatRoomPage());
     case transaction:
       return MaterialPageRoute(builder: (_) => TransactionPage());
     case add_course:

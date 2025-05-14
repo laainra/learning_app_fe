@@ -1,4 +1,4 @@
-
+import 'package:finbedu/providers/chat_provider.dart';
 import 'package:flutter/foundation.dart';
 
 import 'package:finbedu/providers/category_providers.dart';
@@ -17,14 +17,11 @@ import 'routes/app_routes.dart' as route;
 import 'providers/auth_provider.dart';
 import 'providers/user_provider.dart';
 
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-
   final storage =
       FlutterSecureStorage(); // Create instance of FlutterSecureStorage
-
 
   String? isLoggedInString = await storage.read(key: 'isLoggedIn');
   bool isLoggedIn = isLoggedInString == 'true';
@@ -56,6 +53,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => VideoProvider()),
         ChangeNotifierProvider(create: (_) => CourseImageProvider()),
         ChangeNotifierProvider(create: (_) => QuizProvider()),
+        ChangeNotifierProvider(create: (_) => ChatProvider()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

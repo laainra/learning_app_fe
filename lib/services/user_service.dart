@@ -2,7 +2,10 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'constants.dart';
-import '../models/user_model.dart'; // Pastikan ini path ke model User
+import '../models/user_model.dart';
+import 'package:mime_type/mime_type.dart';
+import 'dart:io';
+import 'package:http_parser/http_parser.dart';
 
 class UserService {
   final FlutterSecureStorage storage = const FlutterSecureStorage();
@@ -27,6 +30,27 @@ class UserService {
       return data.map((json) => UserModel.fromJson(json)).toList();
     } else {
       throw Exception('Failed to load mentors: ${response.body}');
+    }
+  }
+
+  Future<UserModel> fetchProfile() async {
+    final token = await storage.read(key: 'token');
+    if (token == null) {
+      throw Exception("User not authenticated.");
+    }
+
+    final response = await http.get(
+      Uri.parse('${ApiConstants.baseUrl}/profile'),
+      headers: {'Authorization': 'Bearer $token', 'Accept': 'application/json'},
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return UserModel.fromJson(
+        data,
+      ); // Pastikan `UserModel` memiliki `fromJson`
+    } else {
+      throw Exception('Failed to fetch profile: ${response.body}');
     }
   }
 
@@ -77,6 +101,35 @@ class UserService {
       } catch (_) {
         throw Exception('Unexpected error: ${response.body}');
       }
+    }
+  }
+
+  Future<bool> uploadImage(int userId, File imageFile) async {
+    final token = await storage.read(key: 'token');
+    final uri = Uri.parse(
+      '${ApiConstants.baseUrl}/upload-image/$userId',
+    ); // ganti dengan base URL kamu
+    final request = http.MultipartRequest('POST', uri);
+    var mimeType = mime(imageFile.path) ?? 'application/octet-stream';
+    var mimeTypeData = mimeType.split('/');
+    var multipartFile = http.MultipartFile(
+      'photo',
+      imageFile.openRead(),
+      await imageFile.length(),
+      filename: imageFile.path.split('/').last,
+      contentType: MediaType(mimeTypeData[0], mimeTypeData[1]),
+    );
+    request.files.add(multipartFile);
+    request.headers['Authorization'] = 'Bearer $token';
+
+    final response = await request.send();
+    if (response.statusCode == 200) {
+      print('Image uploaded successfully');
+      return true;
+    } else {
+      print('Failed to upload image. Status code: ${response.statusCode}');
+      print('Response body: ${await response.stream.bytesToString()}');
+      return false;
     }
   }
 }

@@ -1,15 +1,17 @@
+import 'user_model.dart';
+
 class ChatRoom {
   final int id;
-  final String mentorName;
-  final String studentName;
+  final UserModel mentor;
+  final UserModel student;
   final String? lastMessage;
   final String? lastMessageTime;
   final int? unreadCount;
 
   ChatRoom({
     required this.id,
-    required this.mentorName,
-    required this.studentName,
+    required this.mentor,
+    required this.student,
     this.lastMessage,
     this.lastMessageTime,
     this.unreadCount,
@@ -18,8 +20,8 @@ class ChatRoom {
   factory ChatRoom.fromJson(Map<String, dynamic> json) {
     return ChatRoom(
       id: json['id'],
-      mentorName: json['mentor_name'],
-      studentName: json['student_name'],
+      mentor: UserModel.fromJson(json['mentor']),
+      student: UserModel.fromJson(json['student']),
       lastMessage: json['last_message'] ?? '',
       lastMessageTime: json['last_message_time'] ?? '',
       unreadCount: json['unread_count'] ?? 0,
