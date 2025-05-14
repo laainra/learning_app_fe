@@ -6,13 +6,15 @@ class VideoProvider with ChangeNotifier {
   final VideoService _service = VideoService();
   List<Video> videos = [];
 
-  Future<void> fetchVideos(int sectionId) async {
+  Future<List<Video>> fetchVideos(int sectionId) async {
     try {
+      // Memanggil service untuk mendapatkan daftar video berdasarkan sectionId
       videos = await _service.fetchVideos(sectionId);
-      // print('Videos fetched: ${videos.length}');
       notifyListeners();
+      return videos; // Mengembalikan daftar video yang diperoleh
     } catch (e) {
       print('Error fetching videos: $e');
+      return []; // Jika ada error, mengembalikan daftar kosong
     }
   }
 

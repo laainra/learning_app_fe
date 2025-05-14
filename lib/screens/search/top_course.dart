@@ -5,6 +5,7 @@ import '../../models/category_model.dart' as catModel;
 import '../../models/course_model.dart';
 import 'package:finbedu/providers/category_providers.dart';
 import 'package:finbedu/providers/course_provider.dart';
+import 'package:finbedu/screens/course/course_detail.dart';
 import '../../routes/app_routes.dart' as route;
 import 'package:provider/provider.dart';
 
@@ -185,7 +186,12 @@ class _PopularCoursesPageState extends State<PopularCoursesPage> {
           ],
         ),
         onTap: () {
-          // TODO: Implement detail navigation if needed
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => CourseDetailPage(courseId: course.id!),
+            ),
+          );
         },
       ),
     );

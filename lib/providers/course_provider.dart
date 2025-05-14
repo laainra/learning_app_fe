@@ -15,6 +15,9 @@ class CourseProvider with ChangeNotifier {
   List<Course> _categoryCourses = []; // NEW
   List<Course> get categoryCourses => _categoryCourses; // NEW
 
+  Course? _courseById; // NEW
+  Course? get courseById => _courseById; // NEW
+
   bool _isLoading = false;
   bool get isLoading => _isLoading;
   Future<void> fetchCoursesByMentor(int mentorId) async {
@@ -58,6 +61,22 @@ class CourseProvider with ChangeNotifier {
     } catch (e) {
       print('Error fetching courses by category: $e');
       _categoryCourses = [];
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> fetchCourseById(int courseId) async {
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      final course = await _courseService.fetchCourseById(courseId);
+      _courseById = course;
+    } catch (e) {
+      print('Error fetching course by ID: $e');
+      _courseById = null;
     } finally {
       _isLoading = false;
       notifyListeners();
