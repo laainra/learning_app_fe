@@ -292,4 +292,98 @@ class QuizService {
       throw Exception('Failed to fetch quiz details');
     }
   }
+
+  Future<List<dynamic>> fetchQuizResults() async {
+    final token = await storage.read(key: 'token');
+    final url = Uri.parse('$baseUrl/quiz-results');
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body)['data'];
+      return data;
+    } else {
+      throw Exception('Failed to fetch quiz results');
+    }
+  }
+
+  Future<Map<String, dynamic>> fetchQuizResultByQuizId(int quizId) async {
+    final token = await storage.read(key: 'token');
+    final url = Uri.parse('$baseUrl/quiz-results/$quizId');
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+    print('Response status code: ${response.statusCode} for quizId: $quizId');
+    print('Response body: ${response.body}');
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body)['data'];
+      return data;
+    } else if (response.statusCode == 404) {
+      throw Exception('Quiz result not found');
+    } else {
+      throw Exception('Failed to fetch quiz result');
+    }
+  }
+
+  Future<Map<String, dynamic>> submitQuiz(
+    int quizId,
+    List<Map<String, int>> answers,
+  ) async {
+    final token = await storage.read(key: 'token');
+    final url = Uri.parse('$baseUrl/quiz-results');
+
+    final client = http.Client();
+    final request = http.Request('POST', url);
+    request.headers.addAll({
+      'Authorization': 'Bearer $token',
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    });
+    request.body = jsonEncode({'quiz_id': quizId, 'answers': answers});
+
+    final streamedResponse = await client.send(request);
+    final response = await http.Response.fromStream(streamedResponse);
+
+    print('Status code: ${response.statusCode}');
+    print('Headers: ${response.headers}');
+    print('Body: ${response.body}');
+
+    if (response.statusCode == 201) {
+      return jsonDecode(response.body);
+    } else {
+      print('Response status code: ${response.statusCode}');
+      print('Response body: ${response.body}');
+      throw Exception('Failed to submit quiz');
+    }
+  }
+  Future<int?> getQuizIdBySectionId(int sectionId) async {
+  final token = await storage.read(key: 'token');
+  final url = Uri.parse('$baseUrl/quiz-id/$sectionId');
+
+  final response = await http.get(
+    url,
+    headers: {
+      'Authorization': 'Bearer $token',
+      'Content-Type': 'application/json',
+    },
+  );
+
+  if (response.statusCode == 200) {
+    final data = jsonDecode(response.body);
+    return data['quiz_id']; // Kembalikan quizId
+  } else if (response.statusCode == 404) {
+    return null; // Jika quiz tidak ditemukan, kembalikan null
+  } else {
+    throw Exception('Failed to fetch quiz ID');
+  }
+}
 }

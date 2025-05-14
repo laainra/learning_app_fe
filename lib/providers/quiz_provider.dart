@@ -19,12 +19,44 @@ class QuizProvider extends ChangeNotifier {
 
   Quiz? _quizDetails;
 
-Quiz? get quizDetails => _quizDetails;
+  Quiz? get quizDetails => _quizDetails;
 
-  
-Future<int> addQuiz(int sectionId) async {
-  return await _quizService.addQuiz(sectionId);
+  List<dynamic> _quizResults = [];
+  Map<String, dynamic>? _quizResultByQuizId;
+
+  List<dynamic> get quizResults => _quizResults;
+  Map<String, dynamic>? get quizResultByQuizId => _quizResultByQuizId;
+
+  Future<void> fetchQuizResults() async {
+    try {
+      _quizResults = await _quizService.fetchQuizResults();
+      notifyListeners();
+    } catch (e) {
+      throw Exception('Failed to fetch quiz results: $e');
+    }
+  }
+
+  Future<Map<String, dynamic>> fetchQuizResultByQuizId(int quizId) async {
+    try {
+      return await _quizService.fetchQuizResultByQuizId(quizId);
+    } catch (e) {
+      debugPrint("Error fetching quiz result: $e");
+      rethrow;
+    }
+  }
+
+  Future<int?> getQuizIdBySectionId(int sectionId) async {
+  try {
+    return await QuizService().getQuizIdBySectionId(sectionId);
+  } catch (e) {
+    debugPrint("Error fetching quiz ID: $e");
+    return null;
+  }
 }
+
+  Future<int> addQuiz(int sectionId) async {
+    return await _quizService.addQuiz(sectionId);
+  }
 
   Future<void> loadQuizzes(int sectionId) async {
     try {
@@ -34,28 +66,34 @@ Future<int> addQuiz(int sectionId) async {
       throw Exception('Failed to load quizzes');
     }
   }
+
   Future<void> editQuestionWithAnswers(
-  int quizId,
-  int questionId,
-  String question,
-  List<Map<String, dynamic>> answers,
-) async {
-  try {
-    await _quizService.editQuestionWithAnswers(quizId, questionId, question, answers);
-    await loadQuizDetails(quizId); // Refresh data quiz
-  } catch (e) {
-    throw Exception('Failed to edit question: $e');
+    int quizId,
+    int questionId,
+    String question,
+    List<Map<String, dynamic>> answers,
+  ) async {
+    try {
+      await _quizService.editQuestionWithAnswers(
+        quizId,
+        questionId,
+        question,
+        answers,
+      );
+      await loadQuizDetails(quizId); // Refresh data quiz
+    } catch (e) {
+      throw Exception('Failed to edit question: $e');
+    }
   }
-}
 
   Future<void> loadQuizDetails(int quizId) async {
-  try {
-    _quizDetails = await _quizService.fetchQuizDetails(quizId);
-    notifyListeners();
-  } catch (e) {
-    throw Exception('Failed to load quiz details: $e');
+    try {
+      _quizDetails = await _quizService.fetchQuizDetails(quizId);
+      notifyListeners();
+    } catch (e) {
+      throw Exception('Failed to load quiz details: $e');
+    }
   }
-}
 
   Future<void> loadQuizAnswers(int questionId) async {
     try {
@@ -68,7 +106,7 @@ Future<int> addQuiz(int sectionId) async {
     }
   }
 
- Future<void> fetchQuestions(int sectionId) async {
+  Future<void> fetchQuestions(int sectionId) async {
     try {
       _questions = await _quizService.fetchQuestions(sectionId);
       notifyListeners();
@@ -78,19 +116,18 @@ Future<int> addQuiz(int sectionId) async {
   }
 
   Future<void> loadQuizQuestions(int sectionId) async {
-  try {
-   
-    isLoading = true;
-    notifyListeners();
-    _questions = await _quizService.fetchQuestions(sectionId);
-        isLoading = false;
-    notifyListeners();
-  } catch (e) {
-    print('Error loading quiz questions: $e');
-        isLoading = false;
-    notifyListeners();
+    try {
+      isLoading = true;
+      notifyListeners();
+      _questions = await _quizService.fetchQuestions(sectionId);
+      isLoading = false;
+      notifyListeners();
+    } catch (e) {
+      print('Error loading quiz questions: $e');
+      isLoading = false;
+      notifyListeners();
+    }
   }
-}
 
   Future<void> fetchAnswers(int questionId) async {
     try {
@@ -129,7 +166,11 @@ Future<int> addQuiz(int sectionId) async {
     }
   }
 
-  Future<void> createQuizAnswer(int questionId, String answer, bool isCorrect) async {
+  Future<void> createQuizAnswer(
+    int questionId,
+    String answer,
+    bool isCorrect,
+  ) async {
     try {
       await _quizService.addAnswer(questionId, answer, isCorrect);
     } catch (e) {
@@ -143,13 +184,22 @@ Future<int> addQuiz(int sectionId) async {
   }
 
   Future<void> deleteQuestion(int quizId, int questionId) async {
-  try {
-    await _quizService.deleteQuestion(questionId);
-    await loadQuizDetails(quizId); // Refresh data quiz
-  } catch (e) {
-    throw Exception('Failed to delete question: $e');
+    try {
+      await _quizService.deleteQuestion(questionId);
+      await loadQuizDetails(quizId); // Refresh data quiz
+    } catch (e) {
+      throw Exception('Failed to delete question: $e');
+    }
   }
-}
+
+  Future<int?> getQuizResult(int quizId) async {
+    try {
+      final result = await QuizService().fetchQuizResultByQuizId(quizId);
+      return result['score']; // Kembalikan skor jika hasil quiz ditemukan
+    } catch (e) {
+      return null; // Jika tidak ada hasil quiz, kembalikan null
+    }
+  }
 
   Future<void> updateAnswer(int answerId, String answer) async {
     await _quizService.updateAnswer(answerId, answer);
@@ -162,16 +212,15 @@ Future<int> addQuiz(int sectionId) async {
   }
 
   Future<void> addQuestionWithAnswers(
-  int quizId,
-  String question,
-  List<Map<String, dynamic>> answers,
-) async {
-  try {
-    await _quizService.addQuestionWithAnswers(quizId, question, answers);
-    // await loadQuizQuestions(quizId); // Refresh pertanyaan setelah menambahkan
-  } catch (e) {
-    throw Exception('Failed to add question with answers');
+    int quizId,
+    String question,
+    List<Map<String, dynamic>> answers,
+  ) async {
+    try {
+      await _quizService.addQuestionWithAnswers(quizId, question, answers);
+      // await loadQuizQuestions(quizId); // Refresh pertanyaan setelah menambahkan
+    } catch (e) {
+      throw Exception('Failed to add question with answers');
+    }
   }
-}
-
 }

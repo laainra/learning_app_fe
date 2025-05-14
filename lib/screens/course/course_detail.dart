@@ -1,3 +1,5 @@
+import 'package:finbedu/screens/quiz/quiz_result.dart';
+import 'package:finbedu/services/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -61,158 +63,226 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
             return const Center(child: Text("Course not found"));
           }
 
-          return Stack(
-            children: [
-              Column(
-                children: [
-                  // Thumbnail
-                  ClipRRect(
-                    borderRadius: const BorderRadius.only(
-                      bottomLeft: Radius.circular(20),
-                      bottomRight: Radius.circular(20),
-                    ),
-                    child: Container(
-                      color: Colors.black,
-                      height: 250,
-                      width: double.infinity,
-                      child: const Center(
-                        child: Icon(
-                          Icons.play_circle_fill,
-                          color: Colors.white,
-                          size: 72,
+          return DefaultTabController(
+            length: 2,
+            child: Stack(
+              children: [
+                Column(
+                  children: [
+                    // Thumbnail Header
+                    Stack(
+                      children: [
+                        course.image != null
+                            ? Image.network(
+                              '${ApiConstants.imgUrl}/${course.image}',
+                              height: 250,
+                              width: double.infinity,
+                              fit: BoxFit.cover, // Agar gambar memenuhi area
+                              loadingBuilder: (
+                                context,
+                                child,
+                                loadingProgress,
+                              ) {
+                                if (loadingProgress == null) {
+                                  return child; // Jika loading selesai, tampilkan gambar
+                                }
+                                return Container(
+                                  height: 250,
+                                  width: double.infinity,
+                                  color:
+                                      Colors
+                                          .grey
+                                          .shade200, // Latar belakang saat loading
+                                  child: const Center(
+                                    child:
+                                        CircularProgressIndicator(), // Indikator loading
+                                  ),
+                                );
+                              },
+                              errorBuilder: (context, error, stackTrace) {
+                                return Container(
+                                  height: 250,
+                                  width: double.infinity,
+                                  color:
+                                      Colors.black, // Latar belakang saat error
+                                  child: const Center(
+                                    child: Icon(
+                                      Icons.broken_image, // Ikon untuk error
+                                      color: Colors.white,
+                                      size: 72,
+                                    ),
+                                  ),
+                                );
+                              },
+                            )
+                            : Container(
+                              height: 250,
+                              width: double.infinity,
+                              color: Colors.black,
+                              child: const Center(
+                                child: Icon(
+                                  Icons.play_circle_fill,
+                                  color: Colors.white,
+                                  size: 72,
+                                ),
+                              ),
+                            ),
+                        Positioned(
+                          left: 20,
+                          top: 48,
+                          child: GestureDetector(
+                            onTap: () => Navigator.pop(context),
+                            child: const CircleAvatar(
+                              backgroundColor: Colors.white,
+                              child: Icon(Icons.arrow_back),
+                            ),
+                          ),
                         ),
+                      ],
+                    ),
+                    // TabBar
+                    Container(
+                      color: Colors.white,
+                      child: const TabBar(
+                        labelColor: Colors.black,
+                        indicatorColor: Color(0xFF202244),
+                        tabs: [Tab(text: 'Overview'), Tab(text: 'Curriculum')],
                       ),
                     ),
-                  ),
-                  Expanded(
-                    child: SingleChildScrollView(
-                      padding: const EdgeInsets.only(bottom: 100),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                    // TabBarView
+                    Expanded(
+                      child: TabBarView(
                         children: [
-                          // Deskripsi Kursus
-                          Transform.translate(
-                            offset: const Offset(0, -30),
-                            child: Container(
-                              margin: const EdgeInsets.symmetric(
-                                horizontal: 20,
-                              ),
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(16),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.05),
-                                    blurRadius: 10,
-                                    offset: const Offset(0, 4),
+                          // Overview Tab
+                          SingleChildScrollView(
+                            padding: const EdgeInsets.all(20),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Info Box
+                                Container(
+                                  padding: const EdgeInsets.all(16),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(16),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.05),
+                                        blurRadius: 10,
+                                        offset: const Offset(0, 4),
+                                      ),
+                                    ],
                                   ),
-                                ],
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  // Kategori & Rating
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            course.level ?? "Unknown Level",
+                                            style: const TextStyle(
+                                              color: Colors.orange,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                          Row(
+                                            children: [
+                                              const Icon(
+                                                Icons.star,
+                                                size: 16,
+                                                color: Colors.orange,
+                                              ),
+                                              const SizedBox(width: 4),
+                                              Text(
+                                                course.rating?.toString() ??
+                                                    "-",
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 8),
                                       Text(
-                                        course.level ?? "Unknown Category",
+                                        course.name,
                                         style: const TextStyle(
-                                          color: Colors.orange,
-                                          fontWeight: FontWeight.w500,
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 20,
+                                          color: Colors.black87,
                                         ),
                                       ),
+                                      const SizedBox(height: 12),
                                       Row(
                                         children: [
-                                          const Icon(
-                                            Icons.star,
-                                            color: Colors.orange,
-                                            size: 16,
+                                          _buildMeta(
+                                            Icons.menu_book,
+                                            "${course.totalLessons ?? 0} Lessons",
                                           ),
-                                          const SizedBox(width: 4),
-                                          Text(
-                                            course.rating?.toString() ?? "-",
+                                          const SizedBox(width: 12),
+                                          _buildMeta(
+                                            Icons.access_time,
+                                            course.name ?? "-",
+                                          ),
+                                          const SizedBox(width: 12),
+                                          _buildMeta(
+                                            Icons.group,
+                                            "${course.totalStudents ?? 0} Students",
                                           ),
                                         ],
                                       ),
                                     ],
                                   ),
-                                  const SizedBox(height: 8),
-                                  // Nama Kursus
-                                  Text(
-                                    course.name,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 20,
-                                      color: Colors.black87,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 12),
-                                  // Metadata
-                                  Row(
-                                    children: [
-                                      _buildMeta(
-                                        Icons.menu_book,
-                                        "${course.totalLessons ?? 0} Lessons",
-                                      ),
-                                      const SizedBox(width: 12),
-                                      _buildMeta(
-                                        Icons.access_time,
-                                        course.name ?? "Unknown Duration",
-                                      ),
-                                      const SizedBox(width: 12),
-                                      _buildMeta(
-                                        Icons.group,
-                                        "${course.totalStudents ?? 0} Students",
+                                ),
+
+                                const SizedBox(height: 8),
+                                Container(
+                                  // padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(16),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.05),
+                                        blurRadius: 10,
+                                        offset: const Offset(0, 4),
                                       ),
                                     ],
                                   ),
-                                ],
-                              ),
+                                  child: _buildAboutSection(course.desc ?? ""),
+                                ),
+                                const SizedBox(height: 20),
+                              ],
                             ),
                           ),
-                          const SizedBox(height: 8),
-                          // Kurikulum
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                          // Curriculum Tab
+                          SingleChildScrollView(
+                            padding: const EdgeInsets.all(20),
                             child: _buildCurriculumSection(),
                           ),
                         ],
                       ),
                     ),
-                  ),
-                ],
-              ),
-              // Tombol Kembali
-              Positioned(
-                left: 20,
-                top: 48,
-                child: GestureDetector(
-                  onTap: () => Navigator.pop(context),
-                  child: const CircleAvatar(
-                    backgroundColor: Colors.white,
-                    child: Icon(Icons.arrow_back),
+                  ],
+                ),
+                // Enroll Button
+                Positioned(
+                  left: 20,
+                  right: 20,
+                  bottom: 20,
+                  child: ActionButton(
+                    label: "Enroll Course - ${course.price}",
+                    color: const Color(0xFF202244),
+                    height: 56,
+                    width: double.infinity,
+                    onTap: () {
+                      // Implementasi aksi enroll
+                    },
                   ),
                 ),
-              ),
-              // Tombol Enroll
-              Positioned(
-                left: 20,
-                right: 20,
-                bottom: 20,
-                child: ActionButton(
-                  label: "Enroll Course - ${course.price}",
-                  color: const Color(0xFF202244),
-                  height: 56,
-                  width: double.infinity,
-                  onTap: () {
-                    // Implementasi aksi enroll
-                  },
-                ),
-              ),
-            ],
+              ],
+            ),
           );
         },
       ),
@@ -316,23 +386,87 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: SizedBox(
                   width: double.infinity,
-                  child: ElevatedButton.icon(
-                    onPressed: () {
-                      Navigator.pushNamed(
-                        context,
-                        'quiz',
-                        arguments: {'sectionId': section.id},
+                  child: FutureBuilder<int?>(
+                    future: Provider.of<QuizProvider>(
+                      context,
+                      listen: false,
+                    ).getQuizIdBySectionId(
+                      section.id,
+                    ), // Dapatkan quizId berdasarkan sectionId
+                    builder: (context, quizIdSnapshot) {
+                      if (quizIdSnapshot.connectionState ==
+                          ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+
+                      final quizId = quizIdSnapshot.data;
+
+                      if (quizId == null) {
+                        return const Center(
+                          child: Text("Quiz tidak tersedia untuk section ini"),
+                        );
+                      }
+
+                      return FutureBuilder<int?>(
+                        future: Provider.of<QuizProvider>(
+                          context,
+                          listen: false,
+                        ).getQuizResult(
+                          quizId,
+                        ), // Periksa hasil quiz berdasarkan quizId
+                        builder: (context, resultSnapshot) {
+                          if (resultSnapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          }
+
+                          final score = resultSnapshot.data;
+
+                          return ElevatedButton.icon(
+                            onPressed: () async {
+                              if (score != null) {
+                                // Jika hasil quiz sudah ada, navigasi ke halaman hasil
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder:
+                                        (context) =>
+                                            QuizResultScreen(score: score),
+                                  ),
+                                );
+                              } else {
+                                // Jika belum ada hasil quiz, navigasi ke halaman quiz
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder:
+                                        (context) => QuizPage(quizId: quizId),
+                                  ),
+                                );
+                              }
+                            },
+                            icon: Icon(
+                              score != null
+                                  ? Icons.visibility
+                                  : Icons.assignment,
+                            ),
+                            label: Text(
+                              score != null ? "Lihat Score" : "Kerjakan Quiz",
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor:
+                                  score != null ? Colors.blue : Colors.green,
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                          );
+                        },
                       );
                     },
-                    icon: const Icon(Icons.assignment),
-                    label: const Text("Kerjakan Quiz"),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
                   ),
                 ),
               ),
@@ -352,5 +486,49 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
         context,
       ).showSnackBar(SnackBar(content: Text("Could not launch $url")));
     }
+  }
+
+  Widget _buildAboutSection(String about) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            "About This Course",
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            about,
+            style: const TextStyle(fontSize: 14, color: Colors.black87),
+          ),
+          const SizedBox(height: 24),
+          const Text(
+            "What You'll Get",
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          ),
+          const SizedBox(height: 16),
+          _infoItem(Icons.play_circle, "25 Lessons"),
+          _infoItem(Icons.devices, "Access Mobile, Desktop & TV"),
+          _infoItem(Icons.lock_open, "Lifetime Access"),
+          _infoItem(Icons.quiz, "6 Quizzes"),
+          _infoItem(Icons.verified, "Certificate of Completion"),
+        ],
+      ),
+    );
+  }
+
+  Widget _infoItem(IconData icon, String text) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        children: [
+          Icon(icon, color: Colors.blue),
+          const SizedBox(width: 8),
+          Text(text),
+        ],
+      ),
+    );
   }
 }

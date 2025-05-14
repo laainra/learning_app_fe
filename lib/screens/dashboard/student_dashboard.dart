@@ -2,6 +2,7 @@ import 'package:finbedu/providers/category_providers.dart';
 import 'package:finbedu/providers/course_provider.dart';
 import 'package:finbedu/screens/course/course_detail.dart';
 import 'package:finbedu/screens/course/course_screen.dart';
+import 'package:finbedu/services/constants.dart';
 import 'package:finbedu/widgets/bottom_menu.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -215,7 +216,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
                 ),
                 const SizedBox(height: 8),
                 SizedBox(
-                  height: 40,
+                  height: 70,
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
                     itemCount: categories.length,
@@ -511,13 +512,37 @@ class _StudentDashboardState extends State<StudentDashboard> {
       padding: const EdgeInsets.only(right: 12),
       child: Column(
         children: [
-          CircleAvatar(
-            radius: 30,
-            backgroundImage:
+          ClipOval(
+            child:
                 imageUrl.isNotEmpty
-                    ? NetworkImage(imageUrl)
-                    : const AssetImage('assets/images/default-avatar.png')
-                        as ImageProvider,
+                    ? Image.network(
+                      '${ApiConstants.imgUrl}/${imageUrl}',
+                      width: 70,
+                      height: 70,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          width: 70,
+                          height: 70,
+                          color: Colors.white,
+                          child: const Icon(
+                            Icons.person,
+                            size: 70,
+                            color: Colors.grey,
+                          ),
+                        );
+                      },
+                    )
+                    : Container(
+                      width: 70,
+                      height: 70,
+                      color: Colors.white,
+                      child: const Icon(
+                        Icons.person,
+                        size: 70,
+                        color: Colors.grey,
+                      ),
+                    ),
           ),
           const SizedBox(height: 4),
           Text(name),

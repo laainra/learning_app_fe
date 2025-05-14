@@ -12,7 +12,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:device_preview/device_preview.dart';
-
 import 'routes/app_routes.dart' as route;
 import 'providers/auth_provider.dart';
 import 'providers/user_provider.dart';

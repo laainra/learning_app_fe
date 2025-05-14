@@ -139,16 +139,39 @@ class _MyCoursesPageState extends State<MyCoursesPage>
                     : TabBarView(
                       controller: _tabController,
                       children: [
-                        _buildCourseList(
-                          completedCourses,
-                          completed: true,
-                          userRole: userRole,
-                        ),
-                        _buildCourseList(
-                          ongoingCourses,
-                          completed: false,
-                          userRole: userRole,
-                        ),
+                        // Completed Courses Tab
+                        completedCourses.isEmpty
+                            ? const Center(
+                              child: Text(
+                                "Tidak ada course yang telah diselesaikan.",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            )
+                            : _buildCourseList(
+                              completedCourses,
+                              completed: true,
+                              userRole: userRole,
+                            ),
+
+                        // Ongoing Courses Tab
+                        ongoingCourses.isEmpty
+                            ? const Center(
+                              child: Text(
+                                "Tidak ada course yang sedang berlangsung.",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            )
+                            : _buildCourseList(
+                              ongoingCourses,
+                              completed: false,
+                              userRole: userRole,
+                            ),
                       ],
                     ),
           ),
