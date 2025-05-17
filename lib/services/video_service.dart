@@ -10,7 +10,7 @@ class VideoService {
   //   Future<List<Video>> fetchVideos(int sectionId) async {
   //     // final token = await storage.read(key: 'token');
   //     final url = Uri.parse(
-  //       '${ApiConstants.baseUrl}/videos?section_id=$sectionId',
+  //       '${Constants.baseUrl}/videos?section_id=$sectionId',
   //     );
   //      final response = await http
   //         .get(
@@ -38,9 +38,7 @@ class VideoService {
 
   Future<List<Video>> fetchVideos(int sectionId) async {
     final token = await storage.read(key: 'token');
-    final url = Uri.parse(
-      '${ApiConstants.baseUrl}/videos?section_id=$sectionId',
-    );
+    final url = Uri.parse('${Constants.baseUrl}/videos?section_id=$sectionId');
     final response = await http.get(
       url,
       headers: {
@@ -70,7 +68,7 @@ class VideoService {
         throw Exception('Token is null. Please log in again.');
       }
 
-      final apiUrl = Uri.parse('${ApiConstants.baseUrl}/videos');
+      final apiUrl = Uri.parse('${Constants.baseUrl}/videos');
       print('Sending request to: $apiUrl');
       print('Token: $token');
       print('Title: $title');
@@ -121,7 +119,7 @@ class VideoService {
   ) async {
     try {
       final token = await storage.read(key: 'token');
-      final urlEndpoint = Uri.parse('${ApiConstants.baseUrl}/videos/$videoId');
+      final urlEndpoint = Uri.parse('${Constants.baseUrl}/videos/$videoId');
       final response = await http.put(
         urlEndpoint,
         headers: {
@@ -145,7 +143,7 @@ class VideoService {
   Future<void> deleteVideo(int videoId) async {
     try {
       final token = await storage.read(key: 'token');
-      final urlEndpoint = Uri.parse('${ApiConstants.baseUrl}/videos/$videoId');
+      final urlEndpoint = Uri.parse('${Constants.baseUrl}/videos/$videoId');
       final response = await http.delete(
         urlEndpoint,
         headers: {

@@ -13,7 +13,7 @@ class CourseService {
   Future<List<Course>> fetchCourse() async {
     final token = await storage.read(key: 'token');
     final response = await http.get(
-      Uri.parse('${ApiConstants.baseUrl}/courses'),
+      Uri.parse('${Constants.baseUrl}/courses'),
       headers: {
         'Authorization': 'Bearer $token',
         'Accept': 'application/json',
@@ -38,7 +38,7 @@ class CourseService {
       print(course.toJson());
 
       final token = await storage.read(key: 'token');
-      final url = Uri.parse('${ApiConstants.baseUrl}/courses');
+      final url = Uri.parse('${Constants.baseUrl}/courses');
 
       // Send POST request with the Course data as JSON
       final response = await http.post(
@@ -69,7 +69,7 @@ class CourseService {
     try {
       final token = await storage.read(key: 'token');
       final response = await http.put(
-        Uri.parse('${ApiConstants.baseUrl}/courses/${course.id}'),
+        Uri.parse('${Constants.baseUrl}/courses/${course.id}'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
@@ -96,7 +96,7 @@ class CourseService {
     try {
       final token = await storage.read(key: 'token');
       final response = await http.delete(
-        Uri.parse('${ApiConstants.baseUrl}/courses/$courseId'),
+        Uri.parse('${Constants.baseUrl}/courses/$courseId'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
@@ -118,48 +118,50 @@ class CourseService {
   }
 
   Future<bool> uploadCourseImage(int courseId, File imageFile) async {
-  try {
-    final token = await storage.read(key: 'token');
-    final uri = Uri.parse('${ApiConstants.baseUrl}/courses/$courseId/upload-image');
-    final request = http.MultipartRequest('POST', uri);
+    try {
+      final token = await storage.read(key: 'token');
+      final uri = Uri.parse(
+        '${Constants.baseUrl}/courses/$courseId/upload-image',
+      );
+      final request = http.MultipartRequest('POST', uri);
 
-    // Menambahkan file gambar
-    var mimeType = mime(imageFile.path) ?? 'application/octet-stream';
-    var mimeTypeData = mimeType.split('/');
-    var multipartFile = http.MultipartFile(
-      'image',
-      imageFile.openRead(),
-      await imageFile.length(),
-      filename: imageFile.path.split('/').last,
-      contentType: MediaType(mimeTypeData[0], mimeTypeData[1]),
-    );
-    request.files.add(multipartFile);
+      // Menambahkan file gambar
+      var mimeType = mime(imageFile.path) ?? 'application/octet-stream';
+      var mimeTypeData = mimeType.split('/');
+      var multipartFile = http.MultipartFile(
+        'image',
+        imageFile.openRead(),
+        await imageFile.length(),
+        filename: imageFile.path.split('/').last,
+        contentType: MediaType(mimeTypeData[0], mimeTypeData[1]),
+      );
+      request.files.add(multipartFile);
 
-    // Tambahkan header
-    request.headers['Authorization'] = 'Bearer $token';
+      // Tambahkan header
+      request.headers['Authorization'] = 'Bearer $token';
 
-    // Kirim request
-    final response = await request.send();
-    if (response.statusCode == 200) {
-      print('Image uploaded successfully');
-      return true;
-    } else {
-      print('Failed to upload image. Status code: ${response.statusCode}');
-      print('Response body: ${await response.stream.bytesToString()}');
+      // Kirim request
+      final response = await request.send();
+      if (response.statusCode == 200) {
+        print('Image uploaded successfully');
+        return true;
+      } else {
+        print('Failed to upload image. Status code: ${response.statusCode}');
+        print('Response body: ${await response.stream.bytesToString()}');
+        return false;
+      }
+    } catch (e) {
+      print('Error uploading image: $e');
       return false;
     }
-  } catch (e) {
-    print('Error uploading image: $e');
-    return false;
   }
-}
 
   // Create Section
   Future<bool> createSection(String name, int courseId) async {
     try {
       final token = await storage.read(key: 'token');
       final response = await http.post(
-        Uri.parse('${ApiConstants.baseUrl}/sections'),
+        Uri.parse('${Constants.baseUrl}/sections'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
@@ -191,7 +193,7 @@ class CourseService {
     try {
       final token = await storage.read(key: 'token');
       final response = await http.post(
-        Uri.parse('${ApiConstants.baseUrl}/videos'),
+        Uri.parse('${Constants.baseUrl}/videos'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
@@ -222,7 +224,7 @@ class CourseService {
     try {
       final token = await storage.read(key: 'token');
 
-      final url = Uri.parse('${ApiConstants.baseUrl}/courses/mentor/$mentorId');
+      final url = Uri.parse('${Constants.baseUrl}/courses/mentor/$mentorId');
       final response = await http.get(
         url,
         headers: {
@@ -249,7 +251,7 @@ class CourseService {
     try {
       final token = await storage.read(key: 'token');
       final url = Uri.parse(
-        '${ApiConstants.baseUrl}/categories/$categoryId/courses',
+        '${Constants.baseUrl}/categories/$categoryId/courses',
       );
 
       final response = await http.get(
@@ -280,7 +282,7 @@ class CourseService {
     try {
       final token = await storage.read(key: 'token');
       final response = await http.get(
-        Uri.parse('${ApiConstants.baseUrl}/courses/$courseId'),
+        Uri.parse('${Constants.baseUrl}/courses/$courseId'),
         headers: {
           'Authorization': 'Bearer $token',
           'Accept': 'application/json',

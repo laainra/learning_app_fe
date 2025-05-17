@@ -9,7 +9,7 @@ import 'package:mime_type/mime_type.dart';
 import 'package:http_parser/http_parser.dart';
 
 class ChatService {
-  final String baseUrl = ApiConstants.baseUrl;
+  final String baseUrl = Constants.baseUrl;
   final storage = const FlutterSecureStorage();
 
   Future<List<ChatRoom>> fetchChatRooms() async {
@@ -35,7 +35,7 @@ class ChatService {
 
   Future<List<Map<String, dynamic>>> fetchMessages(int chatRoomId) async {
     final url = Uri.parse(
-      '${ApiConstants.baseUrl}/chat-rooms/$chatRoomId/messages',
+      '${Constants.baseUrl}/chat-rooms/$chatRoomId/messages',
     );
     final response = await http.get(url);
 

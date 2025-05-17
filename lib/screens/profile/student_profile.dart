@@ -40,7 +40,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       child:
                           (user.photo ?? '').isNotEmpty
                               ? Image.network(
-                                '${ApiConstants.imgUrl}/${user.photo}',
+                                '${Constants.imgUrl}/${user.photo}',
                                 width: 90,
                                 height: 90,
                                 fit: BoxFit.cover,
@@ -89,20 +89,20 @@ class _ProfilePageState extends State<ProfilePage> {
                         setState(() {}); // trigger reload saat kembali
                       },
                     ),
-                    ListTile(
-                      title: const Text("Security"),
-                      trailing: const Icon(Icons.arrow_forward_ios),
-                      onTap: () {
-                        // Navigator.pushNamed(context, route.security);
-                      },
-                    ),
-                    ListTile(
-                      title: const Text("Terms & Conditions"),
-                      trailing: const Icon(Icons.arrow_forward_ios),
-                      onTap: () {
-                        // Navigator.pushNamed(context, route.terms);
-                      },
-                    ),
+                    // ListTile(
+                    //   title: const Text("Security"),
+                    //   trailing: const Icon(Icons.arrow_forward_ios),
+                    //   onTap: () {
+                    //     // Navigator.pushNamed(context, route.security);
+                    //   },
+                    // ),
+                    // ListTile(
+                    //   title: const Text("Terms & Conditions"),
+                    //   trailing: const Icon(Icons.arrow_forward_ios),
+                    //   onTap: () {
+                    //     // Navigator.pushNamed(context, route.terms);
+                    //   },
+                    // ),
                     ListTile(
                       title: const Text("Logout"),
                       trailing: const Icon(Icons.logout),

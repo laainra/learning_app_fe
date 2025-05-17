@@ -211,7 +211,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       child:
                           (userImageUrl ?? '').isNotEmpty
                               ? Image.network(
-                                '${ApiConstants.imgUrl}/$userImageUrl',
+                                '${Constants.imgUrl}/$userImageUrl',
                                 width: 90,
                                 height: 90,
                                 fit: BoxFit.cover,

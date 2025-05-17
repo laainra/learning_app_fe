@@ -1,3 +1,4 @@
+import 'package:finbedu/models/section_model.dart';
 import 'package:finbedu/screens/quiz/quiz_result.dart';
 import 'package:finbedu/services/constants.dart';
 import 'package:flutter/material.dart';
@@ -74,7 +75,7 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
                       children: [
                         course.image != null
                             ? Image.network(
-                              '${ApiConstants.imgUrl}/${course.image}',
+                              '${Constants.imgUrl}/${course.image}',
                               height: 250,
                               width: double.infinity,
                               fit: BoxFit.cover, // Agar gambar memenuhi area
@@ -188,20 +189,20 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
                                               fontWeight: FontWeight.w500,
                                             ),
                                           ),
-                                          Row(
-                                            children: [
-                                              const Icon(
-                                                Icons.star,
-                                                size: 16,
-                                                color: Colors.orange,
-                                              ),
-                                              const SizedBox(width: 4),
-                                              Text(
-                                                course.rating?.toString() ??
-                                                    "-",
-                                              ),
-                                            ],
-                                          ),
+                                          // Row(
+                                          //   children: [
+                                          //     const Icon(
+                                          //       Icons.star,
+                                          //       size: 16,
+                                          //       color: Colors.orange,
+                                          //     ),
+                                          //     const SizedBox(width: 4),
+                                          //     Text(
+                                          //       course.rating?.toString() ??
+                                          //           "-",
+                                          //     ),
+                                          //   ],
+                                          // ),
                                         ],
                                       ),
                                       const SizedBox(height: 8),
@@ -216,22 +217,87 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
                                       const SizedBox(height: 12),
                                       Row(
                                         children: [
-                                          _buildMeta(
-                                            Icons.menu_book,
-                                            "${course.totalLessons ?? 0} Lessons",
+                                          ClipOval(
+                                            child:
+                                                course.user!.photo != null
+                                                    ? Image.network(
+                                                      '${Constants.imgUrl}/${course.user!.photo}',
+                                                      width: 50,
+                                                      height: 50,
+                                                      fit: BoxFit.cover,
+                                                      errorBuilder: (
+                                                        context,
+                                                        error,
+                                                        stackTrace,
+                                                      ) {
+                                                        return Container(
+                                                          width: 50,
+                                                          height: 50,
+                                                          color: Colors.white,
+                                                          child: const Icon(
+                                                            Icons.person,
+                                                            size: 50,
+                                                            color: Colors.grey,
+                                                          ),
+                                                        );
+                                                      },
+                                                    )
+                                                    : Container(
+                                                      width: 50,
+                                                      height: 50,
+                                                      color: Colors.white,
+                                                      child: const Icon(
+                                                        Icons.person,
+                                                        size: 70,
+                                                        color: Colors.grey,
+                                                      ),
+                                                    ),
                                           ),
-                                          const SizedBox(width: 12),
-                                          _buildMeta(
-                                            Icons.access_time,
-                                            course.name ?? "-",
-                                          ),
-                                          const SizedBox(width: 12),
-                                          _buildMeta(
-                                            Icons.group,
-                                            "${course.totalStudents ?? 0} Students",
+                                          const SizedBox(width: 8),
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  course.user!.name ?? "-",
+                                                  style: const TextStyle(
+                                                    fontSize: 13,
+                                                  ),
+                                                  maxLines: 1,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                ),
+                                                const Text(
+                                                  "Mentor",
+                                                  style: TextStyle(
+                                                    fontSize: 11,
+                                                    color: Colors.grey,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
                                           ),
                                         ],
                                       ),
+                                      // Row(
+                                      //   children: [
+                                      //     _buildMeta(
+                                      //       Icons.menu_book,
+                                      //       "${course.totalLessons ?? 0} Lessons",
+                                      //     ),
+                                      //     const SizedBox(width: 12),
+                                      //     _buildMeta(
+                                      //       Icons.access_time,
+                                      //       course.name ?? "-",
+                                      //     ),
+                                      //     const SizedBox(width: 12),
+                                      //     _buildMeta(
+                                      //       Icons.group,
+                                      //       "${course.totalStudents ?? 0} Students",
+                                      //     ),
+                                      //   ],
+                                      // ),
                                     ],
                                   ),
                                 ),
@@ -250,7 +316,12 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
                                       ),
                                     ],
                                   ),
-                                  child: _buildAboutSection(course.desc ?? ""),
+                                  child: _buildAboutSection(
+                                    course.desc ?? "",
+                                    Provider.of<SectionProvider>(
+                                      context,
+                                    ).sections,
+                                  ),
                                 ),
                                 const SizedBox(height: 20),
                               ],
@@ -258,7 +329,7 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
                           ),
                           // Curriculum Tab
                           SingleChildScrollView(
-                            padding: const EdgeInsets.all(20),
+                            // padding: const EdgeInsets.all(20),
                             child: _buildCurriculumSection(),
                           ),
                         ],
@@ -272,7 +343,8 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
                   right: 20,
                   bottom: 20,
                   child: ActionButton(
-                    label: "Enroll Course - ${course.price}",
+                    label:
+                        "Enroll Course -  ${Constants().formatRupiah(course.price)}",
                     color: const Color(0xFF202244),
                     height: 56,
                     width: double.infinity,
@@ -488,7 +560,7 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
     }
   }
 
-  Widget _buildAboutSection(String about) {
+  Widget _buildAboutSection(String about, List<Section> sections) {
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
       child: Column(
@@ -509,10 +581,13 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
           ),
           const SizedBox(height: 16),
-          _infoItem(Icons.play_circle, "25 Lessons"),
+          _infoItem(
+            Icons.play_circle,
+            "${_calculateTotalLessons(sections)} Lessons",
+          ),
           _infoItem(Icons.devices, "Access Mobile, Desktop & TV"),
           _infoItem(Icons.lock_open, "Lifetime Access"),
-          _infoItem(Icons.quiz, "6 Quizzes"),
+          _infoItem(Icons.quiz, "${_calculateTotalLessons(sections)} Quizzes"),
           _infoItem(Icons.verified, "Certificate of Completion"),
         ],
       ),
@@ -530,5 +605,9 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
         ],
       ),
     );
+  }
+
+  int _calculateTotalLessons(List<Section> sections) {
+    return sections.length; // Jumlah section adalah jumlah lessons
   }
 }

@@ -10,7 +10,7 @@ class CategoryService {
   Future<List<Category>> fetchCategories() async {
     final token = await storage.read(key: 'token');
     final response = await http.get(
-      Uri.parse('${ApiConstants.baseUrl}/categories'),
+      Uri.parse('${Constants.baseUrl}/categories'),
       headers: {
         //  'Authorization': 'Bearer $token',
         'Accept': 'application/json',
@@ -32,7 +32,7 @@ class CategoryService {
   Future<void> addCategory(String name) async {
     final token = await storage.read(key: 'token');
     final response = await http.post(
-      Uri.parse('${ApiConstants.baseUrl}/categories'),
+      Uri.parse('${Constants.baseUrl}/categories'),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $token',

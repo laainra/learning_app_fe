@@ -82,21 +82,21 @@ class _MyCoursesPageState extends State<MyCoursesPage>
       bottomNavigationBar: const CustomBottomNavBar(currentIndex: 1),
       body: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: TextField(
-              decoration: InputDecoration(
-                hintText: 'Search...',
-                prefixIcon: const Icon(Icons.search),
-                filled: true,
-                fillColor: const Color(0xFFF5F5F5),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-            ),
-          ),
+          // Padding(
+          //   padding: const EdgeInsets.all(16.0),
+          //   child: TextField(
+          //     decoration: InputDecoration(
+          //       hintText: 'Search...',
+          //       prefixIcon: const Icon(Icons.search),
+          //       filled: true,
+          //       fillColor: const Color(0xFFF5F5F5),
+          //       border: OutlineInputBorder(
+          //         borderRadius: BorderRadius.circular(12),
+          //         borderSide: BorderSide.none,
+          //       ),
+          //     ),
+          //   ),
+          // ),
           // Show the 'Add Course' button only for mentors
           if (userRole == 'mentor')
             Padding(
@@ -268,9 +268,9 @@ class _MyCoursesPageState extends State<MyCoursesPage>
                           borderRadius: BorderRadius.circular(12),
                           image: DecorationImage(
                             image:
-                                course['image']! != null
+                                course['image'] != null
                                     ? NetworkImage(
-                                      '${ApiConstants.imgUrl}/${course['image']!}',
+                                      '${Constants.imgUrl}/${course['image']!}',
                                     )
                                     : const AssetImage(
                                           'assets/images/course1.jpg',
@@ -440,7 +440,7 @@ class _MyCoursesPageState extends State<MyCoursesPage>
                                 image:
                                     course.image != null
                                         ? NetworkImage(
-                                          '${ApiConstants.imgUrl}/${course.image}',
+                                          '${Constants.imgUrl}/${course.image}',
                                         )
                                         : const AssetImage(
                                               'assets/images/course1.jpg',

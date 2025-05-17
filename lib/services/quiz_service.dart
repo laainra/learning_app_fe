@@ -7,7 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class QuizService {
-  static const String baseUrl = ApiConstants.baseUrl;
+  static const String baseUrl = Constants.baseUrl;
   final storage = const FlutterSecureStorage();
 
   // Fetch quizzes
@@ -163,7 +163,7 @@ class QuizService {
   // Update question
   Future<void> updateQuestion(int questionId, String question) async {
     final token = await storage.read(key: 'token');
-    final url = Uri.parse('${ApiConstants.baseUrl}/questions/$questionId');
+    final url = Uri.parse('${Constants.baseUrl}/questions/$questionId');
     final response = await http.put(
       url,
       headers: {
@@ -181,7 +181,7 @@ class QuizService {
   // Delete question
   Future<void> deleteQuestion(int questionId) async {
     final token = await storage.read(key: 'token');
-    final url = Uri.parse('${ApiConstants.baseUrl}/quiz-questions/$questionId');
+    final url = Uri.parse('${Constants.baseUrl}/quiz-questions/$questionId');
     final response = await http.delete(
       url,
       headers: {
@@ -198,7 +198,7 @@ class QuizService {
   // Update answer
   Future<void> updateAnswer(int answerId, String answer) async {
     final token = await storage.read(key: 'token');
-    final url = Uri.parse('${ApiConstants.baseUrl}/answers/$answerId');
+    final url = Uri.parse('${Constants.baseUrl}/answers/$answerId');
     final response = await http.put(
       url,
       headers: {
@@ -216,7 +216,7 @@ class QuizService {
   // Delete answer
   Future<void> deleteAnswer(int answerId) async {
     final token = await storage.read(key: 'token');
-    final url = Uri.parse('${ApiConstants.baseUrl}/answers/$answerId');
+    final url = Uri.parse('${Constants.baseUrl}/answers/$answerId');
     final response = await http.delete(
       url,
       headers: {
@@ -365,25 +365,26 @@ class QuizService {
       throw Exception('Failed to submit quiz');
     }
   }
+
   Future<int?> getQuizIdBySectionId(int sectionId) async {
-  final token = await storage.read(key: 'token');
-  final url = Uri.parse('$baseUrl/quiz-id/$sectionId');
+    final token = await storage.read(key: 'token');
+    final url = Uri.parse('$baseUrl/quiz-id/$sectionId');
 
-  final response = await http.get(
-    url,
-    headers: {
-      'Authorization': 'Bearer $token',
-      'Content-Type': 'application/json',
-    },
-  );
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
 
-  if (response.statusCode == 200) {
-    final data = jsonDecode(response.body);
-    return data['quiz_id']; // Kembalikan quizId
-  } else if (response.statusCode == 404) {
-    return null; // Jika quiz tidak ditemukan, kembalikan null
-  } else {
-    throw Exception('Failed to fetch quiz ID');
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return data['quiz_id']; // Kembalikan quizId
+    } else if (response.statusCode == 404) {
+      return null; // Jika quiz tidak ditemukan, kembalikan null
+    } else {
+      throw Exception('Failed to fetch quiz ID');
+    }
   }
-}
 }

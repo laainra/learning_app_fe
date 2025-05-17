@@ -33,35 +33,38 @@ class _MentorListPageState extends State<MentorListPage> {
     }
   }
 
-Future<void> _createChatRoom(int mentorId) async {
-  final userProvider = Provider.of<UserProvider>(context, listen: false);
-  final chatProvider = Provider.of<ChatProvider>(context, listen: false);
+  Future<void> _createChatRoom(int mentorId) async {
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    final chatProvider = Provider.of<ChatProvider>(context, listen: false);
 
-  try {
-    final studentId = userProvider.user?.id;
+    try {
+      final studentId = userProvider.user?.id;
 
-    if (mentorId == null || studentId == null) {
-      throw Exception('Mentor ID or Student ID is null');
+      if (mentorId == null || studentId == null) {
+        throw Exception('Mentor ID or Student ID is null');
+      }
+
+      print(
+        'Creating chat room with mentorId: $mentorId, studentId: $studentId',
+      );
+
+      final chatRoom = await chatProvider.createChatRoom(mentorId, studentId);
+
+      // Navigasi ke halaman chat room setelah berhasil membuat chat room
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => ChatRoomPage(chatRoomId: chatRoom.id),
+        ),
+      );
+    } catch (e) {
+      print('Error creating chat room: $e');
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Gagal membuat chat room')));
     }
-
-    print('Creating chat room with mentorId: $mentorId, studentId: $studentId');
-
-    final chatRoom = await chatProvider.createChatRoom(mentorId, studentId);
-
-    // Navigasi ke halaman chat room setelah berhasil membuat chat room
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => ChatRoomPage(chatRoomId: chatRoom.id),
-      ),
-    );
-  } catch (e) {
-    print('Error creating chat room: $e');
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Gagal membuat chat room')),
-    );
   }
-}
+
   @override
   Widget build(BuildContext context) {
     final userProvider = Provider.of<UserProvider>(context);
@@ -101,7 +104,7 @@ Future<void> _createChatRoom(int mentorId) async {
                             child:
                                 (mentor.photo ?? '').isNotEmpty
                                     ? Image.network(
-                                      '${ApiConstants.imgUrl}/${mentor.photo}',
+                                      '${Constants.imgUrl}/${mentor.photo}',
                                       width: 70,
                                       height: 70,
                                       fit: BoxFit.cover,

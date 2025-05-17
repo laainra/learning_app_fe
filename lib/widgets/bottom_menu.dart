@@ -74,16 +74,17 @@ class CustomBottomNavBar extends StatelessWidget {
               height: 70,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: inactiveColor,
+                color: currentIndex == 2 ? activeColor : inactiveColor,
                 border: Border.all(color: Colors.white, width: 4),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.chat_bubble_outline,
                 color: Colors.white,
                 size: 30,
               ),
             ),
           ),
+
           _buildNavItem(
             context: context,
             icon: Icons.account_balance_wallet,

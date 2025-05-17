@@ -63,7 +63,7 @@ class _PopularCoursePageState extends State<PopularCoursePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const CustomHeader(
-        title: 'Popular Courses',
+        title: 'Courses',
         trailingIcon: Icons.search,
       ),
       bottomNavigationBar: const CustomBottomNavBar(currentIndex: 1),

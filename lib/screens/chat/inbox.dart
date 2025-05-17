@@ -100,7 +100,7 @@ class _InboxPageState extends State<InboxPage> {
                     child:
                         (otherUser.photo ?? '').isNotEmpty
                             ? Image.network(
-                              '${ApiConstants.imgUrl}/${otherUser.photo}',
+                              '${Constants.imgUrl}/${otherUser.photo}',
                               width: 50,
                               height: 80,
                               fit: BoxFit.cover,

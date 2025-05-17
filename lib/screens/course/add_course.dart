@@ -272,7 +272,7 @@ class _AddCourseScreenState extends State<AddCourseScreen> {
                       child: Column(
                         children: [
                           Image.network(
-                            '${ApiConstants.imgUrl}/${widget.course!.image}', // Tampilkan gambar jika sudah ada
+                            '${Constants.imgUrl}/${widget.course!.image}', // Tampilkan gambar jika sudah ada
                             height: 150,
                             fit: BoxFit.cover,
                           ),

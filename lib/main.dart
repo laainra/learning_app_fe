@@ -66,7 +66,7 @@ class MyApp extends StatelessWidget {
                 ? (role == 'student'
                     ? route.student_dashboard
                     : route.mentor_dashboard)
-                : route.login,
+                : route.splashScreen,
         onGenerateRoute: route.controller,
       ),
     );

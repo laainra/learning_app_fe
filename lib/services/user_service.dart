@@ -13,7 +13,7 @@ class UserService {
   Future<List<UserModel>> fetchMentors() async {
     final token = await storage.read(key: 'token');
     final response = await http.get(
-      Uri.parse('${ApiConstants.baseUrl}/mentors'),
+      Uri.parse('${Constants.baseUrl}/mentors'),
       headers: {
         'Authorization': 'Bearer $token',
         'Accept': 'application/json',
@@ -40,7 +40,7 @@ class UserService {
     }
 
     final response = await http.get(
-      Uri.parse('${ApiConstants.baseUrl}/profile'),
+      Uri.parse('${Constants.baseUrl}/profile'),
       headers: {'Authorization': 'Bearer $token', 'Accept': 'application/json'},
     );
 
@@ -60,7 +60,7 @@ class UserService {
       throw Exception("User not authenticated.");
     }
 
-    final url = Uri.parse('${ApiConstants.baseUrl}/edit/profile');
+    final url = Uri.parse('${Constants.baseUrl}/edit/profile');
     print('Attempting to update profile at: $url');
     print('Data to be sent: $data');
 
@@ -107,7 +107,7 @@ class UserService {
   Future<bool> uploadImage(int userId, File imageFile) async {
     final token = await storage.read(key: 'token');
     final uri = Uri.parse(
-      '${ApiConstants.baseUrl}/upload-image/$userId',
+      '${Constants.baseUrl}/upload-image/$userId',
     ); // ganti dengan base URL kamu
     final request = http.MultipartRequest('POST', uri);
     var mimeType = mime(imageFile.path) ?? 'application/octet-stream';

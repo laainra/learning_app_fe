@@ -74,7 +74,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
               child:
                   (otherUser.photo ?? '').isNotEmpty
                       ? Image.network(
-                        '${ApiConstants.imgUrl}/${otherUser.photo}',
+                        '${Constants.imgUrl}/${otherUser.photo}',
                         width: 40,
                         height: 40,
                         fit: BoxFit.cover,
@@ -245,7 +245,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
       return Container(
         margin: const EdgeInsets.only(bottom: 8),
         child: Image.network(
-          '${ApiConstants.imgUrl}/$url',
+          '${Constants.imgUrl}/$url',
           width: 200,
           errorBuilder:
               (context, error, stackTrace) =>

@@ -16,7 +16,7 @@ class AuthService {
   ) async {
     try {
       // Debugging the URL
-      final url = '${ApiConstants.baseUrl}/login';
+      final url = '${Constants.baseUrl}/login';
       print('Attempting to login with URL: $url');
 
       final response = await http.post(
@@ -61,7 +61,7 @@ class AuthService {
     try {
       final token = await storage.read(key: 'token');
       final response = await http.post(
-        Uri.parse('${ApiConstants.baseUrl}/logout'),
+        Uri.parse('${Constants.baseUrl}/logout'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
@@ -87,7 +87,7 @@ class AuthService {
     String? role,
   ) async {
     final response = await http.post(
-      Uri.parse('${ApiConstants.baseUrl}/register'),
+      Uri.parse('${Constants.baseUrl}/register'),
       body: jsonEncode({
         'name': name,
         'email': email,
@@ -124,4 +124,3 @@ class AuthService {
     return 'Unknown error occurred';
   }
 }
-

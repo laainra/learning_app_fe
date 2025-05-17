@@ -1,3 +1,4 @@
+import 'package:finbedu/services/constants.dart';
 import 'package:finbedu/widgets/CustomHeader.dart';
 import 'package:finbedu/widgets/bottom_menu.dart';
 import 'package:flutter/material.dart';
@@ -54,10 +55,18 @@ class _PopularCoursesPageState extends State<PopularCoursesPage> {
   }
 
   void _filterCourses() {
-    if (categories.isEmpty || allCourses.isEmpty) return;
+    if (allCourses.isEmpty) return;
+
+    // Jika All dipilih (index 0), tampilkan semua course
+    if (selectedCategoryIndex == 0) {
+      setState(() {
+        filteredCourses = allCourses;
+      });
+      return;
+    }
 
     final selectedCategory =
-        categories[selectedCategoryIndex].name.toLowerCase();
+        categories[selectedCategoryIndex - 1].name.toLowerCase();
 
     setState(() {
       filteredCourses =
@@ -89,9 +98,11 @@ class _PopularCoursesPageState extends State<PopularCoursesPage> {
               height: 40,
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
-                itemCount: categories.length,
+                itemCount: categories.length + 1, // tambah 1 untuk All
                 itemBuilder: (context, index) {
                   final isSelected = selectedCategoryIndex == index;
+                  final categoryName =
+                      index == 0 ? 'All' : categories[index - 1].name;
                   return GestureDetector(
                     onTap: () {
                       setState(() {
@@ -111,7 +122,7 @@ class _PopularCoursesPageState extends State<PopularCoursesPage> {
                       ),
                       child: Center(
                         child: Text(
-                          categories[index].name,
+                          index == 0 ? 'All' : categories[index - 1].name,
                           style: TextStyle(
                             color: isSelected ? Colors.white : Colors.black,
                             fontWeight: FontWeight.w600,
@@ -173,7 +184,10 @@ class _PopularCoursesPageState extends State<PopularCoursesPage> {
               children: [
                 const Icon(Icons.star, color: Colors.amber, size: 16),
                 const SizedBox(width: 4),
-                Text(course.price, style: const TextStyle(fontSize: 12)),
+                Text(
+                  Constants().formatRupiah(course.price),
+                  style: const TextStyle(fontSize: 12),
+                ),
               ],
             ),
             const SizedBox(height: 4),

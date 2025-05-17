@@ -2,6 +2,8 @@ import 'package:finbedu/providers/category_providers.dart';
 import 'package:finbedu/providers/course_provider.dart';
 import 'package:finbedu/screens/course/course_detail.dart';
 import 'package:finbedu/screens/course/course_screen.dart';
+import 'package:finbedu/screens/search/mentor_list.dart';
+import 'package:finbedu/screens/search/search.dart';
 import 'package:finbedu/services/constants.dart';
 import 'package:finbedu/widgets/bottom_menu.dart';
 import 'package:flutter/foundation.dart';
@@ -131,23 +133,31 @@ class _StudentDashboardState extends State<StudentDashboard> {
                 ),
                 const SizedBox(height: 16),
 
-                /// Search Bar
-                TextField(
-                  decoration: InputDecoration(
-                    hintText: 'Search for...',
-                    prefixIcon: const Icon(Icons.search),
-                    suffixIcon: const Icon(
-                      Icons.filter_list,
-                      color: Color(0xFFFAC840),
+                InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const SearchPage(),
+                      ),
+                    );
+                  },
+                  child: IgnorePointer(
+                    child: TextField(
+                      decoration: InputDecoration(
+                        hintText: 'Search for...',
+                        suffixIcon: const Icon(Icons.search),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(20),
+                          borderSide: BorderSide.none,
+                        ),
+                        filled: true,
+                        fillColor: const Color(0xFFF2F7FF),
+                      ),
                     ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(20),
-                      borderSide: BorderSide.none,
-                    ),
-                    filled: true,
-                    fillColor: const Color(0xFFF2F7FF),
                   ),
                 ),
+
                 const SizedBox(height: 16),
 
                 /// Banner Carousel
@@ -192,55 +202,55 @@ class _StudentDashboardState extends State<StudentDashboard> {
                   ),
                 ),
 
-                /// Categories Section
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'Categories',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.pushNamed(context, route.category);
-                      },
-                      child: const Text(
-                        'See All',
-                        style: TextStyle(color: Colors.blue),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                SizedBox(
-                  height: 70,
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: categories.length,
-                    itemBuilder:
-                        (context, index) => Padding(
-                          padding: const EdgeInsets.only(right: 8),
-                          child: ChoiceChip(
-                            label: Text(categories[index].name),
-                            selected: _currentCategory == index,
-                            selectedColor: const Color(0xFF202244),
-                            backgroundColor: const Color(0xFFF2F7FF),
-                            labelStyle: TextStyle(
-                              color:
-                                  _currentCategory == index
-                                      ? Colors.white
-                                      : Colors.black,
-                            ),
-                            onSelected:
-                                (val) =>
-                                    setState(() => _currentCategory = index),
-                          ),
-                        ),
-                  ),
-                ),
+                // /// Categories Section
+                // Row(
+                //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                //   children: [
+                //     const Text(
+                //       'Categories',
+                //       style: TextStyle(
+                //         fontSize: 18,
+                //         fontWeight: FontWeight.bold,
+                //       ),
+                //     ),
+                //     GestureDetector(
+                //       onTap: () {
+                //         Navigator.pushNamed(context, route.category);
+                //       },
+                //       child: const Text(
+                //         'See All',
+                //         style: TextStyle(color: Colors.blue),
+                //       ),
+                //     ),
+                //   ],
+                // ),
+                // const SizedBox(height: 8),
+                // SizedBox(
+                //   height: 70,
+                //   child: ListView.builder(
+                //     scrollDirection: Axis.horizontal,
+                //     itemCount: categories.length,
+                //     itemBuilder:
+                //         (context, index) => Padding(
+                //           padding: const EdgeInsets.only(right: 8),
+                //           child: ChoiceChip(
+                //             label: Text(categories[index].name),
+                //             selected: _currentCategory == index,
+                //             selectedColor: const Color(0xFF202244),
+                //             backgroundColor: const Color(0xFFF2F7FF),
+                //             labelStyle: TextStyle(
+                //               color:
+                //                   _currentCategory == index
+                //                       ? Colors.white
+                //                       : Colors.black,
+                //             ),
+                //             onSelected:
+                //                 (val) =>
+                //                     setState(() => _currentCategory = index),
+                //           ),
+                //         ),
+                //   ),
+                // ),
                 const SizedBox(height: 16),
 
                 /// Popular Courses Section
@@ -248,7 +258,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Text(
-                      'Popular Courses',
+                      'Courses',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -265,8 +275,9 @@ class _StudentDashboardState extends State<StudentDashboard> {
                     ),
                   ],
                 ),
+                const SizedBox(height: 8),
                 SizedBox(
-                  height: 270,
+                  height: 284,
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
                     padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -285,13 +296,12 @@ class _StudentDashboardState extends State<StudentDashboard> {
                           );
                         },
                         child: _buildCourseCard(
-                          course.name,
-                          course.user!.name,
-                          course.image!,
-                          course.user!.photo!,
-
-                          course.desc,
-                          course.categoryId!,
+                          course.name ?? 'No title',
+                          course.user?.name ?? 'Unknown Mentor',
+                          course.image ?? '',
+                          course.user?.photo ?? '',
+                          course.category ?? 'No category',
+                          course.desc ?? 'No description',
                         ),
                       );
                     },
@@ -304,7 +314,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Text(
-                      'Top Mentor',
+                      'Mentors',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -312,7 +322,12 @@ class _StudentDashboardState extends State<StudentDashboard> {
                     ),
                     GestureDetector(
                       onTap: () {
-                        Navigator.pushNamed(context, route.top_mentor);
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => MentorListPage(),
+                          ),
+                        );
                       },
                       child: const Text(
                         'See All',
@@ -364,10 +379,11 @@ class _StudentDashboardState extends State<StudentDashboard> {
     String courseImage,
     String mentorImage,
     String duration,
-    int lessons,
+    String lessons,
   ) {
     return Container(
-      width: 240,
+      width: 300,
+
       margin: const EdgeInsets.only(right: 12),
       child: Card(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -382,7 +398,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
               child:
                   (courseImage.isNotEmpty)
                       ? Image.asset(
-                        courseImage,
+                        '${Constants.imgUrl}/${courseImage}',
                         height: 140,
                         width: double.infinity,
                         fit: BoxFit.cover,
@@ -408,11 +424,79 @@ class _StudentDashboardState extends State<StudentDashboard> {
                   ),
                   const SizedBox(height: 8),
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      CircleAvatar(
-                        radius: 14,
-                        backgroundImage: AssetImage(mentorImage),
-                        onBackgroundImageError: (_, __) {},
+                      Row(
+                        children: [
+                          Text(
+                            lessons,
+                            style: const TextStyle(
+                              overflow: TextOverflow.ellipsis,
+
+                              fontSize: 12,
+                              color: Colors.blueGrey,
+                            ),
+                          ),
+                        ],
+                      ),
+                      // Row(
+                      //   children: [
+                      //     const Icon(
+                      //       Icons.play_circle_outline,
+                      //       size: 14,
+                      //       color: Colors.grey,
+                      //     ),
+                      //     const SizedBox(width: 4),
+                      //     Text(
+                      //       '$lessons Lessons',
+                      //       style: const TextStyle(
+                      //         fontSize: 12,
+                      //         color: Colors.grey,
+                      //       ),
+                      //     ),
+                      //   ],
+                      // ),
+                      // const Icon(
+                      //   Icons.bookmark_border,
+                      //   size: 18,
+                      //   color: Colors.grey,
+                      // ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      ClipOval(
+                        child:
+                            mentorImage.isNotEmpty
+                                ? Image.network(
+                                  '${Constants.imgUrl}/${mentorImage}',
+                                  width: 50,
+                                  height: 50,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Container(
+                                      width: 50,
+                                      height: 50,
+                                      color: Colors.white,
+                                      child: const Icon(
+                                        Icons.person,
+                                        size: 50,
+                                        color: Colors.grey,
+                                      ),
+                                    );
+                                  },
+                                )
+                                : Container(
+                                  width: 50,
+                                  height: 50,
+                                  color: Colors.white,
+                                  child: const Icon(
+                                    Icons.person,
+                                    size: 70,
+                                    color: Colors.grey,
+                                  ),
+                                ),
                       ),
                       const SizedBox(width: 8),
                       Expanded(
@@ -426,7 +510,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
                               overflow: TextOverflow.ellipsis,
                             ),
                             const Text(
-                              "Educator",
+                              "Mentor",
                               style: TextStyle(
                                 fontSize: 11,
                                 color: Colors.grey,
@@ -435,58 +519,13 @@ class _StudentDashboardState extends State<StudentDashboard> {
                           ],
                         ),
                       ),
-                      Row(
-                        children: const [
-                          Icon(Icons.star, color: Colors.amber, size: 16),
-                          SizedBox(width: 4),
-                          Text('-', style: TextStyle(fontSize: 12)),
-                        ],
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          const Icon(
-                            Icons.schedule,
-                            size: 14,
-                            color: Colors.blue,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            duration,
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: Colors.blue,
-                            ),
-                          ),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          const Icon(
-                            Icons.play_circle_outline,
-                            size: 14,
-                            color: Colors.grey,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            '$lessons Lessons',
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const Icon(
-                        Icons.bookmark_border,
-                        size: 18,
-                        color: Colors.grey,
-                      ),
+                      // Row(
+                      //   children: const [
+                      //     Icon(Icons.star, color: Colors.amber, size: 16),
+                      //     SizedBox(width: 4),
+                      //     Text('-', style: TextStyle(fontSize: 12)),
+                      //   ],
+                      // ),
                     ],
                   ),
                 ],
@@ -516,7 +555,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
             child:
                 imageUrl.isNotEmpty
                     ? Image.network(
-                      '${ApiConstants.imgUrl}/${imageUrl}',
+                      '${Constants.imgUrl}/${imageUrl}',
                       width: 70,
                       height: 70,
                       fit: BoxFit.cover,
