@@ -26,6 +26,7 @@ import 'package:finbedu/screens/search/search.dart';
 import 'package:finbedu/screens/search/top_course.dart';
 import 'package:finbedu/screens/search/top_mentor.dart';
 import 'package:finbedu/screens/transaction/transaction.dart';
+import 'package:finbedu/screens/profile/about_us.dart';
 import '../screens/splash_screen.dart';
 import '../screens/intro_screen.dart';
 
@@ -60,6 +61,7 @@ const String quiz = "quiz";
 const String inbox = "inbox";
 const String chat_room = "chat_room";
 const String add_course = "add_course";
+const String about_us = "about_us";
 
 Route<dynamic> controller(RouteSettings settings) {
   switch (settings.name) {
@@ -102,19 +104,14 @@ Route<dynamic> controller(RouteSettings settings) {
     case course_detail:
       final args = settings.arguments as Map<String, dynamic>;
       return MaterialPageRoute(
-        builder: (_) => CourseDetailPage(
-   
-          courseId: args['courseId'],
-        ),
+        builder: (_) => CourseDetailPage(courseId: args['courseId']),
       );
     case certificate:
       return MaterialPageRoute(builder: (_) => CertificatePage());
     case quiz:
       final args = settings.arguments as Map<String, dynamic>;
       return MaterialPageRoute(
-        builder: (_) => QuizPage(
-          quizId: args['quizId'],
-        ),
+        builder: (_) => QuizPage(quizId: args['quizId']),
       );
     case reviews_list:
       return MaterialPageRoute(builder: (_) => ReviewsPage());
@@ -123,11 +120,12 @@ Route<dynamic> controller(RouteSettings settings) {
     case mentor_profile:
       final args = settings.arguments as Map<String, dynamic>;
       return MaterialPageRoute(
-        builder: (_) => MentorProfilePage(
-          name: args['name'],
-          skill: args['skill'],
-          image: args['image'],
-        ),
+        builder:
+            (_) => MentorProfilePage(
+              name: args['name'],
+              skill: args['skill'],
+              image: args['image'],
+            ),
       );
     case student_profile:
       return MaterialPageRoute(builder: (_) => ProfilePage());
@@ -138,12 +136,12 @@ Route<dynamic> controller(RouteSettings settings) {
     case chat_room:
       final args = settings.arguments as Map<String, dynamic>;
       return MaterialPageRoute(
-        builder: (_) => ChatRoomPage(
-          chatRoomId: args['chatRoomId'],
-        ),
+        builder: (_) => ChatRoomPage(chatRoomId: args['chatRoomId']),
       );
     case transaction:
       return MaterialPageRoute(builder: (_) => TransactionPage());
+    case about_us:
+      return MaterialPageRoute(builder: (_) => const AboutUsPage());
     case add_course:
       return MaterialPageRoute(builder: (_) => AddCourseScreen());
     default:
