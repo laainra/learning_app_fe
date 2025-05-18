@@ -7,7 +7,7 @@ import 'package:finbedu/providers/course_provider.dart';
 import 'package:finbedu/providers/quiz_provider.dart';
 import 'package:finbedu/providers/section_provider.dart';
 import 'package:finbedu/providers/video_provider.dart';
-
+import 'package:finbedu/providers/access_provider.dart'; // pastikan importnya benar
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -53,6 +53,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => CourseImageProvider()),
         ChangeNotifierProvider(create: (_) => QuizProvider()),
         ChangeNotifierProvider(create: (_) => ChatProvider()),
+        ChangeNotifierProvider(create: (_) => AccessProvider()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
