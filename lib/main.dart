@@ -7,6 +7,7 @@ import 'package:finbedu/providers/course_provider.dart';
 import 'package:finbedu/providers/quiz_provider.dart';
 import 'package:finbedu/providers/section_provider.dart';
 import 'package:finbedu/providers/video_provider.dart';
+import 'package:finbedu/providers/videoprogress_provider.dart';
 import 'package:finbedu/providers/access_provider.dart'; // pastikan importnya benar
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -54,6 +55,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => QuizProvider()),
         ChangeNotifierProvider(create: (_) => ChatProvider()),
         ChangeNotifierProvider(create: (_) => AccessProvider()),
+        ChangeNotifierProvider(create: (_) => VideoProgressProvider()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

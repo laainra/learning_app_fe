@@ -12,6 +12,7 @@ import 'package:finbedu/providers/course_provider.dart';
 import 'package:finbedu/providers/section_provider.dart';
 import 'package:finbedu/providers/access_provider.dart';
 import 'package:finbedu/providers/video_provider.dart';
+import 'package:finbedu/providers/videoprogress_provider.dart';
 import 'package:finbedu/widgets/custom_button.dart';
 import 'package:finbedu/providers/quiz_provider.dart';
 import 'package:finbedu/screens/quiz/quiz_screen.dart';
@@ -519,16 +520,39 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
                     enabled: isEnrolled,
                     onTap:
                         isEnrolled
-                            ? () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder:
-                                      (context) => VideoPlayerScreen(
-                                        videoUrl: video.url,
-                                      ),
-                                ),
-                              );
+                            ? () async {
+                              final videoProvider =
+                                  Provider.of<VideoProgressProvider>(
+                                    context,
+                                    listen: false,
+                                  );
+
+                              // Tandai video sebagai sudah ditonton (atau diklik)
+                              final success = await videoProvider
+                                  .markVideoAsWatched(video.id);
+
+                              if (success) {
+                                // Navigasi ke VideoPlayerScreen setelah berhasil
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder:
+                                        (context) => VideoPlayerScreen(
+                                          videoUrl: video.url,
+                                        ),
+                                  ),
+                                );
+                              } else {
+                                // Tampilkan error jika gagal
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      videoProvider.errorMessage ??
+                                          'Gagal update progress',
+                                    ),
+                                  ),
+                                );
+                              }
                             }
                             : null,
                   );
