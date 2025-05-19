@@ -96,13 +96,13 @@ class _ProfilePageState extends State<ProfilePage> {
                     //     // Navigator.pushNamed(context, route.security);
                     //   },
                     // ),
-                    // ListTile(
-                    //   title: const Text("Terms & Conditions"),
-                    //   trailing: const Icon(Icons.arrow_forward_ios),
-                    //   onTap: () {
-                    //     // Navigator.pushNamed(context, route.terms);
-                    //   },
-                    // ),
+                    ListTile(
+                      title: const Text("About Us"),
+                      trailing: const Icon(Icons.arrow_forward_ios),
+                      onTap: () {
+                        Navigator.pushNamed(context, route.about_us);
+                      },
+                    ),
                     ListTile(
                       title: const Text("Logout"),
                       trailing: const Icon(Icons.logout),

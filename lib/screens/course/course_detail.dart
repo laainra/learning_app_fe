@@ -7,8 +7,10 @@ import 'package:url_launcher/url_launcher_string.dart';
 import 'package:finbedu/screens/course/video_player.dart';
 import 'package:finbedu/models/course_model.dart';
 import 'package:finbedu/models/video_model.dart';
+import 'package:finbedu/models/course_access.dart';
 import 'package:finbedu/providers/course_provider.dart';
 import 'package:finbedu/providers/section_provider.dart';
+import 'package:finbedu/providers/access_provider.dart';
 import 'package:finbedu/providers/video_provider.dart';
 import 'package:finbedu/widgets/custom_button.dart';
 import 'package:finbedu/providers/quiz_provider.dart';
@@ -33,6 +35,8 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
   void initState() {
     super.initState();
     _loadData = _initializeData();
+    final accessProvider = Provider.of<AccessProvider>(context, listen: false);
+    accessProvider.checkUserEnrollment(widget.courseId);
   }
 
   Future<void> _initializeData() async {
@@ -338,18 +342,53 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
                   ],
                 ),
                 // Enroll Button
+                // Enroll Button
                 Positioned(
                   left: 20,
                   right: 20,
                   bottom: 20,
-                  child: ActionButton(
-                    label:
-                        "Enroll Course -  ${Constants().formatRupiah(course.price)}",
-                    color: const Color(0xFF202244),
-                    height: 56,
-                    width: double.infinity,
-                    onTap: () {
-                      // Implementasi aksi enroll
+                  child: Consumer<AccessProvider>(
+                    builder: (context, accessProvider, child) {
+                      if (accessProvider.isEnrolled) {
+                        // Jika sudah enroll, tidak tampilkan tombol
+                        return const SizedBox.shrink();
+                      }
+
+                      // Jika belum enroll, tampilkan tombol enroll
+                      return ActionButton(
+                        label:
+                            "Enroll Course -  ${Constants().formatRupiah(course.price)}",
+                        color: const Color(0xFF202244),
+                        height: 56,
+                        width: double.infinity,
+                        onTap: () async {
+                          final newAccess = CourseAccess(
+                            courseId: course.id!,
+                            accessStatus: 'ongoing',
+                          );
+
+                          final result = await accessProvider.addAccess(
+                            newAccess,
+                          );
+
+                          if (result != null) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Berhasil enroll ke course!'),
+                              ),
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  accessProvider.errorMessage ??
+                                      'Gagal enroll.',
+                                ),
+                              ),
+                            );
+                          }
+                        },
+                      );
                     },
                   ),
                 ),
@@ -372,9 +411,16 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
   }
 
   Widget _buildCurriculumSection() {
+    final accessProvider = Provider.of<AccessProvider>(context);
     final sectionProvider = Provider.of<SectionProvider>(context);
     final videoProvider = Provider.of<VideoProvider>(context, listen: false);
     final sections = sectionProvider.sections;
+
+    if (accessProvider.isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    final isEnrolled = accessProvider.isEnrolled;
 
     if (sections.isEmpty) {
       return const Center(child: Text("No sections available"));
@@ -417,6 +463,22 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
             }
           },
           children: [
+            if (!isEnrolled)
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.amber.shade100,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Text(
+                    "Anda belum enroll. Materi terkunci.",
+                    style: TextStyle(color: Colors.black87),
+                  ),
+                ),
+              ),
+
             if (_loadingSections.contains(section.id))
               const Padding(
                 padding: EdgeInsets.symmetric(vertical: 16),
@@ -437,19 +499,38 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
                 itemBuilder: (context, videoIndex) {
                   final video = _videosPerSection[section.id]![videoIndex];
                   return ListTile(
-                    leading: const Icon(Icons.play_circle, color: Colors.blue),
-                    title: Text(video.title),
-                    subtitle: Text(video.duration ?? "Unknown Duration"),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder:
-                              (context) =>
-                                  VideoPlayerScreen(videoUrl: video.url),
-                        ),
-                      );
-                    },
+                    leading: Icon(
+                      isEnrolled ? Icons.play_circle : Icons.lock,
+                      color: isEnrolled ? Colors.blue : Colors.grey,
+                    ),
+
+                    title: Text(
+                      video.title,
+                      style: TextStyle(
+                        color: isEnrolled ? Colors.black : Colors.grey,
+                      ),
+                    ),
+                    subtitle: Text(
+                      video.duration ?? "Unknown Duration",
+                      style: TextStyle(
+                        color: isEnrolled ? Colors.black54 : Colors.grey,
+                      ),
+                    ),
+                    enabled: isEnrolled,
+                    onTap:
+                        isEnrolled
+                            ? () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder:
+                                      (context) => VideoPlayerScreen(
+                                        videoUrl: video.url,
+                                      ),
+                                ),
+                              );
+                            }
+                            : null,
                   );
                 },
               ),
@@ -497,39 +578,50 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
                           final score = resultSnapshot.data;
 
                           return ElevatedButton.icon(
-                            onPressed: () async {
-                              if (score != null) {
-                                // Jika hasil quiz sudah ada, navigasi ke halaman hasil
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder:
-                                        (context) =>
-                                            QuizResultScreen(score: score),
-                                  ),
-                                );
-                              } else {
-                                // Jika belum ada hasil quiz, navigasi ke halaman quiz
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder:
-                                        (context) => QuizPage(quizId: quizId),
-                                  ),
-                                );
-                              }
-                            },
+                            onPressed:
+                                isEnrolled
+                                    ? () async {
+                                      if (score != null) {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder:
+                                                (context) => QuizResultScreen(
+                                                  score: score,
+                                                ),
+                                          ),
+                                        );
+                                      } else {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder:
+                                                (context) =>
+                                                    QuizPage(quizId: quizId),
+                                          ),
+                                        );
+                                      }
+                                    }
+                                    : null,
                             icon: Icon(
                               score != null
                                   ? Icons.visibility
                                   : Icons.assignment,
+                              color: isEnrolled ? Colors.white : Colors.grey,
                             ),
                             label: Text(
                               score != null ? "Lihat Score" : "Kerjakan Quiz",
+                              style: TextStyle(
+                                color: isEnrolled ? Colors.white : Colors.grey,
+                              ),
                             ),
                             style: ElevatedButton.styleFrom(
                               backgroundColor:
-                                  score != null ? Colors.blue : Colors.green,
+                                  isEnrolled
+                                      ? (score != null
+                                          ? Colors.blue
+                                          : Colors.green)
+                                      : Colors.grey,
                               foregroundColor: Colors.white,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10),
