@@ -277,7 +277,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
                 ),
                 const SizedBox(height: 8),
                 SizedBox(
-                  height: 284,
+                  height: 304,
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
                     padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -381,6 +381,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
     String duration,
     String lessons,
   ) {
+    print(courseImage);
     return Container(
       width: 300,
 
@@ -391,22 +392,58 @@ class _StudentDashboardState extends State<StudentDashboard> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            ClipRRect(
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(16),
-              ),
+            Container(
               child:
-                  (courseImage.isNotEmpty)
-                      ? Image.asset(
+                  courseImage != null
+                      ? Image.network(
                         '${Constants.imgUrl}/${courseImage}',
-                        height: 140,
+                        height: 150,
                         width: double.infinity,
-                        fit: BoxFit.cover,
+                        fit: BoxFit.cover, // Agar gambar memenuhi area
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) {
+                            return child; // Jika loading selesai, tampilkan gambar
+                          }
+                          return Container(
+                            height: 150,
+                            width: double.infinity,
+                            color:
+                                Colors
+                                    .grey
+                                    .shade200, // Latar belakang saat loading
+                            child: const Center(
+                              child:
+                                  CircularProgressIndicator(), // Indikator loading
+                            ),
+                          );
+                        },
                         errorBuilder: (context, error, stackTrace) {
-                          return _buildImagePlaceholder();
+                          return Container(
+                            height: 150,
+                            width: double.infinity,
+                            color: Colors.black, // Latar belakang saat error
+                            child: const Center(
+                              child: Icon(
+                                Icons.broken_image, // Ikon untuk error
+                                color: Colors.white,
+                                size: 72,
+                              ),
+                            ),
+                          );
                         },
                       )
-                      : _buildImagePlaceholder(),
+                      : Container(
+                        height: 150,
+                        width: double.infinity,
+                        color: Colors.black,
+                        child: const Center(
+                          child: Icon(
+                            Icons.play_circle_fill,
+                            color: Colors.white,
+                            size: 72,
+                          ),
+                        ),
+                      ),
             ),
             Padding(
               padding: const EdgeInsets.all(12),

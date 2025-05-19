@@ -20,6 +20,32 @@ class CourseProvider with ChangeNotifier {
 
   bool _isLoading = false;
   bool get isLoading => _isLoading;
+  List<Course> studentOngoingCourses = [];
+  List<Course> studentCompletedCourses = [];
+  bool isLoadingStudentCourses = false;
+
+  Future<void> fetchStudentCourses(int userId) async {
+    isLoadingStudentCourses = true;
+    notifyListeners();
+    try {
+      final result = await _courseService.fetchStudentCourses(userId);
+      studentOngoingCourses = result['ongoing'] ?? [];
+      studentCompletedCourses = result['completed'] ?? [];
+      print('Result ongoing: ${result['ongoing']}');
+      print('Result completed: ${result['completed']}');
+      print('studentOngoingCourses: ${studentOngoingCourses.length}');
+      if (studentOngoingCourses.isNotEmpty) {
+        print('First ongoing course name: ${studentOngoingCourses[0].name}');
+      }
+    } catch (e) {
+      print('Error in fetchStudentCourses: $e');
+      studentOngoingCourses = [];
+      studentCompletedCourses = [];
+    }
+    isLoadingStudentCourses = false;
+    notifyListeners();
+  }
+
   Future<void> fetchCoursesByMentor(int mentorId) async {
     try {
       _isLoading = true;

@@ -10,6 +10,42 @@ import 'package:flutter/foundation.dart';
 
 class CourseService {
   final storage = const FlutterSecureStorage();
+  Future<Map<String, List<Course>>> fetchStudentCourses(int userId) async {
+    final token = await storage.read(key: 'token');
+    final url = Uri.parse('${Constants.baseUrl}/student-courses/$userId');
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    print('Fetch student courses - Status: ${response.statusCode}');
+    print('Response body: ${response.body}');
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      // Pastikan ongoing/completed selalu List, walau kosong
+      final ongoingList = (data['ongoing'] as List?) ?? [];
+      final completedList = (data['completed'] as List?) ?? [];
+      return {
+        'ongoing':
+            ongoingList
+                .where((e) => e != null)
+                .map((e) => Course.fromJson(e as Map<String, dynamic>))
+                .toList(),
+        'completed':
+            completedList
+                .where((e) => e != null)
+                .map((e) => Course.fromJson(e as Map<String, dynamic>))
+                .toList(),
+      };
+    } else {
+      throw Exception('Failed to load student courses');
+    }
+  }
+
   Future<List<Course>> fetchCourse() async {
     final token = await storage.read(key: 'token');
     final response = await http.get(

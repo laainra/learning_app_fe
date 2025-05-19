@@ -22,38 +22,6 @@ class _MyCoursesPageState extends State<MyCoursesPage>
     with TickerProviderStateMixin {
   late TabController _tabController;
 
-  final completedCourses = [
-    {
-      'title': 'Graphic Design Advanced',
-      'category': 'Graphic Design',
-      'rating': 4.2,
-      'duration': '2 Hrs 36 Mins',
-    },
-    {
-      'title': 'Advance Diploma in Gra...',
-      'category': 'Graphic Design',
-      'rating': 4.7,
-      'duration': '3 Hrs 28 Mins',
-    },
-  ];
-
-  final ongoingCourses = [
-    {
-      'title': 'Intro to UI/UX Design',
-      'category': 'UI/UX Design',
-      'rating': 4.4,
-      'duration': '3 Hrs 06 Mins',
-      'progress': '93/125',
-    },
-    {
-      'title': 'Wordpress website Dev...',
-      'category': 'Web Development',
-      'rating': 3.9,
-      'duration': '1 Hr 58 Mins',
-      'progress': '12/31',
-    },
-  ];
-
   @override
   void initState() {
     _tabController = TabController(length: 2, vsync: this);
@@ -65,6 +33,13 @@ class _MyCoursesPageState extends State<MyCoursesPage>
       final mentorId = userProvider.user?.id;
       if (mentorId != null) {
         courseProvider.fetchCoursesByMentor(mentorId);
+      }
+    }
+
+    if (userProvider.user?.role == 'student') {
+      final studentId = userProvider.user?.id;
+      if (studentId != null) {
+        courseProvider.fetchStudentCourses(studentId);
       }
     }
   }
@@ -119,7 +94,7 @@ class _MyCoursesPageState extends State<MyCoursesPage>
               padding: EdgeInsets.symmetric(horizontal: 16),
               indicatorSize: TabBarIndicatorSize.tab,
               controller: _tabController,
-              tabs: const [Tab(text: "Completed"), Tab(text: "Ongoing")],
+              tabs: const [Tab(text: "Ongoing"), Tab(text: "Completed")],
               indicator: BoxDecoration(
                 color: Color(0xFF202244),
                 borderRadius: BorderRadius.circular(25),
@@ -136,28 +111,13 @@ class _MyCoursesPageState extends State<MyCoursesPage>
                         : courseProvider.mentorCourses.isEmpty
                         ? const Center(child: Text("No courses found."))
                         : _buildMentorCourseList(courseProvider.mentorCourses)
+                    : courseProvider.isLoadingStudentCourses
+                    ? const Center(child: CircularProgressIndicator())
                     : TabBarView(
                       controller: _tabController,
                       children: [
-                        // Completed Courses Tab
-                        completedCourses.isEmpty
-                            ? const Center(
-                              child: Text(
-                                "Tidak ada course yang telah diselesaikan.",
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                            )
-                            : _buildCourseList(
-                              completedCourses,
-                              completed: true,
-                              userRole: userRole,
-                            ),
-
                         // Ongoing Courses Tab
-                        ongoingCourses.isEmpty
+                        courseProvider.studentOngoingCourses.isEmpty
                             ? const Center(
                               child: Text(
                                 "Tidak ada course yang sedang berlangsung.",
@@ -167,10 +127,22 @@ class _MyCoursesPageState extends State<MyCoursesPage>
                                 ),
                               ),
                             )
-                            : _buildCourseList(
-                              ongoingCourses,
-                              completed: false,
-                              userRole: userRole,
+                            : _buildStudentCourseList(
+                              courseProvider.studentOngoingCourses,
+                            ),
+                        // Completed Courses Tab
+                        courseProvider.studentCompletedCourses.isEmpty
+                            ? const Center(
+                              child: Text(
+                                "Tidak ada course yang telah diselesaikan.",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            )
+                            : _buildStudentCourseList(
+                              courseProvider.studentCompletedCourses,
                             ),
                       ],
                     ),
@@ -233,11 +205,7 @@ class _MyCoursesPageState extends State<MyCoursesPage>
     );
   }
 
-  Widget _buildCourseList(
-    List<Map<String, dynamic>> courses, {
-    required bool completed,
-    required String? userRole,
-  }) {
+  Widget _buildStudentCourseList(List<Course> courses) {
     return ListView.builder(
       padding: const EdgeInsets.all(16),
       itemCount: courses.length,
@@ -245,156 +213,128 @@ class _MyCoursesPageState extends State<MyCoursesPage>
         final course = courses[index];
         return GestureDetector(
           onTap: () {
-            // Navigator.push(
-            //   context,
-            //   MaterialPageRoute(builder: (context) => CourseDetailPage(course: course)),
-            // );
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => CourseDetailPage(courseId: course.id!),
+              ),
+            );
           },
-          child: Stack(
-            children: [
-              Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                margin: const EdgeInsets.symmetric(vertical: 8),
-                child: Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: MediaQuery.of(context).size.width * 0.25,
-                        height: 90,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
-                          image: DecorationImage(
-                            image:
-                                course['image'] != null
-                                    ? NetworkImage(
-                                      '${Constants.imgUrl}/${course['image']!}',
-                                    )
-                                    : const AssetImage(
-                                          'assets/images/course1.jpg',
-                                        ) // Use a default image if no image is provided
-                                        as ImageProvider,
-                            fit: BoxFit.cover,
+          child: Card(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            margin: const EdgeInsets.symmetric(vertical: 8),
+            child: Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Row(
+                children: [
+                  Container(
+                    width: MediaQuery.of(context).size.width * 0.25,
+                    height: 90,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      image: DecorationImage(
+                        image:
+                            course.image != null
+                                ? NetworkImage(
+                                  '${Constants.imgUrl}/${course.image}',
+                                )
+                                : const AssetImage('assets/images/course1.jpg')
+                                    as ImageProvider,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          course.name,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                        const SizedBox(height: 4),
+                        Text(
+                          course.category ?? 'Unknown Category',
+                          style: const TextStyle(
+                            color: Colors.orange,
+                            fontSize: 13,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Row(
                           children: [
-                            Text(
-                              course['title'],
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              course['category'],
-                              style: const TextStyle(
-                                color: Colors.orange,
-                                fontSize: 13,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Row(
-                              children: [
-                                const Icon(
-                                  Icons.star,
-                                  size: 16,
-                                  color: Colors.amber,
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  "${course['rating']} | ${course['duration']}",
-                                  style: const TextStyle(fontSize: 12),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 8),
-                            if (completed)
-                              Align(
-                                alignment: Alignment.bottomRight,
-                                child: TextButton(
-                                  onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (_) => const CertificatePage(),
+                            ClipOval(
+                              child:
+                                  course.user != null
+                                      ? Image.network(
+                                        '${Constants.imgUrl}/${course.user?.photo}', // Assuming user has an image field
+                                        width: 50,
+                                        height: 50,
+                                        fit: BoxFit.cover,
+                                        errorBuilder: (
+                                          context,
+                                          error,
+                                          stackTrace,
+                                        ) {
+                                          return Container(
+                                            width: 50,
+                                            height: 50,
+                                            color: Colors.white,
+                                            child: const Icon(
+                                              Icons.person,
+                                              size: 50,
+                                              color: Colors.grey,
+                                            ),
+                                          );
+                                        },
+                                      )
+                                      : Container(
+                                        width: 50,
+                                        height: 50,
+                                        color: Colors.white,
+                                        child: const Icon(
+                                          Icons.person,
+                                          size: 70,
+                                          color: Colors.grey,
+                                        ),
                                       ),
-                                    );
-                                  },
-                                  child: const Text(
-                                    "VIEW CERTIFICATE",
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    course.user?.name ??
+                                        'Unknown Mentor', // Assuming user has a name field
+                                    style: const TextStyle(fontSize: 13),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  const Text(
+                                    "Mentor",
                                     style: TextStyle(
-                                      color: Colors.blue,
-                                      fontWeight: FontWeight.bold,
+                                      fontSize: 11,
+                                      color: Colors.grey,
                                     ),
                                   ),
-                                ),
+                                ],
                               ),
-                            if (!completed)
-                              Align(
-                                alignment: Alignment.bottomRight,
-                                child: Text(
-                                  course['progress'] ?? '',
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
+                            ),
                           ],
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
+                ],
               ),
-              // Edit and Delete Buttons for mentors
-              if (userRole == 'mentor' && !completed)
-                Positioned(
-                  top: 5,
-                  right: 5,
-                  child: Row(
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.edit, color: Colors.blue),
-                        onPressed: () {
-                          // Navigate to the edit page
-                        },
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.delete, color: Colors.red),
-                        onPressed: () {
-                          // Handle course deletion
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              // Icon centang hijau di pojok kanan atas jika completed
-              if (completed)
-                Positioned(
-                  top: 5,
-                  right: 5,
-                  child: Container(
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.green,
-                    ),
-                    padding: const EdgeInsets.all(3),
-                    child: const Icon(
-                      Icons.check,
-                      size: 12,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-            ],
+            ),
           ),
         );
       },
@@ -576,6 +516,15 @@ class _MyCoursesPageState extends State<MyCoursesPage>
           },
         );
       },
+    );
+  }
+
+  Widget _buildImagePlaceholder() {
+    return Container(
+      height: 140,
+      width: double.infinity,
+      color: Colors.grey[300],
+      child: const Icon(Icons.broken_image, size: 50, color: Colors.grey),
     );
   }
 }

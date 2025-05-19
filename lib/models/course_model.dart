@@ -1,4 +1,3 @@
-
 import 'package:finbedu/models/user_model.dart';
 
 class Course {
@@ -16,9 +15,9 @@ class Course {
   final String price;
   final String? category;
   final UserModel? user;
-    final double? rating;
+  final double? rating;
   final int? totalStudents;
-  final int? totalLessons; 
+  final int? totalLessons;
 
   Course({
     this.id,
@@ -34,7 +33,8 @@ class Course {
     this.image,
     required this.price,
     this.category,
-    this.user,    this.rating,
+    this.user,
+    this.rating,
     this.totalStudents,
     this.totalLessons,
   });
@@ -46,23 +46,28 @@ class Course {
       name: json['name'],
       desc: json['desc'],
       userId: json['user_id'],
-      mediaFullAccess: json['media_full_access'] == 1, // Konversi int ke bool
+      mediaFullAccess: json['media_full_access'] == 1,
       level: json['level'],
-      audioBook: json['audio_book'] == 1, // Konversi int ke bool
-      lifetimeAccess: json['lifetime_access'] == 1, // Konversi int ke bool
-      certificate: json['certificate'] == 1, // Konversi int ke bool
+      audioBook: json['audio_book'] == 1,
+      lifetimeAccess: json['lifetime_access'] == 1,
+      certificate: json['certificate'] == 1,
       image: json['image'],
       price: json['price'],
-
+      // Perbaiki bagian ini:
       category:
-          json['category'] != null
+          json['category'] != null &&
+                  json['category'] is Map &&
+                  json['category']['name'] != null
               ? json['category']['name']
-              : null, // Ambil nama kategori dari objek JSON
-      user: UserModel.fromJson(json['user']),
-
+              : null,
+      user:
+          json['user'] != null && json['user'] is Map
+              ? UserModel.fromJson(json['user'])
+              : null,
+      rating:
+          json['rating'] != null ? (json['rating'] as num).toDouble() : null,
       totalStudents: json['total_students'],
       totalLessons: json['total_lessons'],
-
     );
   }
 
