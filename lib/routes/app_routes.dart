@@ -8,6 +8,7 @@ import 'package:finbedu/screens/chat/inbox.dart';
 import 'package:finbedu/screens/course/add_course.dart';
 import 'package:finbedu/screens/course/certificate_page.dart';
 import 'package:finbedu/screens/course/course_curriculum.dart';
+import 'package:finbedu/screens/course/course_completed.dart';
 import 'package:finbedu/screens/course/course_detail.dart';
 import 'package:finbedu/screens/course/course_list.dart';
 import 'package:finbedu/screens/course/course_screen.dart';
@@ -30,6 +31,7 @@ import 'package:finbedu/screens/profile/about_us.dart';
 import '../screens/splash_screen.dart';
 import '../screens/intro_screen.dart';
 
+// Route name constants
 const String splashScreen = "splash";
 const String introScreen = "intro";
 const String introAuth = "intro_auth";
@@ -44,8 +46,9 @@ const String category = "category";
 const String top_courses = "top_courses";
 const String top_mentor = "top_mentor";
 const String course_list = "course_list";
-const String popular_course = "popular_course";
+const String popular_course = "popular_course"; // Sama dengan top_courses?
 const String course = "course";
+const String course_completed = "course_completed";
 const String my_course = "my_course";
 const String curriculum = "curriculum";
 const String write_reviews = "write_reviews";
@@ -63,8 +66,12 @@ const String chat_room = "chat_room";
 const String add_course = "add_course";
 const String about_us = "about_us";
 
+// Routing controller
 Route<dynamic> controller(RouteSettings settings) {
+  final args = settings.arguments;
+
   switch (settings.name) {
+    // Auth & Intro
     case splashScreen:
       return MaterialPageRoute(builder: (_) => const SplashScreen());
     case introScreen:
@@ -75,76 +82,122 @@ Route<dynamic> controller(RouteSettings settings) {
       return MaterialPageRoute(builder: (_) => LoginScreen());
     case register:
       return MaterialPageRoute(builder: (_) => RegisterScreen());
+
+    // Profile
     case edit_profile:
       return MaterialPageRoute(builder: (_) => EditProfileScreen());
     case create_pin:
       return MaterialPageRoute(builder: (_) => CreatePinPage());
+    case mentor_profile:
+      if (args is Map<String, dynamic>) {
+        return MaterialPageRoute(
+          builder:
+              (_) => MentorProfilePage(
+                name: args['name'],
+                skill: args['skill'],
+                image: args['image'],
+              ),
+        );
+      }
+      break;
+    case student_profile:
+      return MaterialPageRoute(builder: (_) => ProfilePage());
+
+    // Dashboard
     case student_dashboard:
       return MaterialPageRoute(builder: (_) => StudentDashboard());
     case mentor_dashboard:
       return MaterialPageRoute(builder: (_) => MentorDashboard());
+
+    // Search & Category
     case search:
       return MaterialPageRoute(builder: (_) => SearchPage());
     case category:
       return MaterialPageRoute(builder: (_) => AllCategoriesPage());
     case top_courses:
+    case popular_course: // optional: bisa arahkan ke sama
       return MaterialPageRoute(builder: (_) => PopularCoursesPage());
     case top_mentor:
       return MaterialPageRoute(builder: (_) => TopMentorsPage());
+
+    // Course
     case course_list:
       return MaterialPageRoute(builder: (_) => ListCoursePage());
-    case popular_course:
-      return MaterialPageRoute(builder: (_) => PopularCoursesPage());
     case course_screen:
       return MaterialPageRoute(builder: (_) => CourseScreenPage());
+    case course_completed:
+      return MaterialPageRoute(builder: (_) => CourseCompletedCard());
     case curriculum:
       return MaterialPageRoute(builder: (_) => CurriculumPage());
     case my_course:
       return MaterialPageRoute(builder: (_) => MyCoursesPage());
     case course_detail:
-      final args = settings.arguments as Map<String, dynamic>;
-      return MaterialPageRoute(
-        builder: (_) => CourseDetailPage(courseId: args['courseId']),
-      );
+      if (args is Map<String, dynamic> && args.containsKey('courseId')) {
+        return MaterialPageRoute(
+          builder: (_) => CourseDetailPage(courseId: args['courseId']),
+        );
+      }
+      break;
     case certificate:
-      return MaterialPageRoute(builder: (_) => CertificatePage());
+      if (args is Map<String, dynamic> &&
+          args.containsKey('courseAccessId') &&
+          args['courseAccessId'] != null) {
+        return MaterialPageRoute(
+          builder:
+              (_) => CertificatePage(courseAccessId: args['courseAccessId']),
+        );
+      }
+      break;
+
+    // Quiz & Reviews
     case quiz:
-      final args = settings.arguments as Map<String, dynamic>;
-      return MaterialPageRoute(
-        builder: (_) => QuizPage(quizId: args['quizId']),
-      );
+      if (args is Map<String, dynamic> && args.containsKey('quizId')) {
+        return MaterialPageRoute(
+          builder: (_) => QuizPage(quizId: args['quizId']),
+        );
+      }
+      break;
     case reviews_list:
       return MaterialPageRoute(builder: (_) => ReviewsPage());
     case write_reviews:
       return MaterialPageRoute(builder: (_) => WriteReviewPage());
-    case mentor_profile:
-      final args = settings.arguments as Map<String, dynamic>;
-      return MaterialPageRoute(
-        builder:
-            (_) => MentorProfilePage(
-              name: args['name'],
-              skill: args['skill'],
-              image: args['image'],
-            ),
-      );
-    case student_profile:
-      return MaterialPageRoute(builder: (_) => ProfilePage());
-    case notification:
-      return MaterialPageRoute(builder: (_) => NotificationPage());
+
+    // Chat
     case inbox:
       return MaterialPageRoute(builder: (_) => InboxPage());
     case chat_room:
-      final args = settings.arguments as Map<String, dynamic>;
-      return MaterialPageRoute(
-        builder: (_) => ChatRoomPage(chatRoomId: args['chatRoomId']),
-      );
+      if (args is Map<String, dynamic> && args.containsKey('chatRoomId')) {
+        return MaterialPageRoute(
+          builder: (_) => ChatRoomPage(chatRoomId: args['chatRoomId']),
+        );
+      }
+      break;
+
+    // Other
+    case notification:
+      return MaterialPageRoute(builder: (_) => NotificationPage());
     case transaction:
       return MaterialPageRoute(builder: (_) => TransactionPage());
     case about_us:
       return MaterialPageRoute(builder: (_) => const AboutUsPage());
     case add_course:
       return MaterialPageRoute(builder: (_) => AddCourseScreen());
+
+    // Default
     default:
-      return MaterialPageRoute(builder: (_) => const SplashScreen());
+      return MaterialPageRoute(
+        builder:
+            (_) => const Scaffold(
+              body: Center(child: Text('404 - Page not found')),
+            ),
+      );
   }
+
+  // Fallback
+  return MaterialPageRoute(
+    builder:
+        (_) => const Scaffold(
+          body: Center(child: Text('Invalid route arguments')),
+        ),
+  );
 }

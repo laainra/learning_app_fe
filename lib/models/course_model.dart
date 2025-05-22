@@ -18,6 +18,7 @@ class Course {
   final double? rating;
   final int? totalStudents;
   final int? totalLessons;
+  final int? courseAccessId;
 
   Course({
     this.id,
@@ -37,6 +38,7 @@ class Course {
     this.rating,
     this.totalStudents,
     this.totalLessons,
+    this.courseAccessId,
   });
 
   factory Course.fromJson(Map<String, dynamic> json) {
@@ -68,6 +70,7 @@ class Course {
           json['rating'] != null ? (json['rating'] as num).toDouble() : null,
       totalStudents: json['total_students'],
       totalLessons: json['total_lessons'],
+      courseAccessId: json['course_access_id'],
     );
   }
 
@@ -83,6 +86,7 @@ class Course {
       'certificate': certificate ? 1 : 0, // Konversi bool ke int
       'image': image,
       'price': price,
+      'course_access_id': courseAccessId,
     };
   }
 }

@@ -327,6 +327,29 @@ class _MyCoursesPageState extends State<MyCoursesPage>
                                 ],
                               ),
                             ),
+                            if (course.courseAccessId != null)
+                              Align(
+                                alignment: Alignment.bottomRight,
+                                child: TextButton(
+                                  onPressed: () {
+                                    Navigator.pushNamed(
+                                      context,
+                                      route.certificate,
+                                      arguments: {
+                                        'courseAccessId':
+                                            course.courseAccessId!,
+                                      },
+                                    );
+                                  },
+                                  child: const Text(
+                                    "VIEW CERTIFICATE",
+                                    style: TextStyle(
+                                      color: Colors.blue,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ),
                           ],
                         ),
                       ],
