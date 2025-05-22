@@ -10,6 +10,12 @@ import 'certificate_page.dart';
 import 'package:provider/provider.dart';
 import 'package:finbedu/providers/user_provider.dart'; // Assuming UserProvider is available
 import '../../routes/app_routes.dart' as route;
+import 'dart:typed_data';
+import 'dart:io';
+import 'package:flutter/services.dart' show rootBundle;
+import 'package:pdf/widgets.dart' as pw;
+import 'package:pdf/pdf.dart';
+import 'package:printing/printing.dart';
 
 class MyCoursesPage extends StatefulWidget {
   const MyCoursesPage({super.key});
@@ -205,6 +211,188 @@ class _MyCoursesPageState extends State<MyCoursesPage>
     );
   }
 
+  Future<Uint8List> generateCertificatePdf(
+    String userName,
+    String courseTitle,
+  ) async {
+    final pdf = pw.Document();
+
+    // Load logo dan medal dari assets
+    final logoData = await rootBundle.load('assets/images/logo.png');
+    final logoImage = pw.MemoryImage(logoData.buffer.asUint8List());
+
+    final medalData = await rootBundle.load('assets/images/medal.png');
+    final medalImage = pw.MemoryImage(medalData.buffer.asUint8List());
+
+    pdf.addPage(
+      pw.Page(
+        pageFormat: PdfPageFormat.a4.landscape,
+        build: (context) {
+          return pw.Container(
+            decoration: pw.BoxDecoration(
+              border: pw.Border.all(color: PdfColors.green, width: 4),
+            ),
+            padding: const pw.EdgeInsets.all(20),
+            child: pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.center,
+              children: [
+                // Header dengan logo dan teks di satu baris
+                pw.Container(
+                  width: double.infinity,
+                  padding: const pw.EdgeInsets.symmetric(
+                    vertical: 15,
+                    horizontal: 20,
+                  ),
+                  color: PdfColors.green,
+                  child: pw.Row(
+                    crossAxisAlignment: pw.CrossAxisAlignment.center,
+                    mainAxisAlignment: pw.MainAxisAlignment.center,
+                    children: [
+                      pw.Container(
+                        height: 60,
+                        width: 60,
+                        decoration: pw.BoxDecoration(
+                          shape: pw.BoxShape.circle,
+                          border: pw.Border.all(
+                            color: PdfColors.white,
+                            width: 2,
+                          ),
+                        ),
+                        child: pw.ClipOval(
+                          child: pw.Image(logoImage, fit: pw.BoxFit.cover),
+                        ),
+                      ),
+                      pw.SizedBox(width: 15),
+                      pw.Text(
+                        'CERTIFICATE OF COMPLETION',
+                        style: pw.TextStyle(
+                          fontSize: 28,
+                          fontWeight: pw.FontWeight.bold,
+                          color: PdfColors.white,
+                          letterSpacing: 1.5,
+                        ),
+                      ),
+                      pw.Container(
+                        height: 60,
+                        width: 60,
+                        decoration: pw.BoxDecoration(
+                          shape: pw.BoxShape.circle,
+                          border: pw.Border.all(
+                            color: PdfColors.white,
+                            width: 2,
+                          ),
+                        ),
+                        child: pw.ClipOval(
+                          child: pw.Image(medalImage, fit: pw.BoxFit.cover),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                pw.SizedBox(height: 40),
+
+                // Medal di kanan bawah (aligned right)
+                pw.Text(
+                  'This is to certify that',
+                  style: pw.TextStyle(fontSize: 18, color: PdfColors.grey800),
+                ),
+
+                pw.SizedBox(height: 12),
+
+                pw.Text(
+                  userName,
+                  style: pw.TextStyle(
+                    fontSize: 36,
+                    fontWeight: pw.FontWeight.bold,
+                    color: PdfColors.black,
+                  ),
+                ),
+
+                pw.SizedBox(height: 12),
+
+                pw.Text(
+                  'Has successfully completed',
+                  style: pw.TextStyle(fontSize: 18, color: PdfColors.grey800),
+                ),
+
+                pw.SizedBox(height: 8),
+
+                pw.Text(
+                  courseTitle,
+                  textAlign: pw.TextAlign.center,
+                  style: pw.TextStyle(
+                    fontSize: 24,
+                    fontWeight: pw.FontWeight.bold,
+                    color: PdfColors.black,
+                  ),
+                ),
+
+                pw.Spacer(),
+
+                pw.SizedBox(height: 20),
+
+                // Footer dengan garis atas dan date/signature
+                pw.Container(
+                  width: double.infinity,
+                  // decoration: pw.BoxDecoration(
+                  //   border: pw.Border(
+                  //     top: pw.BorderSide(color: PdfColors.grey400, width: 1),
+                  //   ),
+                  // ),
+                  padding: const pw.EdgeInsets.only(top: 15),
+                  child: pw.Row(
+                    mainAxisAlignment: pw.MainAxisAlignment.spaceAround,
+                    children: [
+                      pw.Column(
+                        children: [
+                          pw.Text(
+                            'Date',
+                            style: pw.TextStyle(
+                              fontWeight: pw.FontWeight.bold,
+                              fontSize: 14,
+                            ),
+                          ),
+                          pw.SizedBox(height: 4),
+                          pw.Text(
+                            '${DateTime.now().toLocal().toString().split(" ")[0]}',
+                            style: pw.TextStyle(fontSize: 12),
+                          ),
+                        ],
+                      ),
+                      pw.Column(
+                        children: [
+                          pw.Text(
+                            'Signature',
+                            style: pw.TextStyle(
+                              fontWeight: pw.FontWeight.bold,
+                              fontSize: 14,
+                            ),
+                          ),
+                          pw.SizedBox(height: 20),
+                          pw.Text(
+                            'FINBEDU',
+                            style: pw.TextStyle(
+                              fontSize: 16,
+                              fontWeight: pw.FontWeight.bold,
+                            ),
+                          ),
+                          pw.Text('_________________________'),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+
+    return pdf.save();
+  }
+
   Widget _buildStudentCourseList(List<Course> courses) {
     return ListView.builder(
       padding: const EdgeInsets.all(16),
@@ -327,31 +515,54 @@ class _MyCoursesPageState extends State<MyCoursesPage>
                                 ],
                               ),
                             ),
-                            if (course.courseAccessId != null)
-                              Align(
-                                alignment: Alignment.bottomRight,
-                                child: TextButton(
-                                  onPressed: () {
-                                    Navigator.pushNamed(
-                                      context,
-                                      route.certificate,
-                                      arguments: {
-                                        'courseAccessId':
-                                            course.courseAccessId!,
-                                      },
-                                    );
-                                  },
-                                  child: const Text(
-                                    "VIEW CERTIFICATE",
-                                    style: TextStyle(
-                                      color: Colors.blue,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              ),
                           ],
                         ),
+                        if (course.accessStatus == 'completed')
+                          Align(
+                            alignment: Alignment.bottomRight,
+                            child: TextButton(
+                              onPressed: () async {
+                                final pdfData = await generateCertificatePdf(
+                                  course.user?.name ?? 'Student',
+                                  course.name,
+                                );
+
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder:
+                                        (_) => Scaffold(
+                                          appBar: AppBar(
+                                            title: const Text(
+                                              'Preview Certificate',
+                                            ),
+                                          ),
+                                          body: PdfPreview(
+                                            build: (format) async => pdfData,
+                                            // initialPageFormat:
+                                            //     PdfPageFormat
+                                            //         .a4
+                                            //         .landscape, // 👉 Tambahkan ini
+                                            canChangePageFormat: false,
+                                            canChangeOrientation: false,
+                                            canDebug: false,
+                                            allowPrinting: true,
+                                            allowSharing: true,
+                                          ),
+                                        ),
+                                  ),
+                                );
+                              },
+
+                              child: const Text(
+                                "VIEW CERTIFICATE",
+                                style: TextStyle(
+                                  color: Colors.blue,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
                       ],
                     ),
                   ),

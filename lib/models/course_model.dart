@@ -1,3 +1,4 @@
+import 'package:finbedu/models/course_access.dart';
 import 'package:finbedu/models/user_model.dart';
 
 class Course {
@@ -15,6 +16,7 @@ class Course {
   final String price;
   final String? category;
   final UserModel? user;
+  final String? accessStatus;
   final double? rating;
   final int? totalStudents;
   final int? totalLessons;
@@ -35,6 +37,7 @@ class Course {
     required this.price,
     this.category,
     this.user,
+    this.accessStatus,
     this.rating,
     this.totalStudents,
     this.totalLessons,
@@ -66,6 +69,7 @@ class Course {
           json['user'] != null && json['user'] is Map
               ? UserModel.fromJson(json['user'])
               : null,
+      accessStatus: json['access_status'],
       rating:
           json['rating'] != null ? (json['rating'] as num).toDouble() : null,
       totalStudents: json['total_students'],
