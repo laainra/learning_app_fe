@@ -18,7 +18,10 @@ class Quiz {
   factory Quiz.fromJson(Map<String, dynamic> json) {
     return Quiz(
       id: json['id'],
-      sectionId: json['section_id'],
+      sectionId:
+          json['section_id'] is String
+              ? int.tryParse(json['section_id'])
+              : json['section_id'],
       section: Section.fromJson(json['section']), // Parsing section
       questions:
           (json['questions'] as List<dynamic>)

@@ -1,4 +1,5 @@
 import 'package:finbedu/models/section_model.dart';
+import 'package:finbedu/screens/course/my_course.dart';
 import 'package:finbedu/screens/quiz/quiz_result.dart';
 import 'package:finbedu/services/constants.dart';
 import 'package:flutter/material.dart';
@@ -376,6 +377,13 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
                                 content: Text('Berhasil enroll ke course!'),
+                              ),
+                            );
+                            // Setelah berhasil enroll, bisa navigasi ke halaman my course
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => MyCoursesPage(),
                               ),
                             );
                           } else {

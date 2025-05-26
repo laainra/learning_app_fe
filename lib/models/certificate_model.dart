@@ -22,10 +22,18 @@ class Certificate {
   factory Certificate.fromJson(Map<String, dynamic> json) {
     return Certificate(
       id: json['id'],
-      userId: json['user_id'],
-      courseId: json['course_id'],
-      courseAccessId: json['course_access_id'],
-      certificateId: json['certificate_id'],
+      userId: json['user_id'] is String
+          ? int.tryParse(json['user_id'])
+          : json['user_id'],
+      courseId: json['course_id'] is String
+          ? int.tryParse(json['course_id'])
+          : json['course_id'],
+      courseAccessId: json['course_access_id'] is String
+          ? int.tryParse(json['course_access_id'])
+          : json['course_access_id'],
+      certificateId: json['certificate_id'] is String
+          ? json['certificate_id']
+          : json['certificate_id'].toString(),
       completedAt: DateTime.parse(json['completed_at']),
       createdAt: DateTime.parse(json['created_at']),
       updatedAt: DateTime.parse(json['updated_at']),

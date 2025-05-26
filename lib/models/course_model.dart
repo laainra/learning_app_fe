@@ -47,10 +47,10 @@ class Course {
   factory Course.fromJson(Map<String, dynamic> json) {
     return Course(
       id: json['id'],
-      categoryId: json['category_id'],
+      // categoryId: json['category_id'],
       name: json['name'],
       desc: json['desc'],
-      userId: json['user_id'],
+      // userId: json['user_id'],
       mediaFullAccess: json['media_full_access'] == 1,
       level: json['level'],
       audioBook: json['audio_book'] == 1,
@@ -72,9 +72,26 @@ class Course {
       accessStatus: json['access_status'],
       rating:
           json['rating'] != null ? (json['rating'] as num).toDouble() : null,
-      totalStudents: json['total_students'],
-      totalLessons: json['total_lessons'],
-      courseAccessId: json['course_access_id'],
+      categoryId:
+          json['category_id'] is String
+              ? int.tryParse(json['category_id'])
+              : json['category_id'],
+      userId:
+          json['user_id'] is String
+              ? int.tryParse(json['user_id'])
+              : json['user_id'],
+      totalStudents:
+          json['total_students'] is String
+              ? int.tryParse(json['total_students'])
+              : json['total_students'],
+      totalLessons:
+          json['total_lessons'] is String
+              ? int.tryParse(json['total_lessons'])
+              : json['total_lessons'],
+      courseAccessId:
+          json['course_access_id'] is String
+              ? int.tryParse(json['course_access_id'])
+              : json['course_access_id'],
     );
   }
 

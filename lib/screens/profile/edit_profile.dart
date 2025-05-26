@@ -166,7 +166,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       // Trigger setState di modal agar gambar terupdate
                       setStateModal(() {});
                     },
-                    child: const Text('Pilih Gambar dari Galeri'),
+                    child: const Text('Pilih Gambar dari Galeri' ,
+                  style: TextStyle(color: Colors.white),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF202244),
+                ),
                   ),
                   const SizedBox(height: 10),
                   ElevatedButton(
@@ -175,7 +180,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       Navigator.pop(context); // Tutup modal
                       // Navigasi ke halaman Section Video
                     },
-                    child: const Text('Upload Gambar'),
+                    child: const Text('Upload Gambar' ,
+                  style: TextStyle(color: Colors.white),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF202244),
+                ),
                   ),
                 ],
               ),

@@ -2,10 +2,10 @@ import 'package:intl/intl.dart';
 
 class Constants {
   static const String baseUrl =
-      "http://192.168.214.236:8000/api"; // Replace with your API URL
+      "https://finbedu.my.id/api"; // Replace with your API URL
 
   static const String imgUrl =
-      "http://192.168.214.236:8000"; // Replace with your API URL
+      "https://finbedu.my.id"; // Replace with your API URL
 
   String formatRupiah(String price) {
     try {

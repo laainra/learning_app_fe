@@ -231,6 +231,8 @@ class _AddQuizScreenState extends State<AddQuizScreen> {
         child:
             quizProvider.quizDetails == null
                 ? const Center(child: CircularProgressIndicator())
+                : quizProvider.quizDetails!.questions.isEmpty
+                ? const Center(child: Text('Belum ada pertanyaan'))
                 : ListView.builder(
                   itemCount: quizProvider.quizDetails!.questions.length,
                   itemBuilder: (context, index) {
@@ -268,7 +270,7 @@ class _AddQuizScreenState extends State<AddQuizScreen> {
                             question.answers.map((answer) {
                               return ListTile(
                                 title: Text(
-                                  ' ${answer.status ? "(true)" : ""}${answer.answer}',
+                                  ' ${answer.status ? "(true) - " : ""}${answer.answer}',
                                 ),
                               );
                             }).toList(),

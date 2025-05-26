@@ -24,7 +24,9 @@ class Chat {
   factory Chat.fromJson(Map<String, dynamic> json) {
     return Chat(
       id: json['id'],
-      userId: json['user_id'],
+      userId: json['user_id'] is String
+          ? int.tryParse(json['user_id'])
+          : json['user_id'],
       text: json['text'] ?? '',
       isMe: json['isMe'] ?? false,
       time: json['created_at'] ?? '',

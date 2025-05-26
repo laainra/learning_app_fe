@@ -31,9 +31,9 @@ class _StudentDashboardState extends State<StudentDashboard> {
   List<Course> courses = [];
 
   final List<String> banners = [
-    'assets/images/course1.jpg',
-    'assets/images/course2.jpg',
-    'assets/images/course1.jpg',
+    'assets/images/banner1.png',
+    'assets/images/banner2.png',
+    'assets/images/banner3.png',
   ];
 
   @override

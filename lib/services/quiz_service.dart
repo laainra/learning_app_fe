@@ -26,6 +26,8 @@ class QuizService {
       final List<dynamic> data = jsonDecode(response.body);
       return data.map((json) => Quiz.fromJson(json)).toList();
     } else {
+      print(response.body);
+      print('Response status code: ${response.statusCode}');
       throw Exception('Failed to fetch quizzes');
     }
   }
@@ -284,7 +286,8 @@ class QuizService {
         'Content-Type': 'application/json',
       },
     );
-
+    print('Response status code: ${response.statusCode}');
+    print('Response body: ${response.body}');
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body)['data'];
       return Quiz.fromJson(data);

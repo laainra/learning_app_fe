@@ -19,7 +19,10 @@ class Section {
     return Section(
       id: json['id'],
       name: json['name'],
-      courseId: json['course_id'],
+      courseId:
+          json['course_id'] is int
+              ? json['course_id']
+              : int.parse(json['course_id'].toString()),
       videos:
           (json['videos'] as List<dynamic>?)
               ?.map((videoJson) => Video.fromJson(videoJson))

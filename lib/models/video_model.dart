@@ -19,7 +19,10 @@ class Video {
       title: json['title'],
       url: json['url'],
       duration: json['duration'],
-      sectionId: json['section_id'],
+      sectionId:
+          json['section_id'] is int
+              ? json['section_id']
+              : int.parse(json['section_id'].toString()),
     );
   }
 

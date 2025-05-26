@@ -185,7 +185,13 @@ class _MyCoursesPageState extends State<MyCoursesPage>
                     ),
                   );
                 },
-                child: const Text("Edit Course"),
+                child: const Text(
+                  "Edit Course",
+                  style: TextStyle(color: Colors.white),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF202244),
+                ),
               ),
 
               const SizedBox(height: 8),
@@ -199,10 +205,14 @@ class _MyCoursesPageState extends State<MyCoursesPage>
                     ),
                   );
                 },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blueAccent,
+
+                child: const Text(
+                  "Edit Curriculum",
+                  style: TextStyle(color: Colors.white),
                 ),
-                child: const Text("Edit Curriculum"),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color.fromARGB(255, 84, 50, 120),
+                ),
               ),
             ],
           ),
@@ -394,6 +404,8 @@ class _MyCoursesPageState extends State<MyCoursesPage>
   }
 
   Widget _buildStudentCourseList(List<Course> courses) {
+    UserProvider user = Provider.of<UserProvider>(context);
+    String userName = user.user?.name ?? 'Student';
     return ListView.builder(
       padding: const EdgeInsets.all(16),
       itemCount: courses.length,
@@ -523,7 +535,7 @@ class _MyCoursesPageState extends State<MyCoursesPage>
                             child: TextButton(
                               onPressed: () async {
                                 final pdfData = await generateCertificatePdf(
-                                  course.user?.name ?? 'Student',
+                                  userName,
                                   course.name,
                                 );
 
@@ -645,20 +657,27 @@ class _MyCoursesPageState extends State<MyCoursesPage>
                                   ),
                                 ),
                                 const SizedBox(height: 4),
-                                Row(
-                                  children: [
-                                    const Icon(
-                                      Icons.star,
-                                      size: 16,
-                                      color: Colors.amber,
-                                    ),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      "- | {course.duration}",
-                                      style: const TextStyle(fontSize: 12),
-                                    ),
-                                  ],
-                                ),
+                                // Text(
+                                //   course.id.toString(),
+                                //   style: const TextStyle(
+                                //     fontSize: 12,
+                                //     color: Colors.grey,
+                                //   ),
+                                // ),
+                                // Row(
+                                //   children: [
+                                //     const Icon(
+                                //       Icons.star,
+                                //       size: 16,
+                                //       color: Colors.amber,
+                                //     ),
+                                //     const SizedBox(width: 4),
+                                //     Text(
+                                //       "- | {course.duration}",
+                                //       style: const TextStyle(fontSize: 12),
+                                //     ),
+                                //   ],
+                                // ),
                                 const SizedBox(height: 8),
                               ],
                             ),

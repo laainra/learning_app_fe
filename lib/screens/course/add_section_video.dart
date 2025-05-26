@@ -339,7 +339,12 @@ class _AddSectionScreenState extends State<AddSectionScreen> {
                   ),
                   ElevatedButton(
                     onPressed: _addSection,
-                    child: const Text('Tambah Section'),
+                    child: const Text('Tambah Section' ,
+                  style: TextStyle(color: Colors.white),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF202244),
+                ),
                   ),
                   const SizedBox(height: 20),
                   ...sectionProvider.sections.map((section) {

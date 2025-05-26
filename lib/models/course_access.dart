@@ -21,9 +21,13 @@ class CourseAccess {
   factory CourseAccess.fromJson(Map<String, dynamic> json) {
     return CourseAccess(
       id: json['id'],
-      courseId: json['course_id'],
+      courseId: json['course_id'] is String
+          ? int.tryParse(json['course_id'])
+          : json['course_id'],
       accessStatus: json['access_status'],
-      userId: json['user_id'],
+      userId: json['user_id'] is String
+          ? int.tryParse(json['user_id'])
+          : json['user_id'],
       createdAt:
           json['created_at'] != null
               ? DateTime.parse(json['created_at'])

@@ -75,8 +75,11 @@ class _UploadImageScreenState extends State<UploadImageScreen> {
           ),
           const SizedBox(height: 16),
           ElevatedButton(
+            
+            style: ElevatedButton.styleFrom(backgroundColor:const Color(0xFF202244),
+            ),  
+            child: const Text('Upload dan Lanjut', style: TextStyle(color: Colors.white),),
             onPressed: _uploadImage,
-            child: const Text('Upload dan Lanjut'),
           ),
         ],
       ),

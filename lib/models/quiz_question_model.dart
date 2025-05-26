@@ -13,7 +13,9 @@ class QuizQuestion {
     return QuizQuestion(
       id: json['id'],
       question: json['question'],
-      quizId: json['quiz_id'],
+      quizId: json['quiz_id'] is String
+              ? int.tryParse(json['quiz_id'])
+              : json['quiz_id'],
       answers: (json['answers'] as List<dynamic>)
           .map((answerJson) => QuizAnswer.fromJson(answerJson))
           .toList(),

@@ -14,8 +14,14 @@ class VideoProgress {
   factory VideoProgress.fromJson(Map<String, dynamic> json) {
     return VideoProgress(
       id: json['id'],
-      userId: json['user_id'],
-      videoId: json['video_id'],
+      userId:
+          json['user_id'] is String
+              ? int.tryParse(json['user_id'])
+              : json['user_id'],
+      videoId:
+          json['video_id'] is String
+              ? int.tryParse(json['video_id'])
+              : json['video_id'],
       watchedAt: json['watched_at'],
     );
   }

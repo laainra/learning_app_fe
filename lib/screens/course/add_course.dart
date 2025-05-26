@@ -134,7 +134,7 @@ class _AddCourseScreenState extends State<AddCourseScreen> {
         return StatefulBuilder(
           builder: (context, setStateModal) {
             return AlertDialog(
-              title: const Text('Upload Gambar'),
+              title: const Text('Upload Gambar  '),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -148,15 +148,25 @@ class _AddCourseScreenState extends State<AddCourseScreen> {
                       : const Text('Belum ada gambar yang dipilih'),
                   const SizedBox(height: 10),
                   ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF202244),
+                    ),
+
                     onPressed: () async {
                       await _pickImage();
                       // Trigger setState di modal agar gambar terupdate
                       setStateModal(() {});
                     },
-                    child: const Text('Pilih Gambar dari Galeri'),
+                    child: const Text(
+                      'Pilih Gambar dari Galeri',
+                      style: TextStyle(color: Colors.white),
+                    ),
                   ),
                   const SizedBox(height: 10),
                   ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF202244),
+                    ),
                     onPressed: () async {
                       await _uploadImage(courseId);
                       Navigator.pop(context); // Tutup modal
@@ -168,7 +178,10 @@ class _AddCourseScreenState extends State<AddCourseScreen> {
                         ),
                       );
                     },
-                    child: const Text('Upload Gambar'),
+                    child: const Text(
+                      'Upload Gambar',
+                      style: TextStyle(color: Colors.white),
+                    ),
                   ),
                 ],
               ),
@@ -314,8 +327,13 @@ class _AddCourseScreenState extends State<AddCourseScreen> {
                     },
                     child:
                         widget.course!.image != null
-                            ? const Text('Edit Gambar')
-                            : const Text('Upload Gambar'),
+                            ? const Text('Edit Gambar', style: TextStyle(color: Colors.white),)
+                            : const Text('Upload Gambar',
+                  style: TextStyle(color: Colors.white),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF202244),
+                ),
                   ),
                 ],
               ),
@@ -442,11 +460,12 @@ class _AddCourseScreenState extends State<AddCourseScreen> {
                 : ActionButton(
                   label:
                       widget.course == null ? 'Tambah Course' : 'Edit Course',
-                  color: Colors.blue,
+                  color:  Color(0xFF202244),
                   width: double.infinity,
                   height: 50,
                   onTap: _submit,
                 ),
+               
             const SizedBox(height: 16),
           ],
         ),

@@ -159,7 +159,13 @@ class _MentorListPageState extends State<MentorListPage> {
                             onPressed: () async {
                               await _createChatRoom(mentor.id!);
                             },
-                            child: const Text('Message'),
+                            child: const Text(
+                              'Message',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF202244),
+                            ),
                           ),
                         ],
                       ),
