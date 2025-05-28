@@ -168,7 +168,7 @@ class _PopularCoursePageState extends State<PopularCoursePage> {
                   children: [
                     Icon(Icons.star, size: 16, color: Colors.amber[700]),
                     const SizedBox(width: 4),
-                    Text('${course['rating']}'),
+                    ext('${course['rating']}'),T
                     const SizedBox(width: 10),
                     Text('${course['students']} Std'),
                   ],

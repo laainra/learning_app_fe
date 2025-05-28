@@ -1,4 +1,5 @@
 import 'package:finbedu/providers/chat_provider.dart';
+import 'package:finbedu/providers/review_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:finbedu/providers/certificate_provider.dart';
 import 'package:finbedu/providers/category_providers.dart';
@@ -57,6 +58,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => AccessProvider()),
         ChangeNotifierProvider(create: (_) => VideoProgressProvider()),
         ChangeNotifierProvider(create: (_) => CertificateProvider()),
+        ChangeNotifierProvider(create: (_) => ReviewProvider()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

@@ -156,20 +156,32 @@ class _PopularCoursesPageState extends State<PopularCoursesPage> {
       elevation: 2,
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       child: ListTile(
-        leading:
-            (course.image != null &&
-                    course.image!.isNotEmpty &&
-                    course.image!.endsWith('.png'))
-                ? Image.asset(
-                  course.image!,
-                  height: 80,
-                  width: 80,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return _buildPlaceholderImage();
-                  },
-                )
-                : _buildPlaceholderImage(),
+        leading: SizedBox(
+          width: 60,
+          height: 60,
+          child:
+              course.image != null
+                  ? Image.network(
+                    '${Constants.imgUrl}/${course.image}',
+                    fit: BoxFit.cover,
+                    loadingBuilder: (context, child, loadingProgress) {
+                      if (loadingProgress == null) return child;
+                      return Container(
+                        color: Colors.grey.shade200,
+                        child: const Center(child: CircularProgressIndicator()),
+                      );
+                    },
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        color: Colors.black,
+                        child: const Center(
+                          child: Icon(Icons.broken_image, color: Colors.white),
+                        ),
+                      );
+                    },
+                  )
+                  : _buildPlaceholderImage(),
+        ),
         title: Text(
           course.name,
           style: const TextStyle(fontWeight: FontWeight.bold),
@@ -183,6 +195,10 @@ class _PopularCoursesPageState extends State<PopularCoursesPage> {
             Row(
               children: [
                 const Icon(Icons.star, color: Colors.amber, size: 16),
+                Text(
+                  course.rating?.toStringAsFixed(1) ?? 'N/A',
+                  style: const TextStyle(fontSize: 12),
+                ),
                 const SizedBox(width: 4),
                 Text(
                   Constants().formatRupiah(course.price),

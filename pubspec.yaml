@@ -58,6 +58,7 @@ dependencies:
   webview_flutter: ^4.11.0
   printing: ^5.14.2
   pdf: ^3.11.3
+  flutter_launcher_icons: ^0.14.3
 
 
 dev_dependencies:
@@ -73,7 +74,10 @@ dev_dependencies:
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
-
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/logo.png"
 # The following section is specific to Flutter packages.
 flutter:
 

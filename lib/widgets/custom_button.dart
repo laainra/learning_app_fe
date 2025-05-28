@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 
 class ActionButton extends StatefulWidget {
   final String label;
+  final Icon? icon;
   final Color color;
   final VoidCallback onTap;
   final double width;
   final double height;
+  final Color? textColor;
 
   const ActionButton({
     Key? key,
@@ -14,7 +16,8 @@ class ActionButton extends StatefulWidget {
     required this.onTap,
     required this.width,
     required this.height,
-    
+    this.icon,
+    this.textColor,
   }) : super(key: key);
 
   @override
@@ -27,7 +30,7 @@ class _ActionButtonState extends State<ActionButton> {
   @override
   void initState() {
     super.initState();
-    _currentColor = widget.color;  // Initialize with the initial color
+    _currentColor = widget.color; // Initialize with the initial color
   }
 
   void _changeColor() {
@@ -40,21 +43,24 @@ class _ActionButtonState extends State<ActionButton> {
         widget.color.opacity,
       );
     });
+    if (widget.color == Colors.white) {
+      _currentColor = Colors.white;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        widget.onTap();  // Call the provided onTap function
-        _changeColor();   // Change the color on tap
+        widget.onTap(); // Call the provided onTap function
+        _changeColor(); // Change the color on tap
       },
       child: Container(
         width: widget.width,
         height: widget.height,
         padding: const EdgeInsets.symmetric(horizontal: 16),
         decoration: BoxDecoration(
-          color: _currentColor,  // Use the dynamically updated color
+          color: _currentColor, // Use the dynamically updated color
           borderRadius: BorderRadius.circular(30),
         ),
         child: Row(
@@ -62,9 +68,9 @@ class _ActionButtonState extends State<ActionButton> {
           children: [
             Text(
               widget.label,
-              style: const TextStyle(
+              style: TextStyle(
                 fontWeight: FontWeight.bold,
-                color: Colors.white,
+                color: widget.textColor ?? Colors.white,
               ),
             ),
             Container(
@@ -74,10 +80,13 @@ class _ActionButtonState extends State<ActionButton> {
                 shape: BoxShape.circle,
                 color: Colors.white,
               ),
-              child: Icon(
-                Icons.arrow_forward,
-                color: _currentColor,  // Icon color changes as well
-              ),
+              child:
+                  widget.icon != null
+                      ? widget.icon
+                      : Icon(
+                        Icons.arrow_forward,
+                        color: _currentColor, // Icon color changes as well
+                      ),
             ),
           ],
         ),

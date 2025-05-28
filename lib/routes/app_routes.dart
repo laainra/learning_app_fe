@@ -157,10 +157,6 @@ Route<dynamic> controller(RouteSettings settings) {
         );
       }
       break;
-    case reviews_list:
-      return MaterialPageRoute(builder: (_) => ReviewsPage());
-    case write_reviews:
-      return MaterialPageRoute(builder: (_) => WriteReviewPage());
 
     // Chat
     case inbox:

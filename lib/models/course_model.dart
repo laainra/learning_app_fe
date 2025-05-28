@@ -71,7 +71,9 @@ class Course {
               : null,
       accessStatus: json['access_status'],
       rating:
-          json['rating'] != null ? (json['rating'] as num).toDouble() : null,
+          json['average_rating'] != null
+              ? (json['average_rating'] as num).toDouble()
+              : null,
       categoryId:
           json['category_id'] is String
               ? int.tryParse(json['category_id'])

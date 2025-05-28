@@ -37,6 +37,7 @@ class AuthService {
           await storage.write(key: 'token', value: token);
           await storage.write(key: 'role', value: userData.role);
           await storage.write(key: 'isLoggedIn', value: 'true');
+          await storage.write(key: 'user_id', value: userData.id.toString());
 
           Provider.of<UserProvider>(context, listen: false).setUser(userData);
           return true;

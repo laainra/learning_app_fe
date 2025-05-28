@@ -1,6 +1,9 @@
+import 'package:finbedu/models/review_model.dart';
 import 'package:finbedu/models/section_model.dart';
+import 'package:finbedu/providers/review_provider.dart';
 import 'package:finbedu/screens/course/my_course.dart';
 import 'package:finbedu/screens/quiz/quiz_result.dart';
+import 'package:finbedu/screens/reviews/reviews_list.dart';
 import 'package:finbedu/services/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -17,6 +20,8 @@ import 'package:finbedu/providers/videoprogress_provider.dart';
 import 'package:finbedu/widgets/custom_button.dart';
 import 'package:finbedu/providers/quiz_provider.dart';
 import 'package:finbedu/screens/quiz/quiz_screen.dart';
+import '../../routes/app_routes.dart' as route;
+import 'package:intl/intl.dart';
 
 class CourseDetailPage extends StatefulWidget {
   final int courseId;
@@ -48,9 +53,15 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
       listen: false,
     );
 
+    final reviewProvider = Provider.of<ReviewProvider>(
+      context,
+      listen: false,
+    ); // Tambahkan ReviewProvider
+
     await courseProvider.fetchCourseById(widget.courseId);
     if (courseProvider.courseById != null) {
       await sectionProvider.fetchSections(widget.courseId);
+      reviewProvider.loadReviews(courseId: widget.courseId);
     }
   }
 
@@ -685,37 +696,152 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
   }
 
   Widget _buildAboutSection(String about, List<Section> sections) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            "About This Course",
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+    // Akses ReviewProvider di sini untuk mendapatkan statistik dan beberapa review
+    return Consumer<ReviewProvider>(
+      // Gunakan Consumer untuk data review
+      builder: (context, reviewProvider, child) {
+        final List<Review> topReviews =
+            reviewProvider.reviews.take(3).toList(); // Ambil 3 review teratas
+        final double averageCourseRating =
+            reviewProvider.averageRating; // Dapatkan rata-rata rating
+        final int totalCourseReviews = reviewProvider.totalReviews;
+
+        return SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                "About This Course",
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                about,
+                style: const TextStyle(fontSize: 14, color: Colors.black87),
+              ),
+              const SizedBox(height: 24),
+              const Text(
+                "What You'll Get",
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              ),
+              const SizedBox(height: 16),
+              _infoItem(
+                Icons.play_circle,
+                "${_calculateTotalLessons(sections)} Lessons",
+              ),
+              _infoItem(Icons.devices, "Access Mobile, Desktop & TV"),
+              _infoItem(Icons.lock_open, "Lifetime Access"),
+              _infoItem(
+                Icons.quiz,
+                "${_calculateTotalLessons(sections)} Quizzes",
+              ), // Sesuaikan jika perlu
+              _infoItem(Icons.verified, "Certificate of Completion"),
+              // Tampilkan Rata-rata Rating dari Review Provider
+              if (totalCourseReviews > 0)
+                _infoItem(
+                  Icons.star,
+                  "${averageCourseRating.toStringAsFixed(1)} Average Rating ($totalCourseReviews Reviews)",
+                ),
+
+              const SizedBox(height: 24),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    "Reviews",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder:
+                              (_) => ReviewsPage(courseId: widget.courseId),
+                        ),
+                      );
+                    },
+                    child: const Text(
+                      "SEE ALL",
+                      style: TextStyle(
+                        color: Colors.blue,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+
+              // Bagian untuk menampilkan review dari ReviewProvider
+              if (reviewProvider.isLoading)
+                const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                )
+              else if (reviewProvider.errorMessage != null)
+                Center(
+                  child: Text(
+                    "Error loading reviews: ${reviewProvider.errorMessage}",
+                  ),
+                )
+              else if (topReviews.isEmpty)
+                const Center(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: 3.0),
+                    child: Text(
+                      "No reviews yet for this course.",
+                      style: TextStyle(color: Colors.grey),
+                    ),
+                  ),
+                )
+              else
+                ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: topReviews.length,
+                  itemBuilder: (context, index) {
+                    final review = topReviews[index];
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 12.0),
+                      child: _reviewItem(
+                        // Menggunakan data dari review object
+                        review.user?.name ?? "Anonymous",
+                        review.rating.toDouble(),
+                        review.review,
+                        _formatReviewDate(
+                          review.createdAt,
+                        ), // Gunakan fungsi format tanggal
+
+                        review.user?.photo, // Tambahkan parameter avatarUrl
+                      ),
+                    );
+                  },
+                ),
+              const SizedBox(
+                height: 12,
+              ), // Beri jarak sebelum bagian bawah jika ada tombol enroll
+            ],
           ),
-          const SizedBox(height: 12),
-          Text(
-            about,
-            style: const TextStyle(fontSize: 14, color: Colors.black87),
-          ),
-          const SizedBox(height: 24),
-          const Text(
-            "What You'll Get",
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-          ),
-          const SizedBox(height: 16),
-          _infoItem(
-            Icons.play_circle,
-            "${_calculateTotalLessons(sections)} Lessons",
-          ),
-          _infoItem(Icons.devices, "Access Mobile, Desktop & TV"),
-          _infoItem(Icons.lock_open, "Lifetime Access"),
-          _infoItem(Icons.quiz, "${_calculateTotalLessons(sections)} Quizzes"),
-          _infoItem(Icons.verified, "Certificate of Completion"),
-        ],
-      ),
+        );
+      },
     );
+  }
+
+  // Fungsi untuk format tanggal review (contoh sederhana)
+  String _formatReviewDate(String? dateString) {
+    if (dateString == null) return "Unknown date";
+    try {
+      final dateTime = DateTime.parse(dateString);
+      return DateFormat('dd MMM, yyyy').format(dateTime.toLocal());
+      // Atau gunakan package timeago untuk format "2 weeks ago"
+      // import 'package:timeago/timeago.dart' as timeago;
+      // return timeago.format(dateTime.toLocal());
+    } catch (e) {
+      return dateString; // Kembalikan string asli jika parsing gagal
+    }
   }
 
   Widget _infoItem(IconData icon, String text) {
@@ -728,6 +854,68 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
           Text(text),
         ],
       ),
+    );
+  }
+
+  Widget _reviewItem(
+    String name,
+    double rating,
+    String comment,
+    String time,
+    String? avatarUrl,
+  ) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        avatarUrl != null
+            ? ClipOval(
+              child: Image.network(
+                '${Constants.imgUrl}/${avatarUrl}',
+                width: 50,
+                height: 50,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return Container(
+                    width: 50,
+                    height: 50,
+                    color: Colors.white,
+                    child: const Icon(
+                      Icons.person,
+                      size: 50,
+                      color: Colors.grey,
+                    ),
+                  );
+                },
+              ),
+            )
+            : // Jika avatarUrl tidak ada, gunakan icon default
+            const CircleAvatar(child: Icon(Icons.person)),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(name, style: const TextStyle(fontWeight: FontWeight.bold)),
+              Row(
+                children: List.generate(
+                  5,
+                  (index) => Icon(
+                    index < rating ? Icons.star : Icons.star_border,
+                    color: Colors.orange,
+                    size: 16,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(comment),
+              Text(
+                time,
+                style: const TextStyle(color: Colors.grey, fontSize: 12),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
