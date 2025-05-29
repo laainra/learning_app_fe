@@ -213,8 +213,22 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
               IconButton(
                 icon: const Icon(Icons.send, color: Color(0xFF0A214C)),
                 onPressed: () async {
-                  final text = _messageController.text.trim();
+                  String text = _messageController.text.trim();
                   if (text.isNotEmpty || _selectedFile != null) {
+                    // Sensor nomor telepon (format Indonesia dan umum)
+                    // ...existing code...
+                    text = text.replaceAllMapped(
+                      RegExp(
+                        r'(\+62|62|08)[\s\-]?\d{3,4}[\s\-]?\d{3,4}[\s\-]?\d{3,4}',
+                      ),
+                      (match) => '[Pesan ini melanggar kebijakan]',
+                    );
+                    text = text.replaceAllMapped(
+                      RegExp(r'\b\d{3,4}[\s\-]?\d{3,4}[\s\-]?\d{3,4}\b'),
+                      (match) => '[Pesan ini melanggar kebijakan]',
+                    );
+                    // ...existing code...
+
                     final chatProvider = Provider.of<ChatProvider>(
                       context,
                       listen: false,
