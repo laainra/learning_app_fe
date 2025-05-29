@@ -452,6 +452,9 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
       itemCount: sections.length,
       itemBuilder: (context, sectionIndex) {
         final section = sections[sectionIndex];
+        final bool isFirstSection = sectionIndex == 0;
+        // Determine if the content of THIS SPECIFIC section should be accessible
+        final bool canAccessContent = isEnrolled || isFirstSection;
 
         return ExpansionTile(
           title: Text(
@@ -471,7 +474,6 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
                   _videosPerSection[section.id] = videos;
                 });
               } catch (e) {
-                // Bisa ditambahkan error handling di sini jika perlu
                 debugPrint(
                   'Failed to load videos for section ${section.id}: $e',
                 );
@@ -483,18 +485,35 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
             }
           },
           children: [
-            if (!isEnrolled)
+            // Conditional "Enroll to access this section" message
+            // This message appears if the section is NOT the first AND the user is NOT enrolled.
+            if (!isFirstSection && !isEnrolled)
               Padding(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
                 child: Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     color: Colors.amber.shade100,
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Text(
-                    "Anda belum enroll. Materi terkunci.",
-                    style: TextStyle(color: Colors.black87),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.lock_outline,
+                        color: Colors.amber.shade800,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          "Enroll in the course to access this section's content.",
+                          style: TextStyle(
+                            color: Colors.amber.shade800,
+                            fontSize: 13,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -505,7 +524,7 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
                 child: Center(child: CircularProgressIndicator()),
               )
             else if (_videosPerSection[section.id] == null)
-              const SizedBox.shrink()
+              const SizedBox.shrink() // Section not expanded or videos not loaded yet
             else if (_videosPerSection[section.id]!.isEmpty)
               const Padding(
                 padding: EdgeInsets.symmetric(vertical: 8),
@@ -520,38 +539,38 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
                   final video = _videosPerSection[section.id]![videoIndex];
                   return ListTile(
                     leading: Icon(
-                      isEnrolled ? Icons.play_circle : Icons.lock,
-                      color: isEnrolled ? Colors.blue : Colors.grey,
+                      canAccessContent
+                          ? Icons.play_circle_outline
+                          : Icons.lock_outline,
+                      color:
+                          canAccessContent
+                              ? Theme.of(context).primaryColor
+                              : Colors.grey,
                     ),
-
                     title: Text(
                       video.title,
                       style: TextStyle(
-                        color: isEnrolled ? Colors.black : Colors.grey,
+                        color: canAccessContent ? Colors.black87 : Colors.grey,
                       ),
                     ),
                     subtitle: Text(
                       video.duration ?? "Unknown Duration",
                       style: TextStyle(
-                        color: isEnrolled ? Colors.black54 : Colors.grey,
+                        color: canAccessContent ? Colors.black54 : Colors.grey,
                       ),
                     ),
-                    enabled: isEnrolled,
+                    enabled: canAccessContent,
                     onTap:
-                        isEnrolled
+                        canAccessContent
                             ? () async {
-                              final videoProvider =
+                              final videoProgressProvider =
                                   Provider.of<VideoProgressProvider>(
                                     context,
                                     listen: false,
                                   );
-
-                              // Tandai video sebagai sudah ditonton (atau diklik)
-                              final success = await videoProvider
+                              final success = await videoProgressProvider
                                   .markVideoAsWatched(video.id);
-
                               if (success) {
-                                // Navigasi ke VideoPlayerScreen setelah berhasil
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
@@ -562,18 +581,28 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
                                   ),
                                 );
                               } else {
-                                // Tampilkan error jika gagal
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     content: Text(
-                                      videoProvider.errorMessage ??
+                                      videoProgressProvider.errorMessage ??
                                           'Gagal update progress',
                                     ),
                                   ),
                                 );
                               }
                             }
-                            : null,
+                            : () {
+                              if (!isEnrolled && !isFirstSection) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                      "Please enroll to play this video.",
+                                    ),
+                                    duration: Duration(seconds: 2),
+                                  ),
+                                );
+                              }
+                            },
                   );
                 },
               ),
@@ -586,9 +615,7 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
                     future: Provider.of<QuizProvider>(
                       context,
                       listen: false,
-                    ).getQuizIdBySectionId(
-                      section.id,
-                    ), // Dapatkan quizId berdasarkan sectionId
+                    ).getQuizIdBySectionId(section.id),
                     builder: (context, quizIdSnapshot) {
                       if (quizIdSnapshot.connectionState ==
                           ConnectionState.waiting) {
@@ -599,7 +626,14 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
 
                       if (quizId == null) {
                         return const Center(
-                          child: Text("Quiz tidak tersedia untuk section ini"),
+                          // Or SizedBox.shrink() if you don't want to show any message
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(vertical: 8.0),
+                            child: Text(
+                              "Quiz not available for this section",
+                              style: TextStyle(color: Colors.grey),
+                            ),
+                          ),
                         );
                       }
 
@@ -607,9 +641,7 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
                         future: Provider.of<QuizProvider>(
                           context,
                           listen: false,
-                        ).getQuizResult(
-                          quizId,
-                        ), // Periksa hasil quiz berdasarkan quizId
+                        ).getQuizResult(quizId),
                         builder: (context, resultSnapshot) {
                           if (resultSnapshot.connectionState ==
                               ConnectionState.waiting) {
@@ -622,7 +654,7 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
 
                           return ElevatedButton.icon(
                             onPressed:
-                                isEnrolled
+                                canAccessContent
                                     ? () async {
                                       if (score != null) {
                                         Navigator.push(
@@ -645,27 +677,49 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
                                         );
                                       }
                                     }
-                                    : null,
+                                    : () {
+                                      if (!isEnrolled && !isFirstSection) {
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          const SnackBar(
+                                            content: Text(
+                                              "Please enroll to access the quiz.",
+                                            ),
+                                            duration: Duration(seconds: 2),
+                                          ),
+                                        );
+                                      }
+                                    },
                             icon: Icon(
                               score != null
-                                  ? Icons.visibility
-                                  : Icons.assignment,
-                              color: isEnrolled ? Colors.white : Colors.grey,
+                                  ? Icons.visibility_outlined
+                                  : Icons.quiz_outlined,
+                              color:
+                                  canAccessContent
+                                      ? Colors.white
+                                      : Colors.grey.shade400,
                             ),
                             label: Text(
                               score != null ? "Lihat Score" : "Kerjakan Quiz",
                               style: TextStyle(
-                                color: isEnrolled ? Colors.white : Colors.grey,
+                                color:
+                                    canAccessContent
+                                        ? Colors.white
+                                        : Colors.grey.shade400,
                               ),
                             ),
                             style: ElevatedButton.styleFrom(
                               backgroundColor:
-                                  isEnrolled
+                                  canAccessContent
                                       ? (score != null
-                                          ? Colors.blue
+                                          ? Colors.blueAccent
                                           : Colors.green)
-                                      : Colors.grey,
-                              foregroundColor: Colors.white,
+                                      : Colors.grey.shade300,
+                              foregroundColor:
+                                  Colors.white, // Text/icon color when enabled
+                              disabledForegroundColor: Colors.grey.shade400,
+                              disabledBackgroundColor: Colors.grey.shade300,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10),
                               ),
