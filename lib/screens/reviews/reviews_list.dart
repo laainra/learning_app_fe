@@ -196,9 +196,9 @@ class _ReviewsPageState extends State<ReviewsPage> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: List.generate(5, (index) {
                             return Icon(
-                              index < averageRating.floor()
+                              averageRating >= index + 1
                                   ? Icons.star
-                                  : index < averageRating
+                                  : averageRating >= index + 0.5
                                   ? Icons.star_half
                                   : Icons.star_border,
                               color: Colors.amber,
@@ -206,6 +206,7 @@ class _ReviewsPageState extends State<ReviewsPage> {
                             );
                           }),
                         ),
+
                         const SizedBox(height: 4),
                         Text(
                           'Based on $totalReviews Reviews',
@@ -462,18 +463,17 @@ class ReviewItem extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.only(top: 2.0),
                     child: Row(
-                      children: List.generate(
-                        5,
-                        (i) => Icon(
-                          i < review.rating.floor()
+                      children: List.generate(5, (i) {
+                        return Icon(
+                          review.rating >= i + 1
                               ? Icons.star
-                              : (i < review.rating
-                                  ? Icons.star_half
-                                  : Icons.star_border),
+                              : review.rating >= i + 0.5
+                              ? Icons.star_half
+                              : Icons.star_border,
                           color: Colors.amber,
                           size: 16,
-                        ),
-                      ),
+                        );
+                      }),
                     ),
                   ),
                 const SizedBox(height: 6),

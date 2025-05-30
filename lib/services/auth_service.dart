@@ -49,7 +49,7 @@ class AuthService {
         print('Failed to login: ${response.statusCode}');
         print('Response body: ${response.body}');
 
-        final errorMessage = _getErrorMessage(response);
+        final errorMessage = _getErrorMessage(response.body);
         throw Exception(errorMessage);
       }
     } catch (error) {
@@ -107,21 +107,24 @@ class AuthService {
       print('Response body: ${response.body}');
 
       // Optional: you can also show the error message if available
-      final errorMessage = _getErrorMessage(response);
-      throw Exception(errorMessage); // throw the exception to be caught in UI
+     final errorMessage = _getErrorMessage(response.body);
+    throw Exception(errorMessage);
     }
   }
 
-  String _getErrorMessage(http.Response response) {
-    try {
-      final responseBody = jsonDecode(response.body);
-      // Check if there is an error message in the response body
-      if (responseBody.containsKey('error')) {
-        return responseBody['error']; // Assume error key contains the message
-      }
-    } catch (e) {
-      print('Error parsing response: $e');
+String _getErrorMessage(String responseBody) {
+  try {
+    final Map<String, dynamic> json = jsonDecode(responseBody);
+    if (json.containsKey('errors')) {
+      final errors = json['errors'] as Map<String, dynamic>;
+      final messages = errors.values.expand((v) => v).join('\n');
+      return messages;
+    } else if (json.containsKey('message')) {
+      return json['message'];
     }
-    return 'Unknown error occurred';
+    return 'Registration failed. Please try again.';
+  } catch (e) {
+    return 'Something went wrong.';
   }
+}
 }

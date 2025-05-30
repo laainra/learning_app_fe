@@ -112,7 +112,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                       itemCount: messages.length,
                       itemBuilder: (context, index) {
                         final msg = messages[index];
-                        final isMe = msg.isMe == true;
+                        final isMe = msg.userId == currentUser?.id;
                         final bgColor =
                             isMe ? Colors.green : const Color(0xFFE7F0FC);
                         final textColor = isMe ? Colors.white : Colors.black87;

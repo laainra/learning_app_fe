@@ -104,32 +104,43 @@ class UserService {
     }
   }
 
-  Future<bool> uploadImage(int userId, File imageFile) async {
-    final token = await storage.read(key: 'token');
-    final uri = Uri.parse(
-      '${Constants.baseUrl}/upload-image/$userId',
-    ); // ganti dengan base URL kamu
-    final request = http.MultipartRequest('POST', uri);
-    var mimeType = mime(imageFile.path) ?? 'application/octet-stream';
-    var mimeTypeData = mimeType.split('/');
-    var multipartFile = http.MultipartFile(
-      'photo',
-      imageFile.openRead(),
-      await imageFile.length(),
-      filename: imageFile.path.split('/').last,
-      contentType: MediaType(mimeTypeData[0], mimeTypeData[1]),
-    );
-    request.files.add(multipartFile);
-    request.headers['Authorization'] = 'Bearer $token';
+Future<bool> uploadImage(int userId, File imageFile) async {
+  final token = await storage.read(key: 'token');
+  final uri = Uri.parse('${Constants.baseUrl}/upload-image/$userId');
 
-    final response = await request.send();
-    if (response.statusCode == 200) {
-      print('Image uploaded successfully');
-      return true;
-    } else {
-      print('Failed to upload image. Status code: ${response.statusCode}');
-      print('Response body: ${await response.stream.bytesToString()}');
-      return false;
+  final request = http.MultipartRequest('POST', uri);
+  var mimeType = mime(imageFile.path) ?? 'application/octet-stream';
+  var mimeTypeData = mimeType.split('/');
+
+  var multipartFile = http.MultipartFile(
+    'photo',
+    imageFile.openRead(),
+    await imageFile.length(),
+    filename: imageFile.path.split('/').last,
+    contentType: MediaType(mimeTypeData[0], mimeTypeData[1]),
+  );
+
+  request.files.add(multipartFile);
+  request.headers['Authorization'] = 'Bearer $token';
+
+  final response = await request.send();
+  final responseBody = await response.stream.bytesToString();
+
+  if (response.statusCode == 200) {
+    print('Image uploaded successfully');
+    return true;
+  } else {
+    print('Failed to upload image. Status code: ${response.statusCode}');
+    print('Response body: $responseBody');
+
+    try {
+      final decoded = json.decode(responseBody);
+      final message = decoded['message'] ?? 'Gagal mengunggah gambar';
+      throw Exception(message);
+    } catch (e) {
+      throw Exception('Upload gagal (${response.statusCode})');
     }
   }
+}
+
 }

@@ -21,6 +21,7 @@ class ReviewProvider with ChangeNotifier {
 
     try {
       if (courseId != null) {
+        
         _reviews = await _service.fetchReviewsByCourse(courseId);
       } else {
         _reviews = await _service.fetchAllReviews();

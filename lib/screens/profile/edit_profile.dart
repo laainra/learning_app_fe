@@ -124,19 +124,22 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       return;
     }
 
-    bool success = await Provider.of<UserProvider>(
-      context,
-      listen: false,
-    ).uploadUserImage(userId, _selectedImage!);
+    try {
+      bool success = await Provider.of<UserProvider>(
+        context,
+        listen: false,
+      ).uploadUserImage(userId, _selectedImage!);
 
-    if (success) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Gambar berhasil diupload')));
-    } else {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Gagal mengupload gambar')));
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Gambar berhasil diupload')),
+        );
+      }
+    } catch (e) {
+      // Menampilkan pesan error dari Exception
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString().replaceFirst('Exception: ', ''))),
+      );
     }
   }
 
@@ -166,12 +169,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       // Trigger setState di modal agar gambar terupdate
                       setStateModal(() {});
                     },
-                    child: const Text('Pilih Gambar dari Galeri' ,
-                  style: TextStyle(color: Colors.white),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF202244),
-                ),
+                    child: const Text(
+                      'Pilih Gambar dari Galeri',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF202244),
+                    ),
                   ),
                   const SizedBox(height: 10),
                   ElevatedButton(
@@ -180,12 +184,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       Navigator.pop(context); // Tutup modal
                       // Navigasi ke halaman Section Video
                     },
-                    child: const Text('Upload Gambar' ,
-                  style: TextStyle(color: Colors.white),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF202244),
-                ),
+                    child: const Text(
+                      'Upload Gambar',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF202244),
+                    ),
                   ),
                 ],
               ),

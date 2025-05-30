@@ -37,7 +37,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
               child: ConstrainedBox(
                 constraints: BoxConstraints(minHeight: constraints.maxHeight),
                 child: IntrinsicHeight(
-                  child: Stack( // Added Stack to display loading indicator
+                  child: Stack(
+                    // Added Stack to display loading indicator
                     children: [
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -172,7 +173,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ActionButton(
                             label: isLoading ? "Loading..." : "Register",
                             onTap: () async {
-                              if (isLoading) return; // Disable button while loading
+                              if (isLoading)
+                                return; // Disable button while loading
                               setState(() {
                                 isLoading = true;
                               });
@@ -186,7 +188,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   name,
                                   email,
                                   password,
-                                  selectedRole // Pass the selected role
+                                  selectedRole, // Pass the selected role
                                 );
 
                                 if (success) {
@@ -208,7 +210,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               } catch (error) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                    content: Text("Registration failed: $error"),
+                                    content: Text(
+                                      error.toString().replaceFirst(
+                                        'Exception: ',
+                                        '',
+                                      ),
+                                    ),
                                   ),
                                 );
                               } finally {
@@ -267,7 +274,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           child: Align(
                             alignment: Alignment.center,
                             child: CircularProgressIndicator(
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Colors.white,
+                              ),
                             ),
                           ),
                         ),

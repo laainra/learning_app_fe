@@ -65,7 +65,15 @@ class ReviewService {
       final data = json.decode(response.body)['data'];
       return Review.fromJson(data);
     } else {
-      throw Exception('Gagal menambahkan review');
+      try {
+        // Coba ambil pesan dari API jika tersedia
+        final error = json.decode(response.body);
+        final message = error['message'] ?? 'Gagal menambahkan review';
+        throw Exception(message);
+      } catch (e) {
+        // Kalau parsing JSON gagal, fallback ke pesan umum
+        throw Exception('Gagal menambahkan review (${response.statusCode})');
+      }
     }
   }
 

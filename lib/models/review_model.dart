@@ -2,15 +2,14 @@ import 'package:finbedu/models/course_model.dart';
 import 'package:finbedu/models/user_model.dart';
 
 class Review {
-final int id;
-final int rating;
-final String review;
-final String createdAt;
-final Course? course;
-final int? courseId;
-final int? userId;
-final UserModel? user;
-
+  final int id;
+  final double rating;
+  final String review;
+  final String createdAt;
+  final Course? course;
+  final int? courseId;
+  final int? userId;
+  final UserModel? user;
 
   Review({
     required this.id,
@@ -24,22 +23,36 @@ final UserModel? user;
   });
 
   factory Review.fromJson(Map<String, dynamic> json) {
-    String reviewText = json['reviews'] ?? json['review'] ?? ''; // Handle kedua kemungkinan key
-    String creationTime = json['datetime'] ?? json['created_at'] ?? DateTime.now().toIso8601String();
+    print('Parsing rating: ${json['rating']}');
+
+    String reviewText =
+        json['reviews'] ?? json['review'] ?? ''; // Handle kedua kemungkinan key
+    String creationTime =
+        json['datetime'] ??
+        json['created_at'] ??
+        DateTime.now().toIso8601String();
 
     return Review(
       id: json['id'],
-      rating: json['rating'] is String ? int.tryParse(json['rating']) ?? 0 : json['rating'],
+      rating:
+          json['rating'] is String
+              ? double.tryParse(json['rating'])?.toDouble() ?? 0.0
+              : (json['rating'] is int
+                  ? (json['rating'] as int).toDouble()
+                  : json['rating'].toDouble()),
+
       review: reviewText,
       createdAt: creationTime,
       course: json['course'] != null ? Course.fromJson(json['course']) : null,
       user: json['user'] != null ? UserModel.fromJson(json['user']) : null,
-      courseId: json['course_id'] is String
-          ? int.tryParse(json['course_id'])
-          : json['course_id'],
-      userId: json['user_id'] is String
-          ? int.tryParse(json['user_id'])
-          : json['user_id'],
+      courseId:
+          json['course_id'] is String
+              ? int.tryParse(json['course_id'])
+              : json['course_id'],
+      userId:
+          json['user_id'] is String
+              ? int.tryParse(json['user_id'])
+              : json['user_id'],
     );
   }
   Map<String, dynamic> toJson() {
@@ -48,7 +61,6 @@ final UserModel? user;
       'reviews': review, // Sesuai dengan validasi backend 'reviews'
       'rating': rating,
       'course_id': courseId,
-
     };
   }
 }

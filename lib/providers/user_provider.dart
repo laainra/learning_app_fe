@@ -53,9 +53,13 @@ class UserProvider with ChangeNotifier {
       await fetchProfile(); // refresh data setelah update berhasil
     }
   }
-    Future<bool> uploadUserImage(int userId, File image) async {
-    return await userService.uploadImage(userId, image);
+ Future<bool> uploadUserImage(int userId, File imageFile) async {
+  try {
+    return await userService.uploadImage(userId, imageFile); // fungsi yang kamu buat sebelumnya
+  } catch (e) {
+    rethrow; // teruskan exception agar bisa ditangkap di _uploadImage
   }
+}
 
   Future<List<UserModel>> fetchMentors() async {
     try {
